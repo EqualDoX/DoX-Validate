@@ -247,10 +247,6 @@ repository" on GitHub, which reads [CITATION.cff](CITATION.cff).
 
 ## License
 
-> **Draft, pending legal review.** The license terms described here are proposed and not yet in effect. Until
-> they take effect, no rights are granted in the EqualDoX material in this repository (all rights reserved).
-> Third-party components remain available under their own licenses.
-
 DoX-Validate is licensed under the **EqualDoX Attribution License 1.0** (SPDX:
 `LicenseRef-EqualDoX-Attribution-1.0`). It is a custom license, not an OSI-approved open-source license, and it is
 not compatible with the GPL.

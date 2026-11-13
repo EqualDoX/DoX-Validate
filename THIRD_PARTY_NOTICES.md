@@ -4,8 +4,8 @@ This file lists the third-party material contained in or used by this repository
 and terms accompany it at its source, and which files or parts of files contain it. It is a factual record. The full
 license texts are in [LICENSES/](LICENSES).
 
-The material listed here is not covered by the EqualDoX Attribution License in [LICENSE](LICENSE) (a draft pending
-legal review); it keeps the terms of its source. Everything else in the repository is EqualDoX's own work.
+The material listed here is not covered by the EqualDoX Attribution License in [LICENSE](LICENSE); it keeps the
+terms of its source. Everything else in the repository is EqualDoX's own work.
 
 ## Overview
 
