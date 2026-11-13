@@ -1,0 +1,5045 @@
+{
+ "env": {
+  "cpu_model": "Intel(R) Core(TM) i9-14900KF",
+  "cpu_set": "0-7",
+  "dox_commit": "f37a6959553360c10e901016de3dc60089d8bb92",
+  "dox_version": "dox-validate 0.2.0",
+  "verapdf": {
+   "1.30.4": "veraPDF 1.30.4",
+   "1.30.2": "veraPDF 1.30.2"
+  },
+  "java": "openjdk version \"21.0.13\" 2026-10-20 LTS\nOpenJDK Runtime Environment Temurin-21.0.13+9 (build 21.0.13+9-LTS)\nOpenJDK 64-Bit Server VM Temurin-21.0.13+9 (build 21.0.13+9-LTS, mixed mode, sharing)",
+  "corpus_manifest_sha256": "3b03181043e3205bac6155d229fc0be98c7955a9113deadb30e9fb946b1ffae4",
+  "corpus_files": 157,
+  "corpus_pages": 14001
+ },
+ "startup": {
+  "cpdf-ua1|smallest": {
+   "variant": "cpdf-ua1",
+   "item": "smallest",
+   "runs": 10,
+   "median_wall_s": 0.004478,
+   "min_wall_s": 0.004246,
+   "max_wall_s": 0.004912,
+   "median_cpu_s": 0.0043685,
+   "median_rss_mb": 13.033203125
+  },
+  "dox|smallest": {
+   "variant": "dox",
+   "item": "smallest",
+   "runs": 10,
+   "median_wall_s": 0.00452,
+   "min_wall_s": 0.004026,
+   "max_wall_s": 0.005354,
+   "median_cpu_s": 0.004448499999999999,
+   "median_rss_mb": 19.173828125
+  },
+  "dox|version": {
+   "variant": "dox",
+   "item": "version",
+   "runs": 10,
+   "median_wall_s": 0.0029385,
+   "min_wall_s": 0.002611,
+   "max_wall_s": 0.003181,
+   "median_cpu_s": 0.002886,
+   "median_rss_mb": 13.166015625
+  },
+  "vp-ua1|smallest": {
+   "variant": "vp-ua1",
+   "item": "smallest",
+   "runs": 10,
+   "median_wall_s": 0.567094,
+   "min_wall_s": 0.544448,
+   "max_wall_s": 0.714885,
+   "median_cpu_s": 1.9360625,
+   "median_rss_mb": 226.60546875
+  },
+  "vp-ua1|version": {
+   "variant": "vp-ua1",
+   "item": "version",
+   "runs": 10,
+   "median_wall_s": 0.40483650000000004,
+   "min_wall_s": 0.350354,
+   "max_wall_s": 0.460896,
+   "median_cpu_s": 1.3739675,
+   "median_rss_mb": 172.765625
+  },
+  "vp1.30.2-ua1|smallest": {
+   "variant": "vp1.30.2-ua1",
+   "item": "smallest",
+   "runs": 10,
+   "median_wall_s": 0.5832575,
+   "min_wall_s": 0.537037,
+   "max_wall_s": 0.620258,
+   "median_cpu_s": 1.972991,
+   "median_rss_mb": 226.42578125
+  },
+  "vp1.30.2-ua1|version": {
+   "variant": "vp1.30.2-ua1",
+   "item": "version",
+   "runs": 10,
+   "median_wall_s": 0.370169,
+   "min_wall_s": 0.340813,
+   "max_wall_s": 0.421913,
+   "median_cpu_s": 1.2644575,
+   "median_rss_mb": 174.09375
+  }
+ },
+ "cold": {
+  "groups": {
+   "all": {
+    "cpdf-ua1": {
+     "files": 146,
+     "pages": 13518,
+     "median_wall_s": 0.0050620000000000005,
+     "iqr_wall_s": [
+      0.0048985,
+      0.006044
+     ],
+     "max_wall_s": 9.000802,
+     "sum_wall_s": 29.625211,
+     "docs_per_s": 4.928234941516535,
+     "pages_per_s": 456.3005475302775,
+     "median_cpu_s": 0.004978000000000001,
+     "sum_cpu_s": 29.537063,
+     "median_rss_mb": 13.21875,
+     "max_rss_mb": 1160.8359375,
+     "median_rep_rel_range": 0.05666763945929813,
+     "ratio_vs_ref_median": 0.9299899317893257,
+     "ratio_vs_ref_gmean": 1.0291091655049336,
+     "ratio_vs_ref_min": 0.7143421052631579,
+     "ratio_vs_ref_max": 3.738450822435752
+    },
+    "dox": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.0057090000000000005,
+     "iqr_wall_s": [
+      0.00509475,
+      0.006297249999999999
+     ],
+     "max_wall_s": 2.603515,
+     "sum_wall_s": 14.363617999999999,
+     "docs_per_s": 10.303810641580695,
+     "pages_per_s": 974.6847904197954,
+     "median_cpu_s": 0.0056205000000000005,
+     "sum_cpu_s": 14.310282,
+     "median_rss_mb": 20.37109375,
+     "max_rss_mb": 722.453125,
+     "median_rep_rel_range": 0.09583107812807438,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.005069,
+     "iqr_wall_s": [
+      0.0048435,
+      0.00581175
+     ],
+     "max_wall_s": 1.526255,
+     "sum_wall_s": 9.918538,
+     "docs_per_s": 14.921553962892515,
+     "pages_per_s": 1411.4983478411839,
+     "median_cpu_s": 0.0049905,
+     "sum_cpu_s": 9.869842,
+     "median_rss_mb": 19.8203125,
+     "max_rss_mb": 688.2265625,
+     "median_rep_rel_range": 0.12815094366114665,
+     "ratio_vs_ref_median": 0.9127102025435279,
+     "ratio_vs_ref_gmean": 0.8845989689804712,
+     "ratio_vs_ref_min": 0.47707317073170724,
+     "ratio_vs_ref_max": 1.0426482534524775
+    },
+    "vp-ua1": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.6522095,
+     "iqr_wall_s": [
+      0.6165235,
+      0.6920072500000001
+     ],
+     "max_wall_s": 12.882823,
+     "sum_wall_s": 158.568242,
+     "docs_per_s": 0.9333520895060438,
+     "pages_per_s": 88.29006252084197,
+     "median_cpu_s": 2.2744999999999997,
+     "sum_cpu_s": 477.021274,
+     "median_rss_mb": 234.650390625,
+     "max_rss_mb": 4970.62890625,
+     "median_rep_rel_range": 0.15969133111426462,
+     "ratio_vs_ref_median": 115.24568017220031,
+     "ratio_vs_ref_gmean": 79.14865458957028,
+     "ratio_vs_ref_min": 2.952523919366162,
+     "ratio_vs_ref_max": 137.00122674299735
+    },
+    "vp-ua2": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.695401,
+     "iqr_wall_s": [
+      0.64629375,
+      0.72706425
+     ],
+     "max_wall_s": 13.681777,
+     "sum_wall_s": 168.999973,
+     "docs_per_s": 0.8757397848815041,
+     "pages_per_s": 82.84024992122336,
+     "median_cpu_s": 2.4728395,
+     "sum_cpu_s": 519.538649,
+     "median_rss_mb": 238.880859375,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": 0.167763462464451,
+     "ratio_vs_ref_median": 121.73272849462366,
+     "ratio_vs_ref_gmean": 83.62547580821443,
+     "ratio_vs_ref_min": 3.019626516899007,
+     "ratio_vs_ref_max": 147.54017128874386
+    },
+    "vp-wt1a": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.6839949999999999,
+     "iqr_wall_s": [
+      0.6469975,
+      0.740827
+     ],
+     "max_wall_s": 13.946949,
+     "sum_wall_s": 168.71095,
+     "docs_per_s": 0.8772400368796454,
+     "pages_per_s": 82.98216565077726,
+     "median_cpu_s": 2.450374,
+     "sum_cpu_s": 518.640809,
+     "median_rss_mb": 238.39453125,
+     "max_rss_mb": 5030.859375,
+     "median_rep_rel_range": 0.15726543785453945,
+     "ratio_vs_ref_median": 121.83375995426894,
+     "ratio_vs_ref_gmean": 83.28130760134823,
+     "ratio_vs_ref_min": 2.9954917260054157,
+     "ratio_vs_ref_max": 140.72578589634665
+    },
+    "vp-wt1r": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 0.683639,
+     "iqr_wall_s": [
+      0.6422895,
+      0.7314800000000001
+     ],
+     "max_wall_s": 13.335746,
+     "sum_wall_s": 167.266718,
+     "docs_per_s": 0.884814395652816,
+     "pages_per_s": 83.69865904823935,
+     "median_cpu_s": 2.3939835,
+     "sum_cpu_s": 512.346444,
+     "median_rss_mb": 238.017578125,
+     "max_rss_mb": 4828.65625,
+     "median_rep_rel_range": 0.1632126784534641,
+     "ratio_vs_ref_median": 120.88544708024905,
+     "ratio_vs_ref_gmean": 82.67421134205635,
+     "ratio_vs_ref_min": 3.0205596229064287,
+     "ratio_vs_ref_max": 151.9525316455696
+    },
+    "vp-B": {
+     "files": 148,
+     "pages": 14000,
+     "median_wall_s": 2.732955,
+     "iqr_wall_s": [
+      2.5723242500000003,
+      2.86424475
+     ],
+     "max_wall_s": 53.847295,
+     "sum_wall_s": 663.545883,
+     "docs_per_s": 0.22304410861667573,
+     "pages_per_s": 21.098767031307162,
+     "median_cpu_s": 9.647890499999999,
+     "sum_cpu_s": 2027.547176,
+     "median_rss_mb": 240.212890625,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 481.54445473216015,
+     "ratio_vs_ref_gmean": 328.8891259951937,
+     "ratio_vs_ref_min": 11.988201785177013,
+     "ratio_vs_ref_max": 556.8421940928271
+    }
+   },
+   "small": {
+    "cpdf-ua1": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.005015,
+     "iqr_wall_s": [
+      0.0047605,
+      0.0056225
+     ],
+     "max_wall_s": 0.05321,
+     "sum_wall_s": 0.817615,
+     "docs_per_s": 155.32983127755728,
+     "pages_per_s": 203.02954324468118,
+     "median_cpu_s": 0.00494,
+     "sum_cpu_s": 0.8071389999999999,
+     "median_rss_mb": 13.20703125,
+     "max_rss_mb": 22.28515625,
+     "median_rep_rel_range": 0.058370490474260246,
+     "ratio_vs_ref_median": 0.9188976377952756,
+     "ratio_vs_ref_gmean": 0.957724244204084,
+     "ratio_vs_ref_min": 0.7143421052631579,
+     "ratio_vs_ref_max": 2.921175554690541
+    },
+    "dox": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.005628,
+     "iqr_wall_s": [
+      0.0050539999999999995,
+      0.005853499999999999
+     ],
+     "max_wall_s": 0.028521,
+     "sum_wall_s": 0.802465,
+     "docs_per_s": 158.26235412136356,
+     "pages_per_s": 206.86260459957757,
+     "median_cpu_s": 0.005547,
+     "sum_cpu_s": 0.792629,
+     "median_rss_mb": 20.03515625,
+     "max_rss_mb": 28.98046875,
+     "median_rep_rel_range": 0.09995903318312162,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.005,
+     "iqr_wall_s": [
+      0.0048105,
+      0.0053100000000000005
+     ],
+     "max_wall_s": 0.024803,
+     "sum_wall_s": 0.722147,
+     "docs_per_s": 175.86447080719023,
+     "pages_per_s": 229.87009570073684,
+     "median_cpu_s": 0.004934,
+     "sum_cpu_s": 0.713029,
+     "median_rss_mb": 19.79296875,
+     "max_rss_mb": 27.1796875,
+     "median_rep_rel_range": 0.1406721674381163,
+     "ratio_vs_ref_median": 0.9269685039370077,
+     "ratio_vs_ref_gmean": 0.9160803857326479,
+     "ratio_vs_ref_min": 0.47707317073170724,
+     "ratio_vs_ref_max": 1.0426482534524775
+    },
+    "vp-ua1": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.646193,
+     "iqr_wall_s": [
+      0.6113635,
+      0.671738
+     ],
+     "max_wall_s": 1.058879,
+     "sum_wall_s": 83.004785,
+     "docs_per_s": 1.5300322746453714,
+     "pages_per_s": 1.9998847054419815,
+     "median_cpu_s": 2.222228,
+     "sum_cpu_s": 287.784208,
+     "median_rss_mb": 234.17578125,
+     "max_rss_mb": 280.62109375,
+     "median_rep_rel_range": 0.1717778962796017,
+     "ratio_vs_ref_median": 116.65885009553587,
+     "ratio_vs_ref_gmean": 111.02959409089578,
+     "ratio_vs_ref_min": 32.120144534778674,
+     "ratio_vs_ref_max": 137.00122674299735
+    },
+    "vp-ua2": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.680081,
+     "iqr_wall_s": [
+      0.643803,
+      0.7133320000000001
+     ],
+     "max_wall_s": 1.156033,
+     "sum_wall_s": 87.697717,
+     "docs_per_s": 1.448156284387654,
+     "pages_per_s": 1.8928656945539415,
+     "median_cpu_s": 2.400952,
+     "sum_cpu_s": 310.405537,
+     "median_rss_mb": 238.203125,
+     "max_rss_mb": 374.09375,
+     "median_rep_rel_range": 0.17432512307126355,
+     "ratio_vs_ref_median": 123.43448922211807,
+     "ratio_vs_ref_gmean": 117.2113293484764,
+     "ratio_vs_ref_min": 33.83739837398374,
+     "ratio_vs_ref_max": 147.54017128874386
+    },
+    "vp-wt1a": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.674251,
+     "iqr_wall_s": [
+      0.645472,
+      0.713387
+     ],
+     "max_wall_s": 1.204797,
+     "sum_wall_s": 87.375394,
+     "docs_per_s": 1.4534984528939578,
+     "pages_per_s": 1.899848371499189,
+     "median_cpu_s": 2.370639,
+     "sum_cpu_s": 309.030642,
+     "median_rss_mb": 237.3828125,
+     "max_rss_mb": 373.86328125,
+     "median_rep_rel_range": 0.15915678748145873,
+     "ratio_vs_ref_median": 123.45236439499304,
+     "ratio_vs_ref_gmean": 116.75117855744367,
+     "ratio_vs_ref_min": 33.086070460704605,
+     "ratio_vs_ref_max": 140.72578589634665
+    },
+    "vp-wt1r": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 0.674596,
+     "iqr_wall_s": [
+      0.6351705000000001,
+      0.7075915
+     ],
+     "max_wall_s": 1.135424,
+     "sum_wall_s": 86.654373,
+     "docs_per_s": 1.4655925096821136,
+     "pages_per_s": 1.9156563512380385,
+     "median_cpu_s": 2.330992,
+     "sum_cpu_s": 304.90452,
+     "median_rss_mb": 237.25,
+     "max_rss_mb": 367.46875,
+     "median_rep_rel_range": 0.16825468673380867,
+     "ratio_vs_ref_median": 122.3462643678161,
+     "ratio_vs_ref_gmean": 115.84739702226045,
+     "ratio_vs_ref_min": 32.179078590785906,
+     "ratio_vs_ref_max": 151.9525316455696
+    },
+    "vp-B": {
+     "files": 127,
+     "pages": 166,
+     "median_wall_s": 2.680016,
+     "iqr_wall_s": [
+      2.559241,
+      2.8039579999999997
+     ],
+     "max_wall_s": 4.555133,
+     "sum_wall_s": 344.732269,
+     "docs_per_s": 0.368401833598003,
+     "pages_per_s": 0.48153310533282284,
+     "median_cpu_s": 9.250194,
+     "sum_cpu_s": 1212.124907,
+     "median_rss_mb": 238.96875,
+     "max_rss_mb": 374.09375,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 485.46808510638294,
+     "ratio_vs_ref_gmean": 461.0581300409079,
+     "ratio_vs_ref_min": 131.22269196025292,
+     "ratio_vs_ref_max": 556.8421940928271
+    }
+   },
+   "small/complex": {
+    "cpdf-ua1": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.005016,
+     "iqr_wall_s": [
+      0.004875,
+      0.00562375
+     ],
+     "max_wall_s": 0.05321,
+     "sum_wall_s": 0.780137,
+     "docs_per_s": 156.3827891767728,
+     "pages_per_s": 194.8375734005694,
+     "median_cpu_s": 0.004946,
+     "sum_cpu_s": 0.770128,
+     "median_rss_mb": 13.20703125,
+     "max_rss_mb": 22.28515625,
+     "median_rep_rel_range": 0.05846923558306735,
+     "ratio_vs_ref_median": 0.9120567484833928,
+     "ratio_vs_ref_gmean": 0.9566572589678584,
+     "ratio_vs_ref_min": 0.7143421052631579,
+     "ratio_vs_ref_max": 2.921175554690541
+    },
+    "dox": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.0056375,
+     "iqr_wall_s": [
+      0.0050755,
+      0.0058572500000000005
+     ],
+     "max_wall_s": 0.028521,
+     "sum_wall_s": 0.763578,
+     "docs_per_s": 159.7741160693472,
+     "pages_per_s": 199.06283313558012,
+     "median_cpu_s": 0.0055674999999999995,
+     "sum_cpu_s": 0.754085,
+     "median_rss_mb": 20.1484375,
+     "max_rss_mb": 28.98046875,
+     "median_rep_rel_range": 0.10086160712891165,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.0050025,
+     "iqr_wall_s": [
+      0.00482425,
+      0.0053125
+     ],
+     "max_wall_s": 0.024803,
+     "sum_wall_s": 0.685872,
+     "docs_per_s": 177.87575524296076,
+     "pages_per_s": 221.6156950568036,
+     "median_cpu_s": 0.004939000000000001,
+     "sum_cpu_s": 0.677081,
+     "median_rss_mb": 19.794921875,
+     "max_rss_mb": 27.1796875,
+     "median_rep_rel_range": 0.1406337404638333,
+     "ratio_vs_ref_median": 0.9267888850148343,
+     "ratio_vs_ref_gmean": 0.915192489059926,
+     "ratio_vs_ref_min": 0.47707317073170724,
+     "ratio_vs_ref_max": 1.0426482534524775
+    },
+    "vp-ua1": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.6467974999999999,
+     "iqr_wall_s": [
+      0.6137170000000001,
+      0.6718045
+     ],
+     "max_wall_s": 1.058879,
+     "sum_wall_s": 79.878012,
+     "docs_per_s": 1.527328947545665,
+     "pages_per_s": 1.9029016395650908,
+     "median_cpu_s": 2.2534205,
+     "sum_cpu_s": 277.006904,
+     "median_rss_mb": 234.30078125,
+     "max_rss_mb": 280.62109375,
+     "median_rep_rel_range": 0.17058185981629226,
+     "ratio_vs_ref_median": 116.65348519814387,
+     "ratio_vs_ref_gmean": 111.53312232153425,
+     "ratio_vs_ref_min": 32.120144534778674,
+     "ratio_vs_ref_max": 137.00122674299735
+    },
+    "vp-ua2": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.683603,
+     "iqr_wall_s": [
+      0.64555375,
+      0.7134195000000001
+     ],
+     "max_wall_s": 1.156033,
+     "sum_wall_s": 84.526561,
+     "docs_per_s": 1.4433332973288715,
+     "pages_per_s": 1.7982513212622007,
+     "median_cpu_s": 2.4131745,
+     "sum_cpu_s": 299.525466,
+     "median_rss_mb": 238.26171875,
+     "max_rss_mb": 374.09375,
+     "median_rep_rel_range": 0.17398794149419616,
+     "ratio_vs_ref_median": 123.45538449480176,
+     "ratio_vs_ref_gmean": 117.95726885789792,
+     "ratio_vs_ref_min": 33.83739837398374,
+     "ratio_vs_ref_max": 147.54017128874386
+    },
+    "vp-wt1a": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.676706,
+     "iqr_wall_s": [
+      0.6466025,
+      0.713602
+     ],
+     "max_wall_s": 1.204797,
+     "sum_wall_s": 84.280367,
+     "docs_per_s": 1.4475494630914458,
+     "pages_per_s": 1.803504249097539,
+     "median_cpu_s": 2.3957765,
+     "sum_cpu_s": 298.286241,
+     "median_rss_mb": 237.69921875,
+     "max_rss_mb": 373.86328125,
+     "median_rep_rel_range": 0.15843206756530595,
+     "ratio_vs_ref_median": 123.45010201065338,
+     "ratio_vs_ref_gmean": 117.57430524199823,
+     "ratio_vs_ref_min": 33.086070460704605,
+     "ratio_vs_ref_max": 140.72578589634665
+    },
+    "vp-wt1r": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 0.6787270000000001,
+     "iqr_wall_s": [
+      0.64181175,
+      0.70777375
+     ],
+     "max_wall_s": 1.135424,
+     "sum_wall_s": 83.548133,
+     "docs_per_s": 1.4602361012663203,
+     "pages_per_s": 1.8193105523973825,
+     "median_cpu_s": 2.3342194999999997,
+     "sum_cpu_s": 294.09402,
+     "median_rss_mb": 237.2890625,
+     "max_rss_mb": 367.46875,
+     "median_rep_rel_range": 0.16943044164321763,
+     "ratio_vs_ref_median": 122.26682107279694,
+     "ratio_vs_ref_gmean": 116.60747648202897,
+     "ratio_vs_ref_min": 32.179078590785906,
+     "ratio_vs_ref_max": 151.9525316455696
+    },
+    "vp-B": {
+     "files": 122,
+     "pages": 152,
+     "median_wall_s": 2.6825254999999997,
+     "iqr_wall_s": [
+      2.5628152500000003,
+      2.8045515
+     ],
+     "max_wall_s": 4.555133,
+     "sum_wall_s": 332.233073,
+     "docs_per_s": 0.36721208667867933,
+     "pages_per_s": 0.45751014077999397,
+     "median_cpu_s": 9.2833805,
+     "sum_cpu_s": 1168.912631,
+     "median_rss_mb": 239.044921875,
+     "max_rss_mb": 374.09375,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 485.3716824697159,
+     "ratio_vs_ref_gmean": 463.89315522483514,
+     "ratio_vs_ref_min": 131.22269196025292,
+     "ratio_vs_ref_max": 556.8421940928271
+    }
+   },
+   "small/simple": {
+    "cpdf-ua1": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.004542,
+     "iqr_wall_s": [
+      0.004535,
+      0.004896
+     ],
+     "max_wall_s": 0.019054,
+     "sum_wall_s": 0.037478000000000004,
+     "docs_per_s": 133.41160147286408,
+     "pages_per_s": 373.5524841240194,
+     "median_cpu_s": 0.004464,
+     "sum_cpu_s": 0.037011,
+     "median_rss_mb": 13.28125,
+     "max_rss_mb": 19.2890625,
+     "median_rep_rel_range": 0.056985294117647,
+     "ratio_vs_ref_median": 0.990692027519223,
+     "ratio_vs_ref_gmean": 0.9841306808741681,
+     "ratio_vs_ref_min": 0.9336534692277539,
+     "ratio_vs_ref_max": 1.0188721635587508
+    },
+    "dox": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.004548,
+     "iqr_wall_s": [
+      0.004538,
+      0.004942
+     ],
+     "max_wall_s": 0.020408,
+     "sum_wall_s": 0.038887,
+     "docs_per_s": 128.57767377272611,
+     "pages_per_s": 360.0174865636331,
+     "median_cpu_s": 0.004487,
+     "sum_cpu_s": 0.038544,
+     "median_rss_mb": 19.3046875,
+     "max_rss_mb": 21.5546875,
+     "median_rep_rel_range": 0.0801295022258196,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.004258,
+     "iqr_wall_s": [
+      0.004235,
+      0.004704
+     ],
+     "max_wall_s": 0.018876,
+     "sum_wall_s": 0.036275,
+     "docs_per_s": 137.83597518952445,
+     "pages_per_s": 385.9407305306685,
+     "median_cpu_s": 0.004211,
+     "sum_cpu_s": 0.035948,
+     "median_rss_mb": 19.3203125,
+     "max_rss_mb": 21.01953125,
+     "median_rep_rel_range": 0.164631282292156,
+     "ratio_vs_ref_median": 0.936235708003518,
+     "ratio_vs_ref_gmean": 0.9380140308313569,
+     "ratio_vs_ref_min": 0.9249313994511956,
+     "ratio_vs_ref_max": 0.951841359773371
+    },
+    "vp-ua1": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.589583,
+     "iqr_wall_s": [
+      0.556397,
+      0.610799
+     ],
+     "max_wall_s": 0.826388,
+     "sum_wall_s": 3.126773,
+     "docs_per_s": 1.5990927387437464,
+     "pages_per_s": 4.477459668482489,
+     "median_cpu_s": 1.938704,
+     "sum_cpu_s": 10.777303999999999,
+     "median_rss_mb": 226.67578125,
+     "max_rss_mb": 260.359375,
+     "median_rep_rel_range": 0.18063634323388636,
+     "ratio_vs_ref_median": 122.33883025505718,
+     "ratio_vs_ref_gmean": 99.4237439163251,
+     "ratio_vs_ref_min": 40.49333594668757,
+     "ratio_vs_ref_max": 134.59651828999557
+    },
+    "vp-ua2": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.593847,
+     "iqr_wall_s": [
+      0.558284,
+      0.608512
+     ],
+     "max_wall_s": 0.875024,
+     "sum_wall_s": 3.171156,
+     "docs_per_s": 1.5767120885885149,
+     "pages_per_s": 4.414793848047841,
+     "median_cpu_s": 1.859172,
+     "sum_cpu_s": 10.880071,
+     "median_rss_mb": 227.1015625,
+     "max_rss_mb": 255.78515625,
+     "median_rep_rel_range": 0.19292470814051318,
+     "ratio_vs_ref_median": 122.75373790677222,
+     "ratio_vs_ref_gmean": 100.40254863551868,
+     "ratio_vs_ref_min": 42.8765190121521,
+     "ratio_vs_ref_max": 134.09255178492728
+    },
+    "vp-wt1a": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.562392,
+     "iqr_wall_s": [
+      0.559718,
+      0.613436
+     ],
+     "max_wall_s": 0.822359,
+     "sum_wall_s": 3.095027,
+     "docs_per_s": 1.6154947921294387,
+     "pages_per_s": 4.523385417962428,
+     "median_cpu_s": 1.890536,
+     "sum_cpu_s": 10.744401,
+     "median_rss_mb": 228.421875,
+     "max_rss_mb": 255.60546875,
+     "median_rep_rel_range": 0.18782429571513173,
+     "ratio_vs_ref_median": 123.65699208443272,
+     "ratio_vs_ref_gmean": 98.3588100297328,
+     "ratio_vs_ref_min": 40.29591336730694,
+     "ratio_vs_ref_max": 135.17761128250328
+    },
+    "vp-wt1r": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 0.580972,
+     "iqr_wall_s": [
+      0.580146,
+      0.602269
+     ],
+     "max_wall_s": 0.819646,
+     "sum_wall_s": 3.10624,
+     "docs_per_s": 1.6096631297002162,
+     "pages_per_s": 4.507056763160605,
+     "median_cpu_s": 1.9167489999999998,
+     "sum_cpu_s": 10.8105,
+     "median_rss_mb": 225.5859375,
+     "max_rss_mb": 258.06640625,
+     "median_rep_rel_range": 0.12055078378598266,
+     "ratio_vs_ref_median": 127.74230430958664,
+     "ratio_vs_ref_gmean": 98.76144396461683,
+     "ratio_vs_ref_min": 40.16297530380243,
+     "ratio_vs_ref_max": 132.71683561040106
+    },
+    "vp-B": {
+     "files": 5,
+     "pages": 14,
+     "median_wall_s": 2.323294,
+     "iqr_wall_s": [
+      2.258045,
+      2.435016
+     ],
+     "max_wall_s": 3.343417,
+     "sum_wall_s": 12.499196000000001,
+     "docs_per_s": 0.4000257296549314,
+     "pages_per_s": 1.1200720430338078,
+     "median_cpu_s": 7.580517,
+     "sum_cpu_s": 43.212275999999996,
+     "median_rss_mb": 228.421875,
+     "max_rss_mb": 260.359375,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 496.49186455584874,
+     "ratio_vs_ref_gmean": 397.00506979536914,
+     "ratio_vs_ref_min": 163.82874362994906,
+     "ratio_vs_ref_max": 536.5835169678272
+    }
+   },
+   "medium": {
+    "cpdf-ua1": {
+     "files": 10,
+     "pages": 856,
+     "median_wall_s": 0.10782149999999999,
+     "iqr_wall_s": [
+      0.083927,
+      0.311771
+     ],
+     "max_wall_s": 2.660579,
+     "sum_wall_s": 4.05819,
+     "docs_per_s": 2.4641527380433152,
+     "pages_per_s": 210.93147437650777,
+     "median_cpu_s": 0.10749249999999999,
+     "sum_cpu_s": 4.036159,
+     "median_rss_mb": 39.748046875,
+     "max_rss_mb": 353.71484375,
+     "median_rep_rel_range": 0.05328916934613483,
+     "ratio_vs_ref_median": 1.8459699773775984,
+     "ratio_vs_ref_gmean": 1.853046707803907,
+     "ratio_vs_ref_min": 0.8999885044257959,
+     "ratio_vs_ref_max": 3.725772319319792
+    },
+    "dox": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 0.064287,
+     "iqr_wall_s": [
+      0.042277999999999996,
+      0.13554850000000002
+     ],
+     "max_wall_s": 0.963767,
+     "sum_wall_s": 1.757541,
+     "docs_per_s": 6.258744461722372,
+     "pages_per_s": 562.1490480165186,
+     "median_cpu_s": 0.063965,
+     "sum_cpu_s": 1.7463950000000001,
+     "median_rss_mb": 33.3671875,
+     "max_rss_mb": 241.890625,
+     "median_rep_rel_range": 0.07794732994229008,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 0.051878,
+     "iqr_wall_s": [
+      0.0327505,
+      0.0906585
+     ],
+     "max_wall_s": 0.721432,
+     "sum_wall_s": 1.291281,
+     "docs_per_s": 8.518672543001873,
+     "pages_per_s": 765.1316793168954,
+     "median_cpu_s": 0.051607999999999994,
+     "sum_cpu_s": 1.286449,
+     "median_rss_mb": 31.75390625,
+     "max_rss_mb": 223.04296875,
+     "median_rep_rel_range": 0.06515706895961086,
+     "ratio_vs_ref_median": 0.7678535318182526,
+     "ratio_vs_ref_gmean": 0.7498307986331068,
+     "ratio_vs_ref_min": 0.5553838831325743,
+     "ratio_vs_ref_max": 0.8978043453270491
+    },
+    "vp-ua1": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 1.330271,
+     "iqr_wall_s": [
+      1.102077,
+      1.6849984999999998
+     ],
+     "max_wall_s": 6.879632,
+     "sum_wall_s": 20.082767,
+     "docs_per_s": 0.5477332879478212,
+     "pages_per_s": 49.196408044767935,
+     "median_cpu_s": 5.200939,
+     "sum_cpu_s": 69.065465,
+     "median_rss_mb": 549.10546875,
+     "max_rss_mb": 3999.1484375,
+     "median_rep_rel_range": 0.1502638215107863,
+     "ratio_vs_ref_median": 20.692690590632633,
+     "ratio_vs_ref_gmean": 18.83435653217668,
+     "ratio_vs_ref_min": 7.138273047323678,
+     "ratio_vs_ref_max": 79.64133808483733
+    },
+    "vp-ua2": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 1.351006,
+     "iqr_wall_s": [
+      1.1906984999999999,
+      1.659306
+     ],
+     "max_wall_s": 8.615936,
+     "sum_wall_s": 22.388506,
+     "docs_per_s": 0.49132353896235864,
+     "pages_per_s": 44.129786954073666,
+     "median_cpu_s": 5.535085,
+     "sum_cpu_s": 76.795917,
+     "median_rss_mb": 573.38671875,
+     "max_rss_mb": 3982.43359375,
+     "median_rep_rel_range": 0.12728866602537428,
+     "ratio_vs_ref_median": 21.015228584317203,
+     "ratio_vs_ref_gmean": 19.966301550417533,
+     "ratio_vs_ref_min": 8.939853719830623,
+     "ratio_vs_ref_max": 82.10748361880677
+    },
+    "vp-wt1a": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 1.42496,
+     "iqr_wall_s": [
+      1.2070055,
+      1.6580065
+     ],
+     "max_wall_s": 8.51768,
+     "sum_wall_s": 22.160525,
+     "docs_per_s": 0.49637813183577556,
+     "pages_per_s": 44.58378129579511,
+     "median_cpu_s": 5.8098529999999995,
+     "sum_cpu_s": 77.195581,
+     "median_rss_mb": 587.578125,
+     "max_rss_mb": 3948.05859375,
+     "median_rep_rel_range": 0.15787048684892557,
+     "ratio_vs_ref_median": 22.1656011324218,
+     "ratio_vs_ref_gmean": 19.787091436082736,
+     "ratio_vs_ref_min": 8.837903767196844,
+     "ratio_vs_ref_max": 76.37567536498447
+    },
+    "vp-wt1r": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 1.362366,
+     "iqr_wall_s": [
+      1.1510375,
+      1.632535
+     ],
+     "max_wall_s": 8.573274,
+     "sum_wall_s": 22.06035,
+     "docs_per_s": 0.4986321613211033,
+     "pages_per_s": 44.78623412593182,
+     "median_cpu_s": 5.402548,
+     "sum_cpu_s": 76.52559600000001,
+     "median_rss_mb": 559.4453125,
+     "max_rss_mb": 3765.92578125,
+     "median_rep_rel_range": 0.1700403321070573,
+     "ratio_vs_ref_median": 20.352450728763202,
+     "ratio_vs_ref_gmean": 19.65554307529803,
+     "ratio_vs_ref_min": 8.89558783398892,
+     "ratio_vs_ref_max": 81.05632831359927
+    },
+    "vp-B": {
+     "files": 11,
+     "pages": 988,
+     "median_wall_s": 5.414635,
+     "iqr_wall_s": [
+      4.6508185,
+      6.634846
+     ],
+     "max_wall_s": 32.586522,
+     "sum_wall_s": 86.692148,
+     "docs_per_s": 0.12688577055444514,
+     "pages_per_s": 11.396649209799254,
+     "median_cpu_s": 21.948425,
+     "sum_cpu_s": 299.582559,
+     "median_rss_mb": 587.578125,
+     "max_rss_mb": 3999.1484375,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 84.22597103613484,
+     "ratio_vs_ref_gmean": 78.28810471831956,
+     "ratio_vs_ref_min": 33.81161836834006,
+     "ratio_vs_ref_max": 319.18082538222785
+    }
+   },
+   "medium/complex": {
+    "cpdf-ua1": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 0.22071,
+     "iqr_wall_s": [
+      0.083927,
+      0.38196175
+     ],
+     "max_wall_s": 2.660579,
+     "sum_wall_s": 3.6218179999999998,
+     "docs_per_s": 1.6566265891880818,
+     "pages_per_s": 175.60241845393668,
+     "median_cpu_s": 0.220132,
+     "sum_cpu_s": 3.601768,
+     "median_rss_mb": 61.708984375,
+     "max_rss_mb": 353.71484375,
+     "median_rep_rel_range": 0.05474719869066322,
+     "ratio_vs_ref_median": 2.066675089867639,
+     "ratio_vs_ref_gmean": 2.027794380417038,
+     "ratio_vs_ref_min": 1.045928160131615,
+     "ratio_vs_ref_max": 3.725772319319792
+    },
+    "dox": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 0.08477950000000001,
+     "iqr_wall_s": [
+      0.048750249999999995,
+      0.1450495
+     ],
+     "max_wall_s": 0.963767,
+     "sum_wall_s": 1.375998,
+     "docs_per_s": 4.360471454173625,
+     "pages_per_s": 462.20997414240423,
+     "median_cpu_s": 0.0844445,
+     "sum_cpu_s": 1.367504,
+     "median_rss_mb": 39.537109375,
+     "max_rss_mb": 241.890625,
+     "median_rep_rel_range": 0.06767975887502763,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 0.0634155,
+     "iqr_wall_s": [
+      0.0378275,
+      0.10111525
+     ],
+     "max_wall_s": 0.721432,
+     "sum_wall_s": 1.0236,
+     "docs_per_s": 5.8616647127784285,
+     "pages_per_s": 621.3364595545135,
+     "median_cpu_s": 0.0631795,
+     "sum_cpu_s": 1.020772,
+     "median_rss_mb": 36.5390625,
+     "max_rss_mb": 223.04296875,
+     "median_rep_rel_range": 0.05512325538931016,
+     "ratio_vs_ref_median": 0.752944583114538,
+     "ratio_vs_ref_gmean": 0.7514942566849294,
+     "ratio_vs_ref_min": 0.6946545574135444,
+     "ratio_vs_ref_max": 0.8142962532766171
+    },
+    "vp-ua1": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 1.5158235,
+     "iqr_wall_s": [
+      1.22029225,
+      1.8616205
+     ],
+     "max_wall_s": 6.879632,
+     "sum_wall_s": 14.051927,
+     "docs_per_s": 0.4269877006904463,
+     "pages_per_s": 45.2606962731873,
+     "median_cpu_s": 6.1242735,
+     "sum_cpu_s": 45.401767,
+     "median_rss_mb": 808.80859375,
+     "max_rss_mb": 3999.1484375,
+     "median_rep_rel_range": 0.13953495957727036,
+     "ratio_vs_ref_median": 18.678087797097444,
+     "ratio_vs_ref_gmean": 16.48600996802868,
+     "ratio_vs_ref_min": 7.138273047323678,
+     "ratio_vs_ref_max": 28.490243184938222
+    },
+    "vp-ua2": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 1.610562,
+     "iqr_wall_s": [
+      1.3455945000000002,
+      2.01003825
+     ],
+     "max_wall_s": 8.615936,
+     "sum_wall_s": 16.339704,
+     "docs_per_s": 0.3672037143390113,
+     "pages_per_s": 38.92359371993519,
+     "median_cpu_s": 6.5129385,
+     "sum_cpu_s": 53.110016,
+     "median_rss_mb": 833.0078125,
+     "max_rss_mb": 3982.43359375,
+     "median_rep_rel_range": 0.12663346157715888,
+     "ratio_vs_ref_median": 20.041994743562437,
+     "ratio_vs_ref_gmean": 18.20250485036234,
+     "ratio_vs_ref_min": 8.939853719830623,
+     "ratio_vs_ref_max": 31.359629339086094
+    },
+    "vp-wt1a": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 1.5561655,
+     "iqr_wall_s": [
+      1.33068025,
+      1.9200737500000002
+     ],
+     "max_wall_s": 8.51768,
+     "sum_wall_s": 16.048611,
+     "docs_per_s": 0.3738641306714955,
+     "pages_per_s": 39.62959785117852,
+     "median_cpu_s": 6.5674410000000005,
+     "sum_cpu_s": 53.094319,
+     "median_rss_mb": 755.8828125,
+     "max_rss_mb": 3948.05859375,
+     "median_rep_rel_range": 0.11778040207914775,
+     "ratio_vs_ref_median": 19.21904993115952,
+     "ratio_vs_ref_gmean": 17.864744705504712,
+     "ratio_vs_ref_min": 8.837903767196844,
+     "ratio_vs_ref_max": 31.680378505589328
+    },
+    "vp-wt1r": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 1.581772,
+     "iqr_wall_s": [
+      1.2613125,
+      1.9074035
+     ],
+     "max_wall_s": 8.573274,
+     "sum_wall_s": 16.029023,
+     "docs_per_s": 0.37432100509182625,
+     "pages_per_s": 39.67802653973359,
+     "median_cpu_s": 6.574095999999999,
+     "sum_cpu_s": 52.943157,
+     "median_rss_mb": 823.787109375,
+     "max_rss_mb": 3765.92578125,
+     "median_rep_rel_range": 0.16319546113475458,
+     "ratio_vs_ref_median": 19.64380050283694,
+     "ratio_vs_ref_gmean": 17.698643191916446,
+     "ratio_vs_ref_min": 8.89558783398892,
+     "ratio_vs_ref_max": 28.934840164738183
+    },
+    "vp-B": {
+     "files": 6,
+     "pages": 636,
+     "median_wall_s": 6.264323,
+     "iqr_wall_s": [
+      5.1578795,
+      7.699136
+     ],
+     "max_wall_s": 32.586522,
+     "sum_wall_s": 62.469265,
+     "docs_per_s": 0.09604723218690023,
+     "pages_per_s": 10.181006611811425,
+     "median_cpu_s": 25.778749,
+     "sum_cpu_s": 204.549259,
+     "median_rss_mb": 842.44921875,
+     "max_rss_mb": 3999.1484375,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 77.58293297465634,
+     "ratio_vs_ref_gmean": 70.28811198459165,
+     "ratio_vs_ref_min": 33.81161836834006,
+     "ratio_vs_ref_max": 120.46509119435181
+    }
+   },
+   "medium/simple": {
+    "cpdf-ua1": {
+     "files": 4,
+     "pages": 220,
+     "median_wall_s": 0.10782149999999999,
+     "iqr_wall_s": [
+      0.07985224999999999,
+      0.13706225
+     ],
+     "max_wall_s": 0.2129,
+     "sum_wall_s": 0.436372,
+     "docs_per_s": 9.166490975589635,
+     "pages_per_s": 504.1570036574299,
+     "median_cpu_s": 0.10749249999999999,
+     "sum_cpu_s": 0.43439099999999997,
+     "median_rss_mb": 39.748046875,
+     "max_rss_mb": 50.46484375,
+     "median_rep_rel_range": 0.05259071183626322,
+     "ratio_vs_ref_median": 1.66066750380272,
+     "ratio_vs_ref_gmean": 1.618750974602209,
+     "ratio_vs_ref_min": 0.8999885044257959,
+     "ratio_vs_ref_max": 2.772557394554191
+    },
+    "dox": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 0.064287,
+     "iqr_wall_s": [
+      0.03746,
+      0.134532
+     ],
+     "max_wall_s": 0.136565,
+     "sum_wall_s": 0.381543,
+     "docs_per_s": 13.104682827361529,
+     "pages_per_s": 922.5696710462516,
+     "median_cpu_s": 0.063965,
+     "sum_cpu_s": 0.378891,
+     "median_rss_mb": 33.1640625,
+     "max_rss_mb": 42.32421875,
+     "median_rep_rel_range": 0.07794732994229008,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 0.049363,
+     "iqr_wall_s": [
+      0.029191,
+      0.075846
+     ],
+     "max_wall_s": 0.105471,
+     "sum_wall_s": 0.267681,
+     "docs_per_s": 18.678949944149938,
+     "pages_per_s": 1314.9980760681558,
+     "median_cpu_s": 0.049119,
+     "sum_cpu_s": 0.265677,
+     "median_rss_mb": 30.765625,
+     "max_rss_mb": 40.4765625,
+     "median_rep_rel_range": 0.07631221765289792,
+     "ratio_vs_ref_median": 0.7792578750667379,
+     "ratio_vs_ref_gmean": 0.7478395086529134,
+     "ratio_vs_ref_min": 0.5553838831325743,
+     "ratio_vs_ref_max": 0.8978043453270491
+    },
+    "vp-ua1": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 1.291721,
+     "iqr_wall_s": [
+      0.983051,
+      1.330271
+     ],
+     "max_wall_s": 1.732997,
+     "sum_wall_s": 6.0308399999999995,
+     "docs_per_s": 0.8290719037480683,
+     "pages_per_s": 58.36666202386401,
+     "median_cpu_s": 5.1420889999999995,
+     "sum_cpu_s": 23.663698,
+     "median_rss_mb": 448.22265625,
+     "max_rss_mb": 1344.640625,
+     "median_rep_rel_range": 0.16023953014085104,
+     "ratio_vs_ref_median": 20.692690590632633,
+     "ratio_vs_ref_gmean": 22.0980047379934,
+     "ratio_vs_ref_min": 9.45865338849632,
+     "ratio_vs_ref_max": 79.64133808483733
+    },
+    "vp-ua2": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 1.338265,
+     "iqr_wall_s": [
+      1.003078,
+      1.351006
+     ],
+     "max_wall_s": 1.6422,
+     "sum_wall_s": 6.048802,
+     "docs_per_s": 0.8266099634274687,
+     "pages_per_s": 58.1933414252938,
+     "median_cpu_s": 5.182716,
+     "sum_cpu_s": 23.685900999999998,
+     "median_rss_mb": 447.1015625,
+     "max_rss_mb": 1332.29296875,
+     "median_rep_rel_range": 0.13607544096273905,
+     "ratio_vs_ref_median": 21.015228584317203,
+     "ratio_vs_ref_gmean": 22.309888027364188,
+     "ratio_vs_ref_min": 9.79947277853037,
+     "ratio_vs_ref_max": 82.10748361880677
+    },
+    "vp-wt1a": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 1.35262,
+     "iqr_wall_s": [
+      1.020457,
+      1.42496
+     ],
+     "max_wall_s": 1.649485,
+     "sum_wall_s": 6.111914,
+     "docs_per_s": 0.8180743380878723,
+     "pages_per_s": 57.59243340138622,
+     "median_cpu_s": 5.405819999999999,
+     "sum_cpu_s": 24.101262,
+     "median_rss_mb": 439.48046875,
+     "max_rss_mb": 1349.64453125,
+     "median_rep_rel_range": 0.19245415357198764,
+     "ratio_vs_ref_median": 22.1656011324218,
+     "ratio_vs_ref_gmean": 22.368874669968825,
+     "ratio_vs_ref_min": 9.904587559037822,
+     "ratio_vs_ref_max": 76.37567536498447
+    },
+    "vp-wt1r": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 1.308398,
+     "iqr_wall_s": [
+      1.049608,
+      1.362366
+     ],
+     "max_wall_s": 1.605846,
+     "sum_wall_s": 6.031327,
+     "docs_per_s": 0.8290049602682793,
+     "pages_per_s": 58.36194920288686,
+     "median_cpu_s": 5.138579,
+     "sum_cpu_s": 23.582439,
+     "median_rss_mb": 438.3828125,
+     "max_rss_mb": 1338.0625,
+     "median_rep_rel_range": 0.17326837858205227,
+     "ratio_vs_ref_median": 20.352450728763202,
+     "ratio_vs_ref_gmean": 22.291491945478942,
+     "ratio_vs_ref_min": 9.97595284296855,
+     "ratio_vs_ref_max": 81.05632831359927
+    },
+    "vp-B": {
+     "files": 5,
+     "pages": 352,
+     "median_wall_s": 5.344972,
+     "iqr_wall_s": [
+      4.056194,
+      5.414635
+     ],
+     "max_wall_s": 6.630528,
+     "sum_wall_s": 24.222883,
+     "docs_per_s": 0.20641638734745157,
+     "pages_per_s": 14.531713669260592,
+     "median_cpu_s": 20.869204,
+     "sum_cpu_s": 95.0333,
+     "median_rss_mb": 448.22265625,
+     "max_rss_mb": 1349.64453125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 84.22597103613484,
+     "ratio_vs_ref_gmean": 89.09892436490692,
+     "ratio_vs_ref_min": 39.13866656903306,
+     "ratio_vs_ref_max": 319.18082538222785
+    }
+   },
+   "large": {
+    "cpdf-ua1": {
+     "files": 9,
+     "pages": 12496,
+     "median_wall_s": 1.128528,
+     "iqr_wall_s": [
+      0.402671,
+      3.173029
+     ],
+     "max_wall_s": 9.000802,
+     "sum_wall_s": 24.749406,
+     "docs_per_s": 0.3636450911185505,
+     "pages_per_s": 504.9010065130452,
+     "median_cpu_s": 1.125843,
+     "sum_cpu_s": 24.693765000000003,
+     "median_rss_mb": 207.9609375,
+     "max_rss_mb": 1160.8359375,
+     "median_rep_rel_range": 0.039195285042377286,
+     "ratio_vs_ref_median": 1.1700277129506464,
+     "ratio_vs_ref_gmean": 1.476449105945127,
+     "ratio_vs_ref_min": 0.8500172801105927,
+     "ratio_vs_ref_max": 3.738450822435752
+    },
+    "dox": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 1.1038785,
+     "iqr_wall_s": [
+      0.58177625,
+      1.661836
+     ],
+     "max_wall_s": 2.603515,
+     "sum_wall_s": 11.803612,
+     "docs_per_s": 0.8471982982836102,
+     "pages_per_s": 1088.3109339751256,
+     "median_cpu_s": 1.100421,
+     "sum_cpu_s": 11.771258,
+     "median_rss_mb": 246.796875,
+     "max_rss_mb": 722.453125,
+     "median_rep_rel_range": 0.05216504107565491,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 0.777726,
+     "iqr_wall_s": [
+      0.36196275,
+      1.1938775
+     ],
+     "max_wall_s": 1.526255,
+     "sum_wall_s": 7.90511,
+     "docs_per_s": 1.2650045350412582,
+     "pages_per_s": 1625.0248257140004,
+     "median_cpu_s": 0.767936,
+     "sum_cpu_s": 7.870364,
+     "median_rss_mb": 217.134765625,
+     "max_rss_mb": 688.2265625,
+     "median_rep_rel_range": 0.04791122254441751,
+     "ratio_vs_ref_median": 0.6991816570926197,
+     "ratio_vs_ref_gmean": 0.6805045312142308,
+     "ratio_vs_ref_min": 0.49281102306146257,
+     "ratio_vs_ref_max": 0.8362346805736637
+    },
+    "vp-ua1": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 4.601850499999999,
+     "iqr_wall_s": [
+      2.7226605000000004,
+      8.05288925
+     ],
+     "max_wall_s": 12.882823,
+     "sum_wall_s": 55.48069,
+     "docs_per_s": 0.18024289171601868,
+     "pages_per_s": 231.54001869839757,
+     "median_cpu_s": 11.595281499999999,
+     "sum_cpu_s": 120.171601,
+     "median_rss_mb": 2517.55078125,
+     "max_rss_mb": 4970.62890625,
+     "median_rep_rel_range": 0.07533145619899959,
+     "ratio_vs_ref_median": 5.111061335674152,
+     "ratio_vs_ref_gmean": 5.217306229890429,
+     "ratio_vs_ref_min": 2.952523919366162,
+     "ratio_vs_ref_max": 10.627095213409367
+    },
+    "vp-ua2": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 4.9817535,
+     "iqr_wall_s": [
+      2.814643,
+      8.371469
+     ],
+     "max_wall_s": 13.681777,
+     "sum_wall_s": 58.91375,
+     "docs_per_s": 0.16973966179372388,
+     "pages_per_s": 218.0475695402177,
+     "median_cpu_s": 12.855546499999999,
+     "sum_cpu_s": 132.337195,
+     "median_rss_mb": 2744.13671875,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": 0.1088895749137119,
+     "ratio_vs_ref_median": 5.321113661118131,
+     "ratio_vs_ref_gmean": 5.550985668510626,
+     "ratio_vs_ref_min": 3.019626516899007,
+     "ratio_vs_ref_max": 10.915180577155693
+    },
+    "vp-wt1a": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 5.1298065,
+     "iqr_wall_s": [
+      2.738724,
+      8.30953475
+     ],
+     "max_wall_s": 13.946949,
+     "sum_wall_s": 59.175031,
+     "docs_per_s": 0.16899019452985162,
+     "pages_per_s": 217.0848038930474,
+     "median_cpu_s": 13.138736999999999,
+     "sum_cpu_s": 132.41458599999999,
+     "median_rss_mb": 2791.861328125,
+     "max_rss_mb": 5030.859375,
+     "median_rep_rel_range": 0.05707218343078513,
+     "ratio_vs_ref_median": 5.231818371014448,
+     "ratio_vs_ref_gmean": 5.544535860381297,
+     "ratio_vs_ref_min": 2.9954917260054157,
+     "ratio_vs_ref_max": 10.440746500777605
+    },
+    "vp-wt1r": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 5.077249,
+     "iqr_wall_s": [
+      2.74743725,
+      8.44178125
+     ],
+     "max_wall_s": 13.335746,
+     "sum_wall_s": 58.551995,
+     "docs_per_s": 0.17078837364977914,
+     "pages_per_s": 219.39474479050628,
+     "median_cpu_s": 13.147754500000001,
+     "sum_cpu_s": 130.916328,
+     "median_rss_mb": 2569.07421875,
+     "max_rss_mb": 4828.65625,
+     "median_rep_rel_range": 0.08969889096770657,
+     "ratio_vs_ref_median": 5.115714089388495,
+     "ratio_vs_ref_gmean": 5.532069013455914,
+     "ratio_vs_ref_min": 3.0205596229064287,
+     "ratio_vs_ref_max": 10.439942975635043
+    },
+    "vp-B": {
+     "files": 10,
+     "pages": 12846,
+     "median_wall_s": 19.6553915,
+     "iqr_wall_s": [
+      11.09109875,
+      33.17567425
+     ],
+     "max_wall_s": 53.847295,
+     "sum_wall_s": 232.121466,
+     "docs_per_s": 0.04308089282875716,
+     "pages_per_s": 55.34171492782146,
+     "median_cpu_s": 51.481370999999996,
+     "sum_cpu_s": 515.83971,
+     "median_rss_mb": 2792.626953125,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 20.77970745719523,
+     "ratio_vs_ref_gmean": 21.855979114066706,
+     "ratio_vs_ref_min": 11.988201785177013,
+     "ratio_vs_ref_max": 42.422965266977705
+    }
+   },
+   "large/complex": {
+    "cpdf-ua1": {
+     "files": 4,
+     "pages": 3725,
+     "median_wall_s": 2.1507785,
+     "iqr_wall_s": [
+      0.9035839999999999,
+      4.62997225
+     ],
+     "max_wall_s": 9.000802,
+     "sum_wall_s": 13.531111000000001,
+     "docs_per_s": 0.29561504594855514,
+     "pages_per_s": 275.29151153959197,
+     "median_cpu_s": 2.145712,
+     "sum_cpu_s": 13.504095000000001,
+     "median_rss_mb": 366.302734375,
+     "max_rss_mb": 1160.8359375,
+     "median_rep_rel_range": 0.047530932612351584,
+     "ratio_vs_ref_median": 1.861141044935024,
+     "ratio_vs_ref_gmean": 1.816783766189407,
+     "ratio_vs_ref_min": 1.055289781193632,
+     "ratio_vs_ref_max": 3.457173090994291
+    },
+    "dox": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 0.964531,
+     "iqr_wall_s": [
+      0.912995,
+      1.243226
+     ],
+     "max_wall_s": 2.603515,
+     "sum_wall_s": 5.941034,
+     "docs_per_s": 0.8416043402545752,
+     "pages_per_s": 685.9075373074788,
+     "median_cpu_s": 0.962188,
+     "sum_cpu_s": 5.926284,
+     "median_rss_mb": 226.125,
+     "max_rss_mb": 722.453125,
+     "median_rep_rel_range": 0.05958336227658822,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 0.694297,
+     "iqr_wall_s": [
+      0.449934,
+      0.861155
+     ],
+     "max_wall_s": 1.510287,
+     "sum_wall_s": 3.675661,
+     "docs_per_s": 1.3602995488430516,
+     "pages_per_s": 1108.6441323070871,
+     "median_cpu_s": 0.69262,
+     "sum_cpu_s": 3.651139,
+     "median_rss_mb": 200.25390625,
+     "max_rss_mb": 688.2265625,
+     "median_rep_rel_range": 0.046991730710785516,
+     "ratio_vs_ref_median": 0.6926777593132705,
+     "ratio_vs_ref_gmean": 0.6373923980161968,
+     "ratio_vs_ref_min": 0.49281102306146257,
+     "ratio_vs_ref_max": 0.7380643732671486
+    },
+    "vp-ua1": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 5.523749,
+     "iqr_wall_s": [
+      3.432795,
+      5.586953
+     ],
+     "max_wall_s": 12.882823,
+     "sum_wall_s": 29.289569,
+     "docs_per_s": 0.17070923781773642,
+     "pages_per_s": 139.12802882145516,
+     "median_cpu_s": 12.947951,
+     "sum_cpu_s": 68.65349499999999,
+     "median_rss_mb": 3293.94140625,
+     "max_rss_mb": 4970.62890625,
+     "median_rep_rel_range": 0.08087234669774386,
+     "ratio_vs_ref_median": 4.948242280148185,
+     "ratio_vs_ref_gmean": 5.2831162486780885,
+     "ratio_vs_ref_min": 3.7599274913882335,
+     "ratio_vs_ref_max": 8.595630331185097
+    },
+    "vp-ua2": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 6.19992,
+     "iqr_wall_s": [
+      3.640606,
+      6.69371
+     ],
+     "max_wall_s": 13.681777,
+     "sum_wall_s": 32.290786,
+     "docs_per_s": 0.15484293259383652,
+     "pages_per_s": 126.19699006397677,
+     "median_cpu_s": 16.447058,
+     "sum_cpu_s": 79.455979,
+     "median_rss_mb": 3294.71875,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": 0.13530610072388027,
+     "ratio_vs_ref_median": 5.255117408580324,
+     "ratio_vs_ref_gmean": 5.865301829211767,
+     "ratio_vs_ref_min": 3.987542100449619,
+     "ratio_vs_ref_max": 9.571443070209027
+    },
+    "vp-wt1a": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 6.327937,
+     "iqr_wall_s": [
+      3.931676,
+      6.790862
+     ],
+     "max_wall_s": 13.946949,
+     "sum_wall_s": 33.059232,
+     "docs_per_s": 0.15124368285385456,
+     "pages_per_s": 123.26360152589146,
+     "median_cpu_s": 16.551721,
+     "sum_cpu_s": 80.610315,
+     "median_rss_mb": 3256.59765625,
+     "max_rss_mb": 5030.859375,
+     "median_rep_rel_range": 0.09234352364759646,
+     "ratio_vs_ref_median": 5.356968943908524,
+     "ratio_vs_ref_gmean": 6.013410565509662,
+     "ratio_vs_ref_min": 4.306349980010843,
+     "ratio_vs_ref_max": 9.511632305655382
+    },
+    "vp-wt1r": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 6.317382,
+     "iqr_wall_s": [
+      3.837116,
+      6.646006
+     ],
+     "max_wall_s": 13.335746,
+     "sum_wall_s": 32.299761000000004,
+     "docs_per_s": 0.15479990703336782,
+     "pages_per_s": 126.16192423219476,
+     "median_cpu_s": 16.282923,
+     "sum_cpu_s": 79.322466,
+     "median_rss_mb": 3358.3515625,
+     "max_rss_mb": 4828.65625,
+     "median_rep_rel_range": 0.12686457776338367,
+     "ratio_vs_ref_median": 5.122208245391327,
+     "ratio_vs_ref_gmean": 5.9604391523137,
+     "ratio_vs_ref_min": 4.202778766586893,
+     "ratio_vs_ref_max": 9.980813500209905
+    },
+    "vp-B": {
+     "files": 5,
+     "pages": 4075,
+     "median_wall_s": 24.368988,
+     "iqr_wall_s": [
+      14.842193,
+      25.717531
+     ],
+     "max_wall_s": 53.847295,
+     "sum_wall_s": 126.93934800000001,
+     "docs_per_s": 0.03938888988148891,
+     "pages_per_s": 32.10194525341346,
+     "median_cpu_s": 62.229653,
+     "sum_cpu_s": 308.042255,
+     "median_rss_mb": 3466.5,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 20.682536878028362,
+     "ratio_vs_ref_gmean": 23.128195468033322,
+     "ratio_vs_ref_min": 16.256598338435587,
+     "ratio_vs_ref_max": 37.659519207259414
+    }
+   },
+   "large/simple": {
+    "cpdf-ua1": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 1.07573,
+     "iqr_wall_s": [
+      0.402671,
+      2.911094
+     ],
+     "max_wall_s": 6.730419,
+     "sum_wall_s": 11.218295,
+     "docs_per_s": 0.4457005275757145,
+     "pages_per_s": 781.8478654733184,
+     "median_cpu_s": 1.0734219999999999,
+     "sum_cpu_s": 11.18967,
+     "median_rss_mb": 207.9609375,
+     "max_rss_mb": 656.13671875,
+     "median_rep_rel_range": 0.025224066297299848,
+     "ratio_vs_ref_median": 0.8630869521612677,
+     "ratio_vs_ref_gmean": 1.2506928689198065,
+     "ratio_vs_ref_min": 0.8500172801105927,
+     "ratio_vs_ref_max": 3.738450822435752
+    },
+    "dox": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 1.246375,
+     "iqr_wall_s": [
+      0.47137,
+      1.800323
+     ],
+     "max_wall_s": 2.22877,
+     "sum_wall_s": 5.862578,
+     "docs_per_s": 0.8528671175035966,
+     "pages_per_s": 1496.099497524809,
+     "median_cpu_s": 1.243681,
+     "sum_cpu_s": 5.844974,
+     "median_rss_mb": 334.81640625,
+     "max_rss_mb": 445.7421875,
+     "median_rep_rel_range": 0.03454506297195308,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 1.042262,
+     "iqr_wall_s": [
+      0.332639,
+      1.244416
+     ],
+     "max_wall_s": 1.526255,
+     "sum_wall_s": 4.229449,
+     "docs_per_s": 1.1821870886727799,
+     "pages_per_s": 2073.7925909497903,
+     "median_cpu_s": 1.039541,
+     "sum_cpu_s": 4.219225,
+     "median_rss_mb": 332.99609375,
+     "max_rss_mb": 445.26953125,
+     "median_rep_rel_range": 0.0488307143780495,
+     "ratio_vs_ref_median": 0.7056855548719689,
+     "ratio_vs_ref_gmean": 0.7265326954704793,
+     "ratio_vs_ref_min": 0.6847969956523104,
+     "ratio_vs_ref_max": 0.8362346805736637
+    },
+    "vp-ua1": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 3.679952,
+     "iqr_wall_s": [
+      2.485949,
+      8.874868
+     ],
+     "max_wall_s": 9.920372,
+     "sum_wall_s": 26.191121,
+     "docs_per_s": 0.19090439084298835,
+     "pages_per_s": 334.8844824167702,
+     "median_cpu_s": 9.969657,
+     "sum_cpu_s": 51.518105999999996,
+     "median_rss_mb": 2043.67578125,
+     "max_rss_mb": 2834.82421875,
+     "median_rep_rel_range": 0.06979056570025532,
+     "ratio_vs_ref_median": 5.273880391200119,
+     "ratio_vs_ref_gmean": 5.152315984579059,
+     "ratio_vs_ref_min": 2.952523919366162,
+     "ratio_vs_ref_max": 10.627095213409367
+    },
+    "vp-ua2": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 3.763587,
+     "iqr_wall_s": [
+      2.539322,
+      8.930722
+     ],
+     "max_wall_s": 10.12601,
+     "sum_wall_s": 26.622964,
+     "docs_per_s": 0.18780778879466614,
+     "pages_per_s": 329.45242310360334,
+     "median_cpu_s": 10.016267999999998,
+     "sum_cpu_s": 52.881215999999995,
+     "median_rss_mb": 2742.91796875,
+     "max_rss_mb": 2925.48828125,
+     "median_rep_rel_range": 0.08173599094561462,
+     "ratio_vs_ref_median": 5.387109913655939,
+     "ratio_vs_ref_gmean": 5.253513423392122,
+     "ratio_vs_ref_min": 3.019626516899007,
+     "ratio_vs_ref_max": 10.915180577155693
+    },
+    "vp-wt1a": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 3.733506,
+     "iqr_wall_s": [
+      2.40713,
+      8.815759
+     ],
+     "max_wall_s": 9.950992,
+     "sum_wall_s": 26.115799,
+     "docs_per_s": 0.1914549886067051,
+     "pages_per_s": 335.8503410138821,
+     "median_cpu_s": 9.771768000000002,
+     "sum_cpu_s": 51.804271,
+     "median_rss_mb": 2741.38671875,
+     "max_rss_mb": 2903.6171875,
+     "median_rep_rel_range": 0.04188100943188527,
+     "ratio_vs_ref_median": 5.106667798120372,
+     "ratio_vs_ref_gmean": 5.112220024253183,
+     "ratio_vs_ref_min": 2.9954917260054157,
+     "ratio_vs_ref_max": 10.440746500777605
+    },
+    "vp-wt1r": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 3.76475,
+     "iqr_wall_s": [
+      2.408333,
+      9.040373
+     ],
+     "max_wall_s": 9.830459,
+     "sum_wall_s": 26.252234,
+     "docs_per_s": 0.19045998142481893,
+     "pages_per_s": 334.1048994154174,
+     "median_cpu_s": 9.873662,
+     "sum_cpu_s": 51.593862,
+     "median_rss_mb": 2559.8125,
+     "max_rss_mb": 2742.23828125,
+     "median_rep_rel_range": 0.07419398354242548,
+     "ratio_vs_ref_median": 5.1092199333856625,
+     "ratio_vs_ref_gmean": 5.134485360488817,
+     "ratio_vs_ref_min": 3.0205596229064287,
+     "ratio_vs_ref_max": 10.439942975635043
+    },
+    "vp-B": {
+     "files": 5,
+     "pages": 8771,
+     "median_wall_s": 14.941794999999999,
+     "iqr_wall_s": [
+      9.840734,
+      35.661722
+     ],
+     "max_wall_s": 39.827833,
+     "sum_wall_s": 105.18211799999999,
+     "docs_per_s": 0.04753659742809135,
+     "pages_per_s": 83.38869920835783,
+     "median_cpu_s": 39.631355,
+     "sum_cpu_s": 207.79745499999999,
+     "median_rss_mb": 2742.91796875,
+     "max_rss_mb": 2925.48828125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 20.876878036362093,
+     "ratio_vs_ref_gmean": 20.653743768931367,
+     "ratio_vs_ref_min": 11.988201785177013,
+     "ratio_vs_ref_max": 42.422965266977705
+    }
+   },
+   "all/complex": {
+    "cpdf-ua1": {
+     "files": 132,
+     "pages": 4513,
+     "median_wall_s": 0.0050335,
+     "iqr_wall_s": [
+      0.004902999999999999,
+      0.0057617499999999995
+     ],
+     "max_wall_s": 9.000802,
+     "sum_wall_s": 17.933066,
+     "docs_per_s": 7.360704522026518,
+     "pages_per_s": 251.65802657504298,
+     "median_cpu_s": 0.004961,
+     "sum_cpu_s": 17.875991000000003,
+     "median_rss_mb": 13.21484375,
+     "max_rss_mb": 1160.8359375,
+     "median_rep_rel_range": 0.05816645196314396,
+     "ratio_vs_ref_median": 0.924684739743423,
+     "ratio_vs_ref_gmean": 1.0093168609691172,
+     "ratio_vs_ref_min": 0.7143421052631579,
+     "ratio_vs_ref_max": 3.725772319319792
+    },
+    "dox": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.005663,
+     "iqr_wall_s": [
+      0.005099,
+      0.005924
+     ],
+     "max_wall_s": 2.603515,
+     "sum_wall_s": 8.08061,
+     "docs_per_s": 16.459153454999065,
+     "pages_per_s": 601.8110018921839,
+     "median_cpu_s": 0.0055969999999999995,
+     "sum_cpu_s": 8.047873000000001,
+     "median_rss_mb": 20.328125,
+     "max_rss_mb": 722.453125,
+     "median_rep_rel_range": 0.09887972335290518,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.005044,
+     "iqr_wall_s": [
+      0.004844,
+      0.005509
+     ],
+     "max_wall_s": 1.510287,
+     "sum_wall_s": 5.385133,
+     "docs_per_s": 24.697625852509123,
+     "pages_per_s": 903.0417633139238,
+     "median_cpu_s": 0.004976,
+     "sum_cpu_s": 5.348992,
+     "median_rss_mb": 19.8125,
+     "max_rss_mb": 688.2265625,
+     "median_rep_rel_range": 0.13429203539823006,
+     "ratio_vs_ref_median": 0.9173504102461478,
+     "ratio_vs_ref_gmean": 0.8948395383208347,
+     "ratio_vs_ref_min": 0.47707317073170724,
+     "ratio_vs_ref_max": 1.0426482534524775
+    },
+    "vp-ua1": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.649874,
+     "iqr_wall_s": [
+      0.616553,
+      0.685255
+     ],
+     "max_wall_s": 12.882823,
+     "sum_wall_s": 123.219508,
+     "docs_per_s": 1.0793745418947784,
+     "pages_per_s": 39.46615336266397,
+     "median_cpu_s": 2.260593,
+     "sum_cpu_s": 391.062166,
+     "median_rss_mb": 234.51171875,
+     "max_rss_mb": 4970.62890625,
+     "median_rep_rel_range": 0.159954454424668,
+     "ratio_vs_ref_median": 115.9778947368421,
+     "ratio_vs_ref_gmean": 91.23332378801055,
+     "ratio_vs_ref_min": 3.7599274913882335,
+     "ratio_vs_ref_max": 137.00122674299735
+    },
+    "vp-ua2": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.692313,
+     "iqr_wall_s": [
+      0.646305,
+      0.723062
+     ],
+     "max_wall_s": 13.681777,
+     "sum_wall_s": 133.157051,
+     "docs_per_s": 0.9988205581392757,
+     "pages_per_s": 36.52078476865638,
+     "median_cpu_s": 2.446223,
+     "sum_cpu_s": 432.091461,
+     "median_rss_mb": 238.76953125,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": 0.16899475785175158,
+     "ratio_vs_ref_median": 122.27853341218213,
+     "ratio_vs_ref_gmean": 96.8523525937308,
+     "ratio_vs_ref_min": 3.987542100449619,
+     "ratio_vs_ref_max": 147.54017128874386
+    },
+    "vp-wt1a": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.681532,
+     "iqr_wall_s": [
+      0.647003,
+      0.728386
+     ],
+     "max_wall_s": 13.946949,
+     "sum_wall_s": 133.38821,
+     "docs_per_s": 0.9970896228384803,
+     "pages_per_s": 36.45749500649271,
+     "median_cpu_s": 2.42884,
+     "sum_cpu_s": 431.990875,
+     "median_rss_mb": 238.171875,
+     "max_rss_mb": 5030.859375,
+     "median_rep_rel_range": 0.15710551939732478,
+     "ratio_vs_ref_median": 122.74308510638298,
+     "ratio_vs_ref_gmean": 96.57281510906745,
+     "ratio_vs_ref_min": 4.306349980010843,
+     "ratio_vs_ref_max": 140.72578589634665
+    },
+    "vp-wt1r": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 0.681659,
+     "iqr_wall_s": [
+      0.642403,
+      0.719692
+     ],
+     "max_wall_s": 13.335746,
+     "sum_wall_s": 131.876917,
+     "docs_per_s": 1.0085161453994258,
+     "pages_per_s": 36.875293346446675,
+     "median_cpu_s": 2.381361,
+     "sum_cpu_s": 426.359643,
+     "median_rss_mb": 237.91796875,
+     "max_rss_mb": 4828.65625,
+     "median_rep_rel_range": 0.16825468673380867,
+     "ratio_vs_ref_median": 121.44650691866352,
+     "ratio_vs_ref_gmean": 95.77187313862812,
+     "ratio_vs_ref_min": 4.202778766586893,
+     "ratio_vs_ref_max": 151.9525316455696
+    },
+    "vp-B": {
+     "files": 133,
+     "pages": 4863,
+     "median_wall_s": 2.721556,
+     "iqr_wall_s": [
+      2.5736350000000003,
+      2.8359799999999997
+     ],
+     "max_wall_s": 53.847295,
+     "sum_wall_s": 521.641686,
+     "docs_per_s": 0.2549642859639097,
+     "pages_per_s": 9.322491147687916,
+     "median_cpu_s": 9.595797999999998,
+     "sum_cpu_s": 1681.504145,
+     "median_rss_mb": 239.50390625,
+     "max_rss_mb": 5074.578125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 483.1610326894503,
+     "ratio_vs_ref_gmean": 380.6174184194993,
+     "ratio_vs_ref_min": 16.256598338435587,
+     "ratio_vs_ref_max": 556.8421940928271
+    }
+   },
+   "all/simple": {
+    "cpdf-ua1": {
+     "files": 14,
+     "pages": 9005,
+     "median_wall_s": 0.1011205,
+     "iqr_wall_s": [
+      0.00562925,
+      0.35522825
+     ],
+     "max_wall_s": 6.730419,
+     "sum_wall_s": 11.692145,
+     "docs_per_s": 1.1973850820358454,
+     "pages_per_s": 770.1751902666277,
+     "median_cpu_s": 0.10077,
+     "sum_cpu_s": 11.661071999999999,
+     "median_rss_mb": 33.623046875,
+     "max_rss_mb": 656.13671875,
+     "median_rep_rel_range": 0.046760417489464905,
+     "ratio_vs_ref_median": 0.9946863831527514,
+     "ratio_vs_ref_gmean": 1.2358940534881027,
+     "ratio_vs_ref_min": 0.8500172801105927,
+     "ratio_vs_ref_max": 3.738450822435752
+    },
+    "dox": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 0.064287,
+     "iqr_wall_s": [
+      0.0068205,
+      0.3039675
+     ],
+     "max_wall_s": 2.22877,
+     "sum_wall_s": 6.283008,
+     "docs_per_s": 2.387391516929471,
+     "pages_per_s": 1454.2397526789716,
+     "median_cpu_s": 0.063965,
+     "sum_cpu_s": 6.262409,
+     "median_rss_mb": 33.1640625,
+     "max_rss_mb": 445.7421875,
+     "median_rep_rel_range": 0.06660160807857941,
+     "ratio_vs_ref_median": 1.0,
+     "ratio_vs_ref_gmean": 1.0,
+     "ratio_vs_ref_min": 1.0,
+     "ratio_vs_ref_max": 1.0
+    },
+    "dox-ua1rules": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 0.049363,
+     "iqr_wall_s": [
+      0.006257,
+      0.219055
+     ],
+     "max_wall_s": 1.526255,
+     "sum_wall_s": 4.533405,
+     "docs_per_s": 3.3087712216314227,
+     "pages_per_s": 2015.482843469754,
+     "median_cpu_s": 0.049119,
+     "sum_cpu_s": 4.52085,
+     "median_rss_mb": 30.765625,
+     "max_rss_mb": 445.26953125,
+     "median_rep_rel_range": 0.07631221765289792,
+     "ratio_vs_ref_median": 0.7839844795290338,
+     "ratio_vs_ref_gmean": 0.7987747005212915,
+     "ratio_vs_ref_min": 0.5553838831325743,
+     "ratio_vs_ref_max": 0.951841359773371
+    },
+    "vp-ua1": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 1.22998,
+     "iqr_wall_s": [
+      0.6517995,
+      2.109473
+     ],
+     "max_wall_s": 9.920372,
+     "sum_wall_s": 35.348734,
+     "docs_per_s": 0.42434334423405373,
+     "pages_per_s": 258.4816757511033,
+     "median_cpu_s": 4.323534,
+     "sum_cpu_s": 85.959108,
+     "median_rss_mb": 448.22265625,
+     "max_rss_mb": 2834.82421875,
+     "median_rep_rel_range": 0.1502638215107863,
+     "ratio_vs_ref_median": 20.692690590632633,
+     "ratio_vs_ref_gmean": 22.453388375261476,
+     "ratio_vs_ref_min": 2.952523919366162,
+     "ratio_vs_ref_max": 134.59651828999557
+    },
+    "vp-ua2": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 1.263323,
+     "iqr_wall_s": [
+      0.6613825,
+      2.090761
+     ],
+     "max_wall_s": 10.12601,
+     "sum_wall_s": 35.842922,
+     "docs_per_s": 0.4184926664182122,
+     "pages_per_s": 254.91783287088032,
+     "median_cpu_s": 4.543882,
+     "sum_cpu_s": 87.447188,
+     "median_rss_mb": 447.1015625,
+     "max_rss_mb": 2925.48828125,
+     "median_rep_rel_range": 0.13607544096273905,
+     "ratio_vs_ref_median": 21.015228584317203,
+     "ratio_vs_ref_gmean": 22.745596188002814,
+     "ratio_vs_ref_min": 3.019626516899007,
+     "ratio_vs_ref_max": 134.09255178492728
+    },
+    "vp-wt1a": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 1.208412,
+     "iqr_wall_s": [
+      0.638914,
+      2.0283075
+     ],
+     "max_wall_s": 9.950992,
+     "sum_wall_s": 35.322739999999996,
+     "docs_per_s": 0.4246556184486255,
+     "pages_per_s": 258.6718923843394,
+     "median_cpu_s": 4.373639000000001,
+     "sum_cpu_s": 86.649934,
+     "median_rss_mb": 439.48046875,
+     "max_rss_mb": 2903.6171875,
+     "median_rep_rel_range": 0.15787048684892557,
+     "ratio_vs_ref_median": 22.1656011324218,
+     "ratio_vs_ref_gmean": 22.405551918509875,
+     "ratio_vs_ref_min": 2.9954917260054157,
+     "ratio_vs_ref_max": 135.17761128250328
+    },
+    "vp-wt1r": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 1.208319,
+     "iqr_wall_s": [
+      0.653689,
+      2.0070895
+     ],
+     "max_wall_s": 9.830459,
+     "sum_wall_s": 35.389801,
+     "docs_per_s": 0.42385092812474423,
+     "pages_per_s": 258.1817286850525,
+     "median_cpu_s": 4.264441,
+     "sum_cpu_s": 85.986801,
+     "median_rss_mb": 438.3828125,
+     "max_rss_mb": 2742.23828125,
+     "median_rep_rel_range": 0.12055078378598266,
+     "ratio_vs_ref_median": 20.352450728763202,
+     "ratio_vs_ref_gmean": 22.44266856157286,
+     "ratio_vs_ref_min": 3.0205596229064287,
+     "ratio_vs_ref_max": 132.71683561040106
+    },
+    "vp-B": {
+     "files": 15,
+     "pages": 9137,
+     "median_wall_s": 4.910034,
+     "iqr_wall_s": [
+      2.605785,
+      8.235631
+     ],
+     "max_wall_s": 39.827833,
+     "sum_wall_s": 141.90419699999998,
+     "docs_per_s": 0.1057051187851759,
+     "pages_per_s": 64.38851135601014,
+     "median_cpu_s": 17.505496,
+     "sum_cpu_s": 346.043031,
+     "median_rss_mb": 448.22265625,
+     "max_rss_mb": 2925.48828125,
+     "median_rep_rel_range": null,
+     "ratio_vs_ref_median": 84.22597103613484,
+     "ratio_vs_ref_gmean": 90.06494045853654,
+     "ratio_vs_ref_min": 11.988201785177013,
+     "ratio_vs_ref_max": 536.5835169678272
+    }
+   }
+  },
+  "common_documents": 148,
+  "excluded_documents": [
+   "edge-zero-pages",
+   "encrypted-user-password",
+   "malformed-bad-xref",
+   "malformed-garbage",
+   "malformed-header-only",
+   "malformed-no-root",
+   "malformed-not-pdf",
+   "malformed-truncated",
+   "malformed-zero-byte"
+  ],
+  "failures": {
+   "dox": 40,
+   "dox-ua1rules": 40,
+   "vp-ua1": 45,
+   "vp-ua2": 45,
+   "vp-wt1a": 45,
+   "vp-wt1r": 45,
+   "cpdf-ua1": 45
+  },
+  "failure_details": {
+   "dox": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 2, 1 failed"
+    ]
+   ],
+   "dox-ua1rules": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 2, 1 failed"
+    ]
+   ],
+   "vp-ua1": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 8, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 7, 1 failed"
+    ]
+   ],
+   "vp-ua2": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 8, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 7, 1 failed"
+    ]
+   ],
+   "vp-wt1a": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 8, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 7, 1 failed"
+    ]
+   ],
+   "vp-wt1r": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 8, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "0",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "2",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-bad-xref",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "edge-zero-pages",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 8, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 7, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 7, 1 failed"
+    ]
+   ],
+   "cpdf-ua1": [
+    [
+     "malformed-truncated",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "0",
+     "exit 1, 1 failed"
+    ],
+    [
+     "libreoffice-draw-guide-268",
+     "0",
+     "timeout"
+    ],
+    [
+     "malformed-no-root",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "0",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-custom-shape-tutorial",
+     "0",
+     "timeout"
+    ],
+    [
+     "malformed-header-only",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "1",
+     "exit 1, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-draw-guide-268",
+     "1",
+     "timeout"
+    ],
+    [
+     "malformed-garbage",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-custom-shape-tutorial",
+     "1",
+     "timeout"
+    ],
+    [
+     "malformed-no-root",
+     "1",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-custom-shape-tutorial",
+     "2",
+     "timeout"
+    ],
+    [
+     "malformed-no-root",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-draw-guide-268",
+     "2",
+     "timeout"
+    ],
+    [
+     "malformed-not-pdf",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "2",
+     "exit 1, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "2",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-garbage",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-truncated",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "3",
+     "exit 1, 1 failed"
+    ],
+    [
+     "malformed-header-only",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "3",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-draw-guide-268",
+     "3",
+     "timeout"
+    ],
+    [
+     "libreoffice-custom-shape-tutorial",
+     "3",
+     "timeout"
+    ],
+    [
+     "malformed-header-only",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-zero-byte",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "encrypted-user-password",
+     "4",
+     "exit 1, 1 failed"
+    ],
+    [
+     "malformed-no-root",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-custom-shape-tutorial",
+     "4",
+     "timeout"
+    ],
+    [
+     "malformed-truncated",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "libreoffice-draw-guide-268",
+     "4",
+     "timeout"
+    ],
+    [
+     "malformed-garbage",
+     "4",
+     "exit 2, 1 failed"
+    ],
+    [
+     "malformed-not-pdf",
+     "4",
+     "exit 2, 1 failed"
+    ]
+   ]
+  },
+  "per_file_dox_wall_s": {
+   "annot-text-not-tagged": 0.005885,
+   "annot-trapnet": 0.005778,
+   "annots-no-tabs": 0.005906,
+   "annots-tabs-row": 0.005902,
+   "artifact-in-tagged": 0.005791,
+   "arxiv-2204.02311v5-palm": 0.134532,
+   "arxiv-2302.13971v1-llama": 0.03746,
+   "arxiv-2310.06825v1-mistral7b": 0.020408,
+   "cdc-mmwr-7301-h": 0.063709,
+   "cisa-sbd-pledge-2024": 0.027675,
+   "content-untagged": 0.005794,
+   "contrast-black": 0.004972,
+   "contrast-boundary-fail": 0.005014,
+   "contrast-boundary-pass": 0.00474,
+   "contrast-large-fail": 0.004854,
+   "contrast-large-pass": 0.005073,
+   "contrast-lightgrey": 0.004774,
+   "displaydoctitle-false": 0.00596,
+   "displaydoctitle-missing": 0.005535,
+   "edge-deep-structure": 0.007849,
+   "edge-empty-tagged-page": 0.004711,
+   "edge-incremental-update": 0.00566,
+   "embedded-file-no-name": 0.005779,
+   "encrypted-owner-only": 0.005758,
+   "field-alt-instead-of-tu": 0.004997,
+   "field-no-tu": 0.004891,
+   "field-not-in-form": 0.004773,
+   "figure-actualtext": 0.004708,
+   "figure-no-alt": 0.005833,
+   "figure-no-bbox": 0.004904,
+   "font-not-embedded": 0.005503,
+   "font-symbolic-with-encoding": 0.005817,
+   "font-truetype-no-encoding": 0.005575,
+   "font-type0-good": 0.005965,
+   "font-type0-no-tounicode": 0.005652,
+   "font-widths-mismatch": 0.005741,
+   "gao-green-book-2014": 0.064287,
+   "gao-yellow-book-2024": 0.158116,
+   "gen-large-2000-complex": 0.964531,
+   "gen-large-2000-simple": 0.47137,
+   "gen-large-500-complex": 0.216767,
+   "gen-large-500-simple": 0.11574,
+   "gen-medium-100-complex": 0.043764,
+   "gen-medium-20-simple": 0.008699,
+   "govinfo-budget-2025-app": 1.800323,
+   "govinfo-fr-2024-12-30": 1.246375,
+   "govinfo-uscode-2022-title26": 2.22877,
+   "heading-first-not-h1": 0.004689,
+   "heading-good-sequence": 0.005052,
+   "heading-h-and-hn": 0.004882,
+   "heading-skipped-level": 0.004929,
+   "heading-two-h-in-node": 0.004938,
+   "headings-without-outline": 0.00569,
+   "irs-fw4-2025": 0.027761,
+   "irs-p17-2023": 0.963767,
+   "lang-invalid": 0.005794,
+   "lang-missing": 0.005731,
+   "lang-private-use": 0.005749,
+   "lang-unknown-primary": 0.005663,
+   "lang-valid-de": 0.005757,
+   "latex-ltnews41": 0.028521,
+   "libreoffice-custom-shape-tutorial": 0.136565,
+   "libreoffice-draw-guide-268": 0.912995,
+   "link-no-contents": 0.005149,
+   "link-not-tagged": 0.00518,
+   "list-wrong-nesting": 0.005721,
+   "malformed-bad-xref": 0.007186,
+   "marked-false": 0.005663,
+   "metadata-missing": 0.00587,
+   "metadata-no-title": 0.005752,
+   "nara-jfk-104-10004-10143": 0.004942,
+   "nist-cswp29": 0.040792,
+   "nist-sp800-53Ar5": 2.603515,
+   "nist-sp800-53r5": 1.243226,
+   "nist-sp800-63-3": 0.10585,
+   "note-duplicate-id": 0.004878,
+   "note-no-id": 0.00492,
+   "oc-config-no-name": 0.005846,
+   "opm-of306": 0.017913,
+   "page-structparents-missing": 0.0058,
+   "parenttree-entry-missing": 0.005662,
+   "parenttree-missing": 0.005778,
+   "parenttree-wrong-owner": 0.005883,
+   "pdf20-simple": 0.004451,
+   "pdf20-utf8-test": 0.004854,
+   "pdfuaid-missing": 0.005924,
+   "rolemap-circular": 0.005625,
+   "rolemap-good": 0.005926,
+   "rolemap-missing": 0.00564,
+   "rolemap-standard-remapped": 0.005952,
+   "scanned-tagged-figure": 0.004872,
+   "scanned-untagged": 0.004548,
+   "structelem-no-parent": 0.005635,
+   "suspects-true": 0.005598,
+   "table-good": 0.004979,
+   "table-headers-ids": 0.00532,
+   "table-irregular": 0.00508,
+   "table-td-in-table": 0.004982,
+   "table-th-no-scope": 0.005074,
+   "tagged-in-artifact": 0.005519,
+   "ua1-good": 0.005818,
+   "ua1-good-5pages": 0.0057,
+   "ua2-good": 0.006001,
+   "untagged-text": 0.004538,
+   "uscis-ar11": 0.010796,
+   "verapdf-ua1-5-t01-fail-a": 0.005628,
+   "verapdf-ua1-5-t01-pass-a": 0.005708,
+   "verapdf-ua1-7-18.3-t01-pass-a": 0.005861,
+   "verapdf-ua1-7.1-t01-fail-a": 0.006793,
+   "verapdf-ua1-7.1-t01-pass-a": 0.00668,
+   "verapdf-ua1-7.10-t01-fail-a": 0.006302,
+   "verapdf-ua1-7.10-t01-pass-a": 0.00621,
+   "verapdf-ua1-7.11-t01-fail-a": 0.00577,
+   "verapdf-ua1-7.11-t01-pass-a": 0.005905,
+   "verapdf-ua1-7.15-t01-fail-a": 0.004894,
+   "verapdf-ua1-7.16-t01-fail-a": 0.00539,
+   "verapdf-ua1-7.16-t01-pass-a": 0.005208,
+   "verapdf-ua1-7.18.1-t01-fail-a": 0.005519,
+   "verapdf-ua1-7.2-t02-fail-a": 0.005335,
+   "verapdf-ua1-7.2-t02-pass-a": 0.005724,
+   "verapdf-ua1-7.20-t01-fail-a": 0.004924,
+   "verapdf-ua1-7.20-t01-pass-a": 0.004956,
+   "verapdf-ua1-7.21.3.1-t01-fail-a": 0.005263,
+   "verapdf-ua1-7.21.3.1-t01-pass-a": 0.005138,
+   "verapdf-ua1-7.3-t01-fail-a": 0.005333,
+   "verapdf-ua1-7.3-t01-pass-a": 0.005384,
+   "verapdf-ua1-7.4.2-t01-fail-a": 0.005124,
+   "verapdf-ua1-7.4.2-t01-pass-a": 0.005099,
+   "verapdf-ua1-7.5-t01-fail-a": 0.005571,
+   "verapdf-ua1-7.5-t01-pass-a": 0.005569,
+   "verapdf-ua1-7.7-t01-fail-a": 0.0076,
+   "verapdf-ua1-7.7-t01-pass-a": 0.007655,
+   "verapdf-ua1-7.9-t01-fail-a": 0.005419,
+   "verapdf-ua1-7.9-t01-pass-a": 0.005271,
+   "verapdf-ua2-5-t01-fail-a": 0.005154,
+   "verapdf-ua2-5-t02-pass-a": 0.005301,
+   "verapdf-ua2-8.11.1-t01-fail-a": 0.005056,
+   "verapdf-ua2-8.11.1-t01-pass-a": 0.005082,
+   "verapdf-ua2-8.2.1-t01-fail-a": 0.00436,
+   "verapdf-ua2-8.2.2-t01-pass-a": 0.006297,
+   "verapdf-ua2-8.4.4-t02-fail-a": 0.004901,
+   "verapdf-ua2-8.4.4-t02-pass-a": 0.004966,
+   "verapdf-ua2-8.9.2.2-t01-fail-a": 0.005213,
+   "w3c-pdf1-alt-entry": 0.00571,
+   "w3c-pdf12-form-fields": 0.008464,
+   "w3c-pdf17-page-numbers": 0.006298,
+   "w3c-pdf3-reading-order-word": 0.006823,
+   "w3c-pdf6-table-headers": 0.00661,
+   "xfa-dynamic": 0.005875
+  }
+ },
+ "batch": {
+  "dox": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    24
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 42.607343,
+   "min_wall_s": 41.52486,
+   "max_wall_s": 47.062125,
+   "docs_per_s": 11.054432565766891,
+   "docs_per_s_min": 10.008047872891417,
+   "docs_per_s_max": 11.342602961214078,
+   "pages_per_s": 985.8159895114793,
+   "median_cpu_s": 42.521192,
+   "median_rss_mb": 819.64453125,
+   "max_rss_mb": 820.6953125
+  },
+  "dox-ua1rules": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    24
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 27.66303,
+   "min_wall_s": 27.370919,
+   "max_wall_s": 29.881445,
+   "docs_per_s": 17.026334425404592,
+   "docs_per_s_min": 15.762289942805644,
+   "docs_per_s_max": 17.208044786512282,
+   "pages_per_s": 1518.3803075801893,
+   "median_cpu_s": 27.590181,
+   "median_rss_mb": 759.21484375,
+   "max_rss_mb": 760.5390625
+  },
+  "vp-ua1": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    27
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 165.307389,
+   "min_wall_s": 160.960103,
+   "max_wall_s": 172.227539,
+   "docs_per_s": 2.849237428824189,
+   "docs_per_s_min": 2.734754283401797,
+   "docs_per_s_max": 2.9261909704419113,
+   "pages_per_s": 254.09027542017495,
+   "median_cpu_s": 215.180854,
+   "median_rss_mb": 8305.91796875,
+   "max_rss_mb": 10410.59375
+  },
+  "vp-ua2": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    27
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 186.476262,
+   "min_wall_s": 173.130839,
+   "max_wall_s": 225.686858,
+   "docs_per_s": 2.5257906553274863,
+   "docs_per_s_min": 2.086962458398885,
+   "docs_per_s_max": 2.720485863295562,
+   "pages_per_s": 225.2458278040773,
+   "median_cpu_s": 240.48196000000002,
+   "median_rss_mb": 9003.2890625,
+   "max_rss_mb": 18020.39453125
+  },
+  "vp-wt1a": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    27
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 182.886284,
+   "min_wall_s": 179.142523,
+   "max_wall_s": 222.137612,
+   "docs_per_s": 2.5753708244189597,
+   "docs_per_s_min": 2.1203072985226834,
+   "docs_per_s_max": 2.6291915069210003,
+   "pages_per_s": 229.66730517636853,
+   "median_cpu_s": 240.427406,
+   "median_rss_mb": 9167.2578125,
+   "max_rss_mb": 10430.33203125
+  },
+  "vp-wt1r": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    27
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 177.444777,
+   "min_wall_s": 173.187907,
+   "max_wall_s": 245.83681,
+   "docs_per_s": 2.654346935215794,
+   "docs_per_s_min": 1.9159051079453886,
+   "docs_per_s_max": 2.719589422603277,
+   "pages_per_s": 236.71026394876645,
+   "median_cpu_s": 228.544819,
+   "median_rss_mb": 8909.30859375,
+   "max_rss_mb": 8952.54296875
+  },
+  "vp1.30.2-ua1": {
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    27
+   ],
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 168.314759,
+   "min_wall_s": 159.899694,
+   "max_wall_s": 198.334912,
+   "docs_per_s": 2.7983285767589754,
+   "docs_per_s_min": 2.3747710135873605,
+   "docs_per_s_max": 2.94559663134815,
+   "pages_per_s": 249.55030830065235,
+   "median_cpu_s": 217.597044,
+   "median_rss_mb": 8629.93359375,
+   "max_rss_mb": 9582.47265625
+  },
+  "vp-B": {
+   "runs": 5,
+   "files_per_run": 471,
+   "pages_per_run": 42003,
+   "median_wall_s": 708.275989,
+   "min_wall_s": 691.076227,
+   "max_wall_s": 865.888819,
+   "docs_per_s": 0.6649950122762104,
+   "docs_per_s_min": 0.5439497423513907,
+   "docs_per_s_max": 0.6815456553101775,
+   "pages_per_s": 59.30315392916701,
+   "median_rss_mb": 9167.2578125
+  }
+ },
+ "batch_inprocess": {
+  "dox": {
+   "first": {
+    "files": 149,
+    "sum_s": 13.063027158,
+    "docs_per_s": 11.40623824767524,
+    "pages_per_s": 1071.8036356087318,
+    "median_ms_by_tier": {
+     "large": 1010.801,
+     "medium": 57.1564,
+     "small": 1.1907800000000002
+    }
+   },
+   "warm": {
+    "files": 149,
+    "sum_s": 13.645938915,
+    "docs_per_s": 10.918999486082633,
+    "pages_per_s": 1026.01954231304,
+    "median_ms_by_tier": {
+     "large": 1054.4475,
+     "medium": 71.70595,
+     "small": 1.2682575
+    }
+   }
+  },
+  "dox-ua1rules": {
+   "first": {
+    "files": 149,
+    "sum_s": 8.445033507,
+    "docs_per_s": 17.643506076855168,
+    "pages_per_s": 1657.8975072620751,
+    "median_ms_by_tier": {
+     "large": 699.8040000000001,
+     "medium": 41.9921,
+     "small": 0.9210894999999999
+    }
+   },
+   "warm": {
+    "files": 149,
+    "sum_s": 8.608891324,
+    "docs_per_s": 17.307687412038238,
+    "pages_per_s": 1626.3418218519957,
+    "median_ms_by_tier": {
+     "large": 704.2860000000001,
+     "medium": 51.9487,
+     "small": 0.9823649999999999
+    }
+   }
+  },
+  "vp-ua1": {
+   "first": {
+    "files": 148,
+    "sum_s": 55.911,
+    "docs_per_s": 2.647064083990628,
+    "pages_per_s": 250.39795389100533,
+    "median_ms_by_tier": {
+     "large": 3229.0,
+     "medium": 409.0,
+     "small": 5.0
+    }
+   },
+   "warm": {
+    "files": 148,
+    "sum_s": 53.361,
+    "docs_per_s": 2.7735612151196567,
+    "pages_per_s": 262.3638987275351,
+    "median_ms_by_tier": {
+     "large": 3229.75,
+     "medium": 287.0,
+     "small": 3.0
+    }
+   }
+  },
+  "vp-ua2": {
+   "first": {
+    "files": 148,
+    "sum_s": 63.581,
+    "docs_per_s": 2.3277394190088234,
+    "pages_per_s": 220.1915666629968,
+    "median_ms_by_tier": {
+     "large": 3842.5,
+     "medium": 421.0,
+     "small": 5.0
+    }
+   },
+   "warm": {
+    "files": 148,
+    "sum_s": 58.834,
+    "docs_per_s": 2.515552231702757,
+    "pages_per_s": 237.95764353944998,
+    "median_ms_by_tier": {
+     "large": 3628.0,
+     "medium": 323.5,
+     "small": 4.0
+    }
+   }
+  },
+  "vp-wt1a": {
+   "first": {
+    "files": 148,
+    "sum_s": 63.434,
+    "docs_per_s": 2.3331336507235867,
+    "pages_per_s": 220.70183182520415,
+    "median_ms_by_tier": {
+     "large": 3713.5,
+     "medium": 441.0,
+     "small": 5.0
+    }
+   },
+   "warm": {
+    "files": 148,
+    "sum_s": 58.749,
+    "docs_per_s": 2.519191816030911,
+    "pages_per_s": 238.30192854346456,
+    "median_ms_by_tier": {
+     "large": 3633.25,
+     "medium": 321.5,
+     "small": 4.0
+    }
+   }
+  },
+  "vp-wt1r": {
+   "first": {
+    "files": 148,
+    "sum_s": 60.774,
+    "docs_per_s": 2.435251916938164,
+    "pages_per_s": 230.361667818475,
+    "median_ms_by_tier": {
+     "large": 3603.0,
+     "medium": 388.0,
+     "small": 4.0
+    }
+   },
+   "warm": {
+    "files": 148,
+    "sum_s": 57.305,
+    "docs_per_s": 2.5826716691388185,
+    "pages_per_s": 244.3067795131315,
+    "median_ms_by_tier": {
+     "large": 3522.75,
+     "medium": 300.0,
+     "small": 3.0
+    }
+   }
+  },
+  "vp1.30.2-ua1": {
+   "first": {
+    "files": 148,
+    "sum_s": 56.189,
+    "docs_per_s": 2.6339675025360836,
+    "pages_per_s": 249.15908807773764,
+    "median_ms_by_tier": {
+     "large": 3315.5,
+     "medium": 403.0,
+     "small": 5.0
+    }
+   },
+   "warm": {
+    "files": 148,
+    "sum_s": 53.7125,
+    "docs_per_s": 2.755410751687224,
+    "pages_per_s": 260.6469629974401,
+    "median_ms_by_tier": {
+     "large": 3197.0,
+     "medium": 282.5,
+     "small": 3.0
+    }
+   }
+  }
+ },
+ "parallel": {
+  "native|dox|1": {
+   "mode": "native",
+   "variant": "dox",
+   "workers": 1,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 14.150246,
+   "min_wall_s": 13.617358,
+   "max_wall_s": 14.290989,
+   "docs_per_s": 11.095213468373625,
+   "docs_per_s_min": 10.98594366002241,
+   "docs_per_s_max": 11.529402399496291,
+   "pages_per_s": 989.452762870695,
+   "median_cpu_s": 14.095957,
+   "max_proc_rss_mb": 742.953125,
+   "peak_tree_rss_mb": 745.203125,
+   "median_peak_tree_rss_mb": 744.359375,
+   "scaling_vs_1": 1.0
+  },
+  "native|dox|2": {
+   "mode": "native",
+   "variant": "dox",
+   "workers": 2,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 8.104112,
+   "min_wall_s": 8.064351,
+   "max_wall_s": 8.165804,
+   "docs_per_s": 19.372881322469382,
+   "docs_per_s_min": 19.226520744313728,
+   "docs_per_s_max": 19.46839863493045,
+   "pages_per_s": 1727.6414738591964,
+   "median_cpu_s": 15.258740999999999,
+   "max_proc_rss_mb": 1190.6328125,
+   "peak_tree_rss_mb": 1193.14453125,
+   "median_peak_tree_rss_mb": 1191.92578125,
+   "scaling_vs_1": 1.7460575569538028
+  },
+  "native|dox|4": {
+   "mode": "native",
+   "variant": "dox",
+   "workers": 4,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 5.248913,
+   "min_wall_s": 5.18859,
+   "max_wall_s": 5.551596,
+   "docs_per_s": 29.91095489675672,
+   "docs_per_s_min": 28.280155832665056,
+   "docs_per_s_max": 30.258702267860826,
+   "pages_per_s": 2667.40942362733,
+   "median_cpu_s": 15.259675,
+   "max_proc_rss_mb": 1949.51171875,
+   "peak_tree_rss_mb": 1952.328125,
+   "median_peak_tree_rss_mb": 1763.8828125,
+   "scaling_vs_1": 2.6958431202803324
+  },
+  "native|dox|8": {
+   "mode": "native",
+   "variant": "dox",
+   "workers": 8,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 4.21438,
+   "min_wall_s": 4.154485,
+   "max_wall_s": 4.314912,
+   "docs_per_s": 37.253403822151775,
+   "docs_per_s_min": 36.385446562989,
+   "docs_per_s_max": 37.7904842597819,
+   "pages_per_s": 3322.196859324503,
+   "median_cpu_s": 21.787419,
+   "max_proc_rss_mb": 2627.87890625,
+   "peak_tree_rss_mb": 2630.58203125,
+   "median_peak_tree_rss_mb": 2629.19921875,
+   "scaling_vs_1": 3.3576103721069286
+  },
+  "native|vp-ua1|1": {
+   "mode": "native",
+   "variant": "vp-ua1",
+   "workers": 1,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 57.193543,
+   "min_wall_s": 55.73745,
+   "max_wall_s": 61.335357,
+   "docs_per_s": 2.745065120375564,
+   "docs_per_s_min": 2.5596981525680205,
+   "docs_per_s_max": 2.8167775884975,
+   "pages_per_s": 244.80036146737754,
+   "median_cpu_s": 86.49430799999999,
+   "max_proc_rss_mb": 8258.109375,
+   "peak_tree_rss_mb": 8261.1015625,
+   "median_peak_tree_rss_mb": 7793.26953125,
+   "scaling_vs_1": 1.0
+  },
+  "native|vp-ua1|2": {
+   "mode": "native",
+   "variant": "vp-ua1",
+   "workers": 2,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 38.682445,
+   "min_wall_s": 36.583422,
+   "max_wall_s": 39.087688,
+   "docs_per_s": 4.058688637701159,
+   "docs_per_s_min": 4.016610038434609,
+   "docs_per_s_max": 4.291561352571119,
+   "pages_per_s": 361.94713131499316,
+   "median_cpu_s": 124.441646,
+   "max_proc_rss_mb": 7614.20703125,
+   "peak_tree_rss_mb": 14276.55859375,
+   "median_peak_tree_rss_mb": 12725.66015625,
+   "scaling_vs_1": 1.4785400198979148
+  },
+  "native|vp-ua1|4": {
+   "mode": "native",
+   "variant": "vp-ua1",
+   "workers": 4,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 32.275989,
+   "min_wall_s": 32.124639,
+   "max_wall_s": 34.31712,
+   "docs_per_s": 4.864297109532414,
+   "docs_per_s_min": 4.574975988661053,
+   "docs_per_s_max": 4.8872144524332235,
+   "pages_per_s": 433.789960704225,
+   "median_cpu_s": 170.520014,
+   "max_proc_rss_mb": 7760.859375,
+   "peak_tree_rss_mb": 20890.9375,
+   "median_peak_tree_rss_mb": 18892.79296875,
+   "scaling_vs_1": 1.7720151968077569
+  },
+  "native|vp-ua1|8": {
+   "mode": "native",
+   "variant": "vp-ua1",
+   "workers": 8,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 36.255788,
+   "min_wall_s": 35.503579,
+   "max_wall_s": 37.468148,
+   "docs_per_s": 4.330343061361678,
+   "docs_per_s_min": 4.190225788581811,
+   "docs_per_s_max": 4.422089389917563,
+   "pages_per_s": 386.1728229434704,
+   "median_cpu_s": 239.579252,
+   "max_proc_rss_mb": 9553.08203125,
+   "peak_tree_rss_mb": 27737.23828125,
+   "median_peak_tree_rss_mb": 22788.53125,
+   "scaling_vs_1": 1.5775010323868837
+  },
+  "pool|dox|1": {
+   "mode": "pool",
+   "variant": "dox",
+   "workers": 1,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 14.998481,
+   "min_wall_s": 14.675577,
+   "max_wall_s": 15.719015,
+   "docs_per_s": 10.467726698456998,
+   "docs_per_s_min": 9.98790318604569,
+   "docs_per_s_max": 10.698046148372905,
+   "pages_per_s": 933.494531879595,
+   "median_cpu_s": 14.770029999999998,
+   "max_proc_rss_mb": 722.515625,
+   "peak_tree_rss_mb": 724.94921875,
+   "median_peak_tree_rss_mb": 724.18359375,
+   "scaling_vs_1": 1.0
+  },
+  "pool|dox|2": {
+   "mode": "pool",
+   "variant": "dox",
+   "workers": 2,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 7.94821,
+   "min_wall_s": 7.829887,
+   "max_wall_s": 8.051582,
+   "docs_per_s": 19.752875175668482,
+   "docs_per_s_min": 19.499273558910534,
+   "docs_per_s_max": 20.051374943214377,
+   "pages_per_s": 1761.5286963983085,
+   "median_cpu_s": 15.197565,
+   "max_proc_rss_mb": 722.6328125,
+   "peak_tree_rss_mb": 945.69140625,
+   "median_peak_tree_rss_mb": 944.5625,
+   "scaling_vs_1": 1.887026261258824
+  },
+  "pool|dox|4": {
+   "mode": "pool",
+   "variant": "dox",
+   "workers": 4,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 5.179988,
+   "min_wall_s": 5.046868,
+   "max_wall_s": 5.203673,
+   "docs_per_s": 30.308950522665306,
+   "docs_per_s_min": 30.170996524954585,
+   "docs_per_s_max": 31.10840228038459,
+   "pages_per_s": 2702.9020144448214,
+   "median_cpu_s": 15.482529,
+   "max_proc_rss_mb": 722.95703125,
+   "peak_tree_rss_mb": 1199.39453125,
+   "median_peak_tree_rss_mb": 1141.25390625,
+   "scaling_vs_1": 2.8954663601537303
+  },
+  "pool|dox|8": {
+   "mode": "pool",
+   "variant": "dox",
+   "workers": 8,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    8
+   ],
+   "median_wall_s": 4.191482,
+   "min_wall_s": 3.995863,
+   "max_wall_s": 4.255947,
+   "docs_per_s": 37.45691857915649,
+   "docs_per_s_min": 36.88955713029321,
+   "docs_per_s_max": 39.2906363406353,
+   "pages_per_s": 3340.345968323376,
+   "median_cpu_s": 21.703759,
+   "max_proc_rss_mb": 724.39453125,
+   "peak_tree_rss_mb": 1769.5546875,
+   "median_peak_tree_rss_mb": 1740.59375,
+   "scaling_vs_1": 3.578324086802711
+  },
+  "pool|vp-ua1|1": {
+   "mode": "pool",
+   "variant": "vp-ua1",
+   "workers": 1,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 177.942105,
+   "min_wall_s": 169.561011,
+   "max_wall_s": 182.651298,
+   "docs_per_s": 0.8823094455356701,
+   "docs_per_s_min": 0.8595613703221534,
+   "docs_per_s_max": 0.9259204051337013,
+   "pages_per_s": 78.68289520347082,
+   "median_cpu_s": 533.9287129999999,
+   "max_proc_rss_mb": 5139.0078125,
+   "peak_tree_rss_mb": 5142.23046875,
+   "median_peak_tree_rss_mb": 4964.30859375,
+   "scaling_vs_1": 1.0
+  },
+  "pool|vp-ua1|2": {
+   "mode": "pool",
+   "variant": "vp-ua1",
+   "workers": 2,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 113.262019,
+   "min_wall_s": 109.323993,
+   "max_wall_s": 116.042779,
+   "docs_per_s": 1.3861663546718164,
+   "docs_per_s_min": 1.3529493291435222,
+   "docs_per_s_max": 1.4360982954583446,
+   "pages_per_s": 123.61601994751656,
+   "median_cpu_s": 648.386516,
+   "max_proc_rss_mb": 5681.62890625,
+   "peak_tree_rss_mb": 9364.54296875,
+   "median_peak_tree_rss_mb": 8926.6484375,
+   "scaling_vs_1": 1.5710659810858574
+  },
+  "pool|vp-ua1|4": {
+   "mode": "pool",
+   "variant": "vp-ua1",
+   "workers": 4,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 96.52892,
+   "min_wall_s": 94.389131,
+   "max_wall_s": 99.671244,
+   "docs_per_s": 1.6264555741429616,
+   "docs_per_s_min": 1.5751784938091071,
+   "docs_per_s_max": 1.6633271048972789,
+   "pages_per_s": 145.0446146087618,
+   "median_cpu_s": 747.5790380000001,
+   "max_proc_rss_mb": 5919.44921875,
+   "peak_tree_rss_mb": 12455.77734375,
+   "median_peak_tree_rss_mb": 10966.00390625,
+   "scaling_vs_1": 1.8434071882291858
+  },
+  "pool|vp-ua1|8": {
+   "mode": "pool",
+   "variant": "vp-ua1",
+   "workers": 8,
+   "runs": 5,
+   "failed_runs": 0,
+   "unprocessed_files_per_run": [
+    9
+   ],
+   "median_wall_s": 102.636065,
+   "min_wall_s": 99.049709,
+   "max_wall_s": 104.479714,
+   "docs_per_s": 1.5296767271816198,
+   "docs_per_s_min": 1.502684052140495,
+   "docs_per_s_max": 1.5850627082609603,
+   "pages_per_s": 136.41403730745134,
+   "median_cpu_s": 809.864608,
+   "max_proc_rss_mb": 9628.0703125,
+   "peak_tree_rss_mb": 15401.0390625,
+   "median_peak_tree_rss_mb": 14220.5078125,
+   "scaling_vs_1": 1.7337190879248927
+  }
+ },
+ "ab_published": {
+  "labels": [
+   "f37a695",
+   "5ae7da2"
+  ],
+  "documents": 157,
+  "reps": 5,
+  "tiers": {
+   "all": {
+    "docs": 156,
+    "median_wall_s": {
+     "f37a695": 0.0053365,
+     "5ae7da2": 0.005262
+    },
+    "median_rss_mb": {
+     "f37a695": 20.29296875,
+     "5ae7da2": 20.3203125
+    },
+    "max_rss_mb": {
+     "f37a695": 722.375,
+     "5ae7da2": 722.4296875
+    },
+    "sum_wall_s": {
+     "f37a695": 14.452344,
+     "5ae7da2": 14.426188999999999
+    },
+    "pages_per_s": {
+     "f37a695": 968.7701870367879,
+     "5ae7da2": 970.5265888309103
+    },
+    "median_ratio": 0.9969644261195449
+   },
+   "small": {
+    "docs": 135,
+    "median_wall_s": {
+     "f37a695": 0.005142,
+     "5ae7da2": 0.005138
+    },
+    "median_rss_mb": {
+     "f37a695": 19.95703125,
+     "5ae7da2": 19.9765625
+    },
+    "max_rss_mb": {
+     "f37a695": 28.9453125,
+     "5ae7da2": 28.9453125
+    },
+    "sum_wall_s": {
+     "f37a695": 0.797643,
+     "5ae7da2": 0.795418
+    },
+    "pages_per_s": {
+     "f37a695": 209.36684707318938,
+     "5ae7da2": 209.95250296070748
+    },
+    "median_ratio": 0.9959333849728892
+   },
+   "medium": {
+    "docs": 11,
+    "median_wall_s": {
+     "f37a695": 0.066045,
+     "5ae7da2": 0.065536
+    },
+    "median_rss_mb": {
+     "f37a695": 33.48828125,
+     "5ae7da2": 33.30859375
+    },
+    "max_rss_mb": {
+     "f37a695": 242.12890625,
+     "5ae7da2": 242.09765625
+    },
+    "sum_wall_s": {
+     "f37a695": 1.806067,
+     "5ae7da2": 1.806882
+    },
+    "pages_per_s": {
+     "f37a695": 547.0450431794612,
+     "5ae7da2": 546.7982967343744
+    },
+    "median_ratio": 0.9976241900647949
+   },
+   "large": {
+    "docs": 10,
+    "median_wall_s": {
+     "f37a695": 1.0969735,
+     "5ae7da2": 1.099662
+    },
+    "median_rss_mb": {
+     "f37a695": 246.326171875,
+     "5ae7da2": 246.490234375
+    },
+    "max_rss_mb": {
+     "f37a695": 722.375,
+     "5ae7da2": 722.4296875
+    },
+    "sum_wall_s": {
+     "f37a695": 11.848634,
+     "5ae7da2": 11.823889
+    },
+    "pages_per_s": {
+     "f37a695": 1084.1756104543358,
+     "5ae7da2": 1086.4445699718597
+    },
+    "median_ratio": 1.0004951344408561
+   }
+  },
+  "same_exit_codes": true,
+  "same_processed": true,
+  "processed": {
+   "f37a695": 149,
+   "5ae7da2": 149
+  },
+  "same_findings": true,
+  "documents_with_different_findings": []
+ },
+ "load": {
+  "snapshots": [
+   {
+    "block": "cold",
+    "label": "before",
+    "time": "2026-11-13T16:23:01+0100",
+    "loadavg": "4.46 5.02 5.35 4/1784 506191",
+    "top": [
+     "98.9 31304 9 pdftoppm",
+     "42.3 428680 21 python",
+     "19.0 42256 5 python3",
+     "11.0 734356 19 chrome",
+     "6.9 454224 14 chrome",
+     "5.9 571476 27 chrome"
+    ]
+   },
+   {
+    "block": "cold",
+    "label": "after rep 0",
+    "time": "2026-11-13T16:39:18+0100",
+    "loadavg": "11.05 8.01 6.35 2/1884 607012",
+    "top": [
+     "100 34268 24 python",
+     "41.7 452512 17 python",
+     "18.5 812524 11 python",
+     "9.7 749940 10 chrome",
+     "6.6 22832 8 python3",
+     "6.2 454220 25 chrome"
+    ]
+   },
+   {
+    "block": "cold",
+    "label": "after rep 1",
+    "time": "2026-11-13T16:55:19+0100",
+    "loadavg": "3.76 4.54 5.51 6/1862 700521",
+    "top": [
+     "100 9643164 5 python",
+     "100 5244 29 pdfinfo",
+     "95.3 72916 18 eqx-validate-73",
+     "41.7 463408 25 python",
+     "25.6 1095984 10 python",
+     "8.7 738000 17 chrome"
+    ]
+   },
+   {
+    "block": "cold",
+    "label": "after rep 2",
+    "time": "2026-11-13T17:11:36+0100",
+    "loadavg": "5.29 5.13 5.12 1/1928 795065",
+    "top": [
+     "42.3 465548 17 python",
+     "33.5 1217076 12 python",
+     "11.6 406672 12 chrome",
+     "9.1 738500 14 chrome",
+     "5.6 480620 23 chrome",
+     "4.6 517600 14 chrome"
+    ]
+   },
+   {
+    "block": "cold",
+    "label": "after rep 3",
+    "time": "2026-11-13T17:27:53+0100",
+    "loadavg": "3.51 4.33 4.90 2/2147 898764",
+    "top": [
+     "97.5 77656 22 eqx-validate-73",
+     "42.5 468416 28 python",
+     "40.8 1369160 18 python",
+     "9.8 735852 8 chrome",
+     "5.5 454880 24 chrome",
+     "5.5 355148 10 2.1.323"
+    ]
+   },
+   {
+    "block": "cold",
+    "label": "after rep 4",
+    "time": "2026-11-13T17:44:43+0100",
+    "loadavg": "7.43 6.18 5.52 4/2336 1007166",
+    "top": [
+     "111 30480 23 eqx-validate-73",
+     "99.6 24564 9 fuzz_tables",
+     "45.4 361060 20 python",
+     "39.5 1421020 16 python",
+     "33.0 843664 25 chrome",
+     "28.6 653812 13 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "before",
+    "time": "2026-11-13T17:44:43+0100",
+    "loadavg": "7.43 6.18 5.52 8/2332 1007167",
+    "top": [
+     "99.6 24564 9 fuzz_tables",
+     "45.4 361032 20 python",
+     "39.5 1421020 16 python",
+     "33.0 843664 25 chrome",
+     "28.6 653964 13 chrome",
+     "9.0 645944 12 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "after rep 0",
+    "time": "2026-11-13T17:56:33+0100",
+    "loadavg": "28.19 17.20 10.43 7/2027 1093849",
+    "top": [
+     "104 16232 16 eqx-validate-73",
+     "100 18408 24 eqx-validate-73",
+     "99.5 24564 11 fuzz_tables",
+     "55.3 464632 23 python",
+     "40.5 1483108 12 python",
+     "28.2 675484 8 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "after rep 1",
+    "time": "2026-11-13T18:08:35+0100",
+    "loadavg": "23.75 19.58 13.93 6/2292 1187332",
+    "top": [
+     "100 32316 26 eqx-validate-73",
+     "100 39548 31 pdftoppm",
+     "99.6 4136 9 fuzz_tables_fas",
+     "58.6 513652 18 python",
+     "43.5 1499444 18 python",
+     "40.1 952696 14 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "after rep 2",
+    "time": "2026-11-13T18:20:43+0100",
+    "loadavg": "13.57 17.68 15.09 7/2366 1284030",
+    "top": [
+     "100 28360 18 eqx-validate-73",
+     "100 3420 20 eqx-validate-73",
+     "99.5 4132 11 fuzz_tables_fas",
+     "62.6 616832 16 python",
+     "45.8 1508316 13 python",
+     "32.6 1142648 21 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "after rep 3",
+    "time": "2026-11-13T18:32:54+0100",
+    "loadavg": "8.91 15.37 14.74 3/2209 1379288",
+    "top": [
+     "64.7 694340 30 python",
+     "42.0 934132 14 python",
+     "36.2 1107108 4 chrome",
+     "32.0 1276528 10 chrome",
+     "10.5 646200 11 chrome",
+     "7.3 654164 17 chrome"
+    ]
+   },
+   {
+    "block": "parallel",
+    "label": "after rep 4",
+    "time": "2026-11-13T18:44:36+0100",
+    "loadavg": "7.02 11.50 13.72 4/2026 1466162",
+    "top": [
+     "100 4 18 taskset",
+     "99.3 228088 24 eqx-validate-73",
+     "64.7 764544 31 python",
+     "34.7 1083396 14 python",
+     "30.0 1182888 11 chrome",
+     "10.6 537808 20 chrome"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "before",
+    "time": "2026-11-13T18:44:36+0100",
+    "loadavg": "7.02 11.50 13.72 3/2029 1466166",
+    "top": [
+     "99.3 228088 24 eqx-validate-73",
+     "66.6 14536 18 pdfinfo",
+     "64.7 764556 31 python",
+     "34.7 1083396 14 python",
+     "30.0 1182888 11 chrome",
+     "10.6 537808 20 chrome"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "after rep 0",
+    "time": "2026-11-13T18:59:58+0100",
+    "loadavg": "4.57 5.09 8.05 1/1952 1540539",
+    "top": [
+     "63.7 815276 22 python",
+     "21.1 678196 6 chrome",
+     "10.5 528724 28 chrome",
+     "6.7 670756 31 chrome",
+     "5.4 431368 8 python",
+     "5.1 412252 31 hyprland"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "after rep 1",
+    "time": "2026-11-13T19:15:49+0100",
+    "loadavg": "10.87 7.99 7.84 11/2681 1698550",
+    "top": [
+     "164 0 20 tesseract <defunct>",
+     "163 71028 18 tesseract",
+     "150 117564 29 tesseract",
+     "104 2790724 24 python",
+     "100 186352 13 dox-validate",
+     "100 42140 25 tesseract"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "after rep 2",
+    "time": "2026-11-13T19:34:51+0100",
+    "loadavg": "10.87 10.74 10.01 5/2328 1823009",
+    "top": [
+     "207 406052 17 python",
+     "206 85256 0 python",
+     "62.1 904752 24 python",
+     "37.7 838652 28 chrome",
+     "29.0 1119772 19 chrome",
+     "26.0 888976 13 python"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "after rep 3",
+    "time": "2026-11-13T19:51:28+0100",
+    "loadavg": "7.90 6.78 8.12 48/2439 1908172",
+    "top": [
+     "133 2473976 30 python",
+     "100 34696 3 python",
+     "46.7 429056 27 python",
+     "36.5 684568 0 chrome",
+     "25.8 587712 19 chrome",
+     "16.7 447416 11 python"
+    ]
+   },
+   {
+    "block": "batch",
+    "label": "after rep 4",
+    "time": "2026-11-13T20:07:11+0100",
+    "loadavg": "4.22 5.37 6.84 6/2168 2021848",
+    "top": [
+     "322 87400 23 eqx-validate",
+     "100 2799404 16 python",
+     "55.5 527836 19 python",
+     "29.8 742956 12 chrome",
+     "12.6 562900 16 chrome",
+     "12.3 840228 13 python"
+    ]
+   },
+   {
+    "block": "startup",
+    "label": "before",
+    "time": "2026-11-13T20:07:11+0100",
+    "loadavg": "4.22 5.37 6.84 5/2171 2021852",
+    "top": [
+     "304 87400 23 eqx-validate",
+     "100 2799404 16 python",
+     "100 18052 30 eqx-validate-73",
+     "55.5 527848 19 python",
+     "29.8 742956 10 chrome",
+     "12.6 562900 16 chrome"
+    ]
+   },
+   {
+    "block": "startup",
+    "label": "after",
+    "time": "2026-11-13T20:07:31+0100",
+    "loadavg": "4.28 5.32 6.79 7/2176 2025890",
+    "top": [
+     "100 52908 31 eqx-validate-73",
+     "96.4 2684900 17 python",
+     "55.5 547172 28 python",
+     "29.7 742860 30 chrome",
+     "12.6 562900 18 chrome",
+     "12.1 840908 13 python"
+    ]
+   }
+  ],
+  "per_block": {
+   "startup": {
+    "runs": 80,
+    "sum_wall_s": 19.711944,
+    "sum_foreign_cpu_s": 0.953,
+    "load1_median": 4.28271484375,
+    "load1_max": 4.48193359375,
+    "load1_min": 4.11865234375
+   },
+   "cold": {
+    "runs": 5495,
+    "sum_wall_s": 4896.916032,
+    "sum_foreign_cpu_s": 2344.949,
+    "load1_median": 5.474609375,
+    "load1_max": 12.50830078125,
+    "load1_min": 2.8095703125
+   },
+   "batch": {
+    "runs": 35,
+    "sum_wall_s": 4952.195413,
+    "sum_foreign_cpu_s": 5580.483,
+    "load1_median": 6.458984375,
+    "load1_max": 12.17626953125,
+    "load1_min": 3.72900390625
+   },
+   "parallel": {
+    "runs": 80,
+    "sum_wall_s": 3591.555244,
+    "sum_foreign_cpu_s": 1058.302,
+    "load1_median": 12.807861328125,
+    "load1_max": 29.08349609375,
+    "load1_min": 6.02685546875
+   }
+  }
+ }
+}

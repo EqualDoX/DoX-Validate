@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="432" viewBox="0 0 760 432" font-family="system-ui, sans-serif" font-size="12" role="img" aria-label="Median wall time per document by size tier and tool, one process per file, log scale">
+<style>.bg{fill:#fcfcfb}.t1{fill:#1f1f1e}.t2{fill:#5f5e58}.grid{stroke:#e4e3de}.s1{fill:#2a78d6}.s2{fill:#eb6834}.s3{fill:#1baf7a}.s4{fill:#eda100}.s5{fill:#e87ba4}@media (prefers-color-scheme: dark){.bg{fill:#1a1a19}.t1{fill:#f0efec}.t2{fill:#c3c2b7}.grid{stroke:#3a3a37}.s1{fill:#3987e5}.s2{fill:#d95926}.s3{fill:#199e70}.s4{fill:#c98500}.s5{fill:#d55181}}</style>
+<rect class="bg" width="100%" height="100%"/>
+<text class="t1" x="8" y="20" font-size="14" font-weight="600">Median wall time per document, one process per file (log scale; shorter is faster)</text>
+<line class="grid" x1="240.0" y1="36" x2="240.0" y2="398"/>
+<text class="t2" x="240.0" y="414" text-anchor="middle">1 ms</text>
+<line class="grid" x1="330.0" y1="36" x2="330.0" y2="398"/>
+<text class="t2" x="330.0" y="414" text-anchor="middle">10 ms</text>
+<line class="grid" x1="420.0" y1="36" x2="420.0" y2="398"/>
+<text class="t2" x="420.0" y="414" text-anchor="middle">100 ms</text>
+<line class="grid" x1="510.0" y1="36" x2="510.0" y2="398"/>
+<text class="t2" x="510.0" y="414" text-anchor="middle">1 s</text>
+<line class="grid" x1="600.0" y1="36" x2="600.0" y2="398"/>
+<text class="t2" x="600.0" y="414" text-anchor="middle">10 s</text>
+<line class="grid" x1="690.0" y1="36" x2="690.0" y2="398"/>
+<text class="t2" x="690.0" y="414" text-anchor="middle">100 s</text>
+<text class="t1" x="8" y="56" font-weight="600">small (127 documents)</text>
+<text class="t2" x="232" y="75" text-anchor="end">dox-validate (full)</text>
+<rect class="s1" x="240" y="64" width="67.5" height="14" rx="2"><title>dox-validate (full catalogue), small: 5.63 ms</title></rect>
+<text class="t1" x="312.5" y="75">5.63 ms</text>
+<text class="t2" x="232" y="93" text-anchor="end">dox-validate --rules EQX-UA1-</text>
+<rect class="s2" x="240" y="82" width="62.9" height="14" rx="2"><title>dox-validate --rules EQX-UA1-, small: 5.00 ms</title></rect>
+<text class="t1" x="307.9" y="93">5.00 ms</text>
+<text class="t2" x="232" y="111" text-anchor="end">veraPDF -f ua1</text>
+<rect class="s3" x="240" y="100" width="252.9" height="14" rx="2"><title>veraPDF 1.30.4 -f ua1, small: 646 ms</title></rect>
+<text class="t1" x="497.9" y="111">646 ms</text>
+<text class="t2" x="232" y="129" text-anchor="end">veraPDF ua1+ua2+wt1a+wt1r</text>
+<rect class="s4" x="240" y="118" width="308.5" height="14" rx="2"><title>veraPDF 1.30.4 ua1+ua2+wt1a+wt1r (4 runs, summed), small: 2.68 s</title></rect>
+<text class="t1" x="553.5" y="129">2.68 s</text>
+<text class="t2" x="232" y="147" text-anchor="end">cpdf -verify PDF/UA-1</text>
+<rect class="s5" x="240" y="136" width="63.0" height="14" rx="2"><title>cpdf 2.9.3 -verify PDF/UA-1(matterhorn), small: 5.02 ms</title></rect>
+<text class="t1" x="308.0" y="147">5.02 ms</text>
+<text class="t1" x="8" y="172" font-weight="600">medium (11 documents)</text>
+<text class="t2" x="232" y="191" text-anchor="end">dox-validate (full)</text>
+<rect class="s1" x="240" y="180" width="162.7" height="14" rx="2"><title>dox-validate (full catalogue), medium: 64.3 ms</title></rect>
+<text class="t1" x="407.7" y="191">64.3 ms</text>
+<text class="t2" x="232" y="209" text-anchor="end">dox-validate --rules EQX-UA1-</text>
+<rect class="s2" x="240" y="198" width="154.3" height="14" rx="2"><title>dox-validate --rules EQX-UA1-, medium: 51.9 ms</title></rect>
+<text class="t1" x="399.3" y="209">51.9 ms</text>
+<text class="t2" x="232" y="227" text-anchor="end">veraPDF -f ua1</text>
+<rect class="s3" x="240" y="216" width="281.2" height="14" rx="2"><title>veraPDF 1.30.4 -f ua1, medium: 1.33 s</title></rect>
+<text class="t1" x="526.2" y="227">1.33 s</text>
+<text class="t2" x="232" y="245" text-anchor="end">veraPDF ua1+ua2+wt1a+wt1r</text>
+<rect class="s4" x="240" y="234" width="336.0" height="14" rx="2"><title>veraPDF 1.30.4 ua1+ua2+wt1a+wt1r (4 runs, summed), medium: 5.41 s</title></rect>
+<text class="t1" x="581.0" y="245">5.41 s</text>
+<text class="t2" x="232" y="263" text-anchor="end">cpdf -verify PDF/UA-1 (10 docs)</text>
+<rect class="s5" x="240" y="252" width="182.9" height="14" rx="2"><title>cpdf 2.9.3 -verify PDF/UA-1(matterhorn), medium: 108 ms</title></rect>
+<text class="t1" x="427.9" y="263">108 ms</text>
+<text class="t1" x="8" y="288" font-weight="600">large (10 documents)</text>
+<text class="t2" x="232" y="307" text-anchor="end">dox-validate (full)</text>
+<rect class="s1" x="240" y="296" width="273.9" height="14" rx="2"><title>dox-validate (full catalogue), large: 1.10 s</title></rect>
+<text class="t1" x="518.9" y="307">1.10 s</text>
+<text class="t2" x="232" y="325" text-anchor="end">dox-validate --rules EQX-UA1-</text>
+<rect class="s2" x="240" y="314" width="260.2" height="14" rx="2"><title>dox-validate --rules EQX-UA1-, large: 778 ms</title></rect>
+<text class="t1" x="505.2" y="325">778 ms</text>
+<text class="t2" x="232" y="343" text-anchor="end">veraPDF -f ua1</text>
+<rect class="s3" x="240" y="332" width="329.7" height="14" rx="2"><title>veraPDF 1.30.4 -f ua1, large: 4.60 s</title></rect>
+<text class="t1" x="574.7" y="343">4.60 s</text>
+<text class="t2" x="232" y="361" text-anchor="end">veraPDF ua1+ua2+wt1a+wt1r</text>
+<rect class="s4" x="240" y="350" width="386.4" height="14" rx="2"><title>veraPDF 1.30.4 ua1+ua2+wt1a+wt1r (4 runs, summed), large: 19.7 s</title></rect>
+<text class="t1" x="631.4" y="361">19.7 s</text>
+<text class="t2" x="232" y="379" text-anchor="end">cpdf -verify PDF/UA-1 (9 docs)</text>
+<rect class="s5" x="240" y="368" width="274.7" height="14" rx="2"><title>cpdf 2.9.3 -verify PDF/UA-1(matterhorn), large: 1.13 s</title></rect>
+<text class="t1" x="519.7" y="379">1.13 s</text>
+</svg>

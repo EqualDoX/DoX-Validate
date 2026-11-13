@@ -211,14 +211,36 @@ Per-target rule counts, the assessment model and what is not covered: [docs/STAN
 
 ## Performance
 
-<!-- BENCHMARK-SUMMARY: filled in from docs/BENCHMARKS.md once measurements are verified -->
+Measured against veraPDF on the independent test corpus of this repository: 157 files with 14,001 pages, of which
+148 were processed by both tools. The runs used 8 logical CPUs of an Intel Core i9-14900KF under Arch Linux, and the
+values are medians of 5 interleaved repetitions.
 
-*Benchmark results will be published here once the measurements are verified.*
+| | dox-validate | veraPDF 1.30.4, PDF/UA-1 profile |
+|---|---|---|
+| median time per document, one process per file: small / medium / large | 5.6 ms / 64 ms / 1.10 s | 646 ms / 1.33 s / 4.60 s |
+| throughput, one process per file, sequential | 975 pages/s (10.3 documents/s) | 88 pages/s (0.93 documents/s) |
+| best parallel throughput on 8 CPUs | 3,340 pages/s (8 processes) | 434 pages/s (`--processes 4`) |
+| peak memory per process: median / maximum | 20 MB / 722 MB | 235 MB / 4,971 MB |
+
+How to read these numbers:
+
+- **One dox-validate run covers more.** It evaluates the whole catalogue: PDF/UA-1, PDF/UA-2, WTPDF, the
+  PAC-equivalent checks and WCAG. veraPDF evaluates one profile per run. Running all four veraPDF profiles that
+  dox-validate covers takes 2.68 s / 5.41 s / 19.7 s per small / medium / large document.
+- **The gap is largest for small files.** There, the JVM start-up dominates veraPDF's run time. Inside one
+  long-running process, the per-document validation times of the two tools differ by about 3.9×.
+- **cpdf is comparable on small files.** Its PDF/UA-1 verifier, which covers only part of PDF/UA-1, is about as fast
+  as dox-validate there.
+- **Speed is not validation quality.** Correctness is tested separately, against expectations that do not come from
+  any tool ([tests/corpus/CORRECTNESS.md](tests/corpus/CORRECTNESS.md)).
+- **Measured commit.** The benchmark ran on commit `f37a695`. The published 0.2.0 gives the same exit codes and
+  findings on every corpus file, with run times within 0.4%.
 
 ## Reproducing the benchmarks
 
-The benchmark method, corpus, hardware and full results will be documented in `docs/BENCHMARKS.md`, with the
-scripts in `bench/`, when the results are published.
+Methodology, environment, scope, every result table with variability, the tools that could not be benchmarked and the
+open performance work: [docs/BENCHMARKS.md](docs/BENCHMARKS.md). Scripts, raw measurements and the exact commands:
+[`bench/`](bench/README.md).
 
 ## Testing
 
