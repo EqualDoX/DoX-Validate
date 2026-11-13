@@ -1,0 +1,2225 @@
+{
+ "schema": "eqx-standard/1",
+ "standard": "WCAG",
+ "versions": [
+  "2.0",
+  "2.1",
+  "2.2"
+ ],
+ "source": {
+  "url": "https://www.w3.org/WAI/WCAG22/wcag.json",
+  "retrieved": "2026-10-25",
+  "sha256": "3a034865a879a7d874b60ff2aec7f430cf37bc1597a1e00985680fd80ef5cf75",
+  "note": "W3C WCAG 2.2 Recommendation data; per-criterion 'versions' gives 2.0/2.1/2.2 membership."
+ },
+ "conformance_rule": "A target (version, level) includes every criterion of that version whose level is at or below the target level (WCAG 2.x conformance requirement 1).",
+ "criteria": [
+  {
+   "sc": "1.1.1",
+   "slug": "non-text-content",
+   "handle": "Non-text Content",
+   "guideline": "1.1",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF1",
+    "PDF4"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "1.2.1",
+   "slug": "audio-only-and-video-only-prerecorded",
+   "handle": "Audio-only and Video-only (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.2",
+   "slug": "captions-prerecorded",
+   "handle": "Captions (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.3",
+   "slug": "audio-description-or-media-alternative-prerecorded",
+   "handle": "Audio Description or Media Alternative (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.4",
+   "slug": "captions-live",
+   "handle": "Captions (Live)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.5",
+   "slug": "audio-description-prerecorded",
+   "handle": "Audio Description (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.6",
+   "slug": "sign-language-prerecorded",
+   "handle": "Sign Language (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.7",
+   "slug": "extended-audio-description-prerecorded",
+   "handle": "Extended Audio Description (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.8",
+   "slug": "media-alternative-prerecorded",
+   "handle": "Media Alternative (Prerecorded)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.2.9",
+   "slug": "audio-only-live",
+   "handle": "Audio-only (Live)",
+   "guideline": "1.2",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.3.1",
+   "slug": "info-and-relationships",
+   "handle": "Info and Relationships",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF6",
+    "PDF9",
+    "PDF10",
+    "PDF11",
+    "PDF12",
+    "PDF17",
+    "PDF20",
+    "PDF21"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "1.3.2",
+   "slug": "meaningful-sequence",
+   "handle": "Meaningful Sequence",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF3"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "1.3.3",
+   "slug": "sensory-characteristics",
+   "handle": "Sensory Characteristics",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.3.4",
+   "slug": "orientation",
+   "handle": "Orientation",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.3.5",
+   "slug": "identify-input-purpose",
+   "handle": "Identify Input Purpose",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.3.6",
+   "slug": "identify-purpose",
+   "handle": "Identify Purpose",
+   "guideline": "1.3",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.1",
+   "slug": "use-of-color",
+   "handle": "Use of Color",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.2",
+   "slug": "audio-control",
+   "handle": "Audio Control",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.3",
+   "slug": "contrast-minimum",
+   "handle": "Contrast (Minimum)",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.4",
+   "slug": "resize-text",
+   "handle": "Resize Text",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.5",
+   "slug": "images-of-text",
+   "handle": "Images of Text",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF7"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "1.4.6",
+   "slug": "contrast-enhanced",
+   "handle": "Contrast (Enhanced)",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.7",
+   "slug": "low-or-no-background-audio",
+   "handle": "Low or No Background Audio",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.8",
+   "slug": "visual-presentation",
+   "handle": "Visual Presentation",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.9",
+   "slug": "images-of-text-no-exception",
+   "handle": "Images of Text (No Exception)",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF7"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "1.4.10",
+   "slug": "reflow",
+   "handle": "Reflow",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.11",
+   "slug": "non-text-contrast",
+   "handle": "Non-text Contrast",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.12",
+   "slug": "text-spacing",
+   "handle": "Text Spacing",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "1.4.13",
+   "slug": "content-on-hover-or-focus",
+   "handle": "Content on Hover or Focus",
+   "guideline": "1.4",
+   "principle": "1",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.1.1",
+   "slug": "keyboard",
+   "handle": "Keyboard",
+   "guideline": "2.1",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF3",
+    "PDF11",
+    "PDF23"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.1.2",
+   "slug": "no-keyboard-trap",
+   "handle": "No Keyboard Trap",
+   "guideline": "2.1",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.1.3",
+   "slug": "keyboard-no-exception",
+   "handle": "Keyboard (No Exception)",
+   "guideline": "2.1",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.1.4",
+   "slug": "character-key-shortcuts",
+   "handle": "Character Key Shortcuts",
+   "guideline": "2.1",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.1",
+   "slug": "timing-adjustable",
+   "handle": "Timing Adjustable",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.2",
+   "slug": "pause-stop-hide",
+   "handle": "Pause, Stop, Hide",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.3",
+   "slug": "no-timing",
+   "handle": "No Timing",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.4",
+   "slug": "interruptions",
+   "handle": "Interruptions",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.5",
+   "slug": "re-authenticating",
+   "handle": "Re-authenticating",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.2.6",
+   "slug": "timeouts",
+   "handle": "Timeouts",
+   "guideline": "2.2",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.3.1",
+   "slug": "three-flashes-or-below-threshold",
+   "handle": "Three Flashes or Below Threshold",
+   "guideline": "2.3",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.3.2",
+   "slug": "three-flashes",
+   "handle": "Three Flashes",
+   "guideline": "2.3",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.3.3",
+   "slug": "animation-from-interactions",
+   "handle": "Animation from Interactions",
+   "guideline": "2.3",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.1",
+   "slug": "bypass-blocks",
+   "handle": "Bypass Blocks",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF9"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.2",
+   "slug": "page-titled",
+   "handle": "Page Titled",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF18"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.3",
+   "slug": "focus-order",
+   "handle": "Focus Order",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF3"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.4",
+   "slug": "link-purpose-in-context",
+   "handle": "Link Purpose (In Context)",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF11",
+    "PDF13"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.5",
+   "slug": "multiple-ways",
+   "handle": "Multiple Ways",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF2"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.6",
+   "slug": "headings-and-labels",
+   "handle": "Headings and Labels",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.7",
+   "slug": "focus-visible",
+   "handle": "Focus Visible",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.8",
+   "slug": "location",
+   "handle": "Location",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF14",
+    "PDF17"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.9",
+   "slug": "link-purpose-link-only",
+   "handle": "Link Purpose (Link Only)",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF11",
+    "PDF13"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "2.4.10",
+   "slug": "section-headings",
+   "handle": "Section Headings",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.11",
+   "slug": "focus-not-obscured-minimum",
+   "handle": "Focus Not Obscured (Minimum)",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.12",
+   "slug": "focus-not-obscured-enhanced",
+   "handle": "Focus Not Obscured (Enhanced)",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.4.13",
+   "slug": "focus-appearance",
+   "handle": "Focus Appearance",
+   "guideline": "2.4",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.1",
+   "slug": "pointer-gestures",
+   "handle": "Pointer Gestures",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.2",
+   "slug": "pointer-cancellation",
+   "handle": "Pointer Cancellation",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.3",
+   "slug": "label-in-name",
+   "handle": "Label in Name",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.4",
+   "slug": "motion-actuation",
+   "handle": "Motion Actuation",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.5",
+   "slug": "target-size-enhanced",
+   "handle": "Target Size (Enhanced)",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.6",
+   "slug": "concurrent-input-mechanisms",
+   "handle": "Concurrent Input Mechanisms",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.7",
+   "slug": "dragging-movements",
+   "handle": "Dragging Movements",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "2.5.8",
+   "slug": "target-size-minimum",
+   "handle": "Target Size (Minimum)",
+   "guideline": "2.5",
+   "principle": "2",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.1.1",
+   "slug": "language-of-page",
+   "handle": "Language of Page",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF16",
+    "PDF19"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.1.2",
+   "slug": "language-of-parts",
+   "handle": "Language of Parts",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF19"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.1.3",
+   "slug": "unusual-words",
+   "handle": "Unusual Words",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.1.4",
+   "slug": "abbreviations",
+   "handle": "Abbreviations",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF8"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.1.5",
+   "slug": "reading-level",
+   "handle": "Reading Level",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.1.6",
+   "slug": "pronunciation",
+   "handle": "Pronunciation",
+   "guideline": "3.1",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.2.1",
+   "slug": "on-focus",
+   "handle": "On Focus",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.2.2",
+   "slug": "on-input",
+   "handle": "On Input",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF15"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.2.3",
+   "slug": "consistent-navigation",
+   "handle": "Consistent Navigation",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF14",
+    "PDF17"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.2.4",
+   "slug": "consistent-identification",
+   "handle": "Consistent Identification",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.2.5",
+   "slug": "change-on-request",
+   "handle": "Change on Request",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.2.6",
+   "slug": "consistent-help",
+   "handle": "Consistent Help",
+   "guideline": "3.2",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.1",
+   "slug": "error-identification",
+   "handle": "Error Identification",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF5",
+    "PDF22"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.3.2",
+   "slug": "labels-or-instructions",
+   "handle": "Labels or Instructions",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF5",
+    "PDF10"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.3.3",
+   "slug": "error-suggestion",
+   "handle": "Error Suggestion",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF22"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "3.3.4",
+   "slug": "error-prevention-legal-financial-data",
+   "handle": "Error Prevention (Legal, Financial, Data)",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AA",
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.5",
+   "slug": "help",
+   "handle": "Help",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.6",
+   "slug": "error-prevention-all",
+   "handle": "Error Prevention (All)",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": "AAA",
+    "2.1": "AAA",
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.7",
+   "slug": "redundant-entry",
+   "handle": "Redundant Entry",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.8",
+   "slug": "accessible-authentication-minimum",
+   "handle": "Accessible Authentication (Minimum)",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "3.3.9",
+   "slug": "accessible-authentication-enhanced",
+   "handle": "Accessible Authentication (Enhanced)",
+   "guideline": "3.3",
+   "principle": "3",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": null,
+    "2.2": "AAA"
+   },
+   "in_versions": [
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  },
+  {
+   "sc": "4.1.1",
+   "slug": "parsing",
+   "handle": "Parsing (Obsolete and removed)",
+   "guideline": "4.1",
+   "principle": "4",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": null
+   },
+   "in_versions": [
+    "2.0",
+    "2.1"
+   ],
+   "pdf_techniques": [],
+   "notes": "Obsolete and removed in WCAG 2.2"
+  },
+  {
+   "sc": "4.1.2",
+   "slug": "name-role-value",
+   "handle": "Name, Role, Value",
+   "guideline": "4.1",
+   "principle": "4",
+   "level_by_version": {
+    "2.0": "A",
+    "2.1": "A",
+    "2.2": "A"
+   },
+   "in_versions": [
+    "2.0",
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [
+    "PDF10",
+    "PDF12"
+   ],
+   "notes": null
+  },
+  {
+   "sc": "4.1.3",
+   "slug": "status-messages",
+   "handle": "Status Messages",
+   "guideline": "4.1",
+   "principle": "4",
+   "level_by_version": {
+    "2.0": null,
+    "2.1": "AA",
+    "2.2": "AA"
+   },
+   "in_versions": [
+    "2.1",
+    "2.2"
+   ],
+   "pdf_techniques": [],
+   "notes": null
+  }
+ ],
+ "targets": [
+  {
+   "id": "wcag-2.0-A",
+   "version": "2.0",
+   "level": "A",
+   "criteria_count": 25,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.4.1",
+    "1.4.2",
+    "2.1.1",
+    "2.1.2",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "3.1.1",
+    "3.2.1",
+    "3.2.2",
+    "3.3.1",
+    "3.3.2",
+    "4.1.1",
+    "4.1.2"
+   ]
+  },
+  {
+   "id": "wcag-2.0-AA",
+   "version": "2.0",
+   "level": "AA",
+   "criteria_count": 38,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "2.1.1",
+    "2.1.2",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "3.1.1",
+    "3.1.2",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "4.1.1",
+    "4.1.2"
+   ]
+  },
+  {
+   "id": "wcag-2.0-AAA",
+   "version": "2.0",
+   "level": "AAA",
+   "criteria_count": 61,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.2.6",
+    "1.2.7",
+    "1.2.8",
+    "1.2.9",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "1.4.6",
+    "1.4.7",
+    "1.4.8",
+    "1.4.9",
+    "2.1.1",
+    "2.1.2",
+    "2.1.3",
+    "2.2.1",
+    "2.2.2",
+    "2.2.3",
+    "2.2.4",
+    "2.2.5",
+    "2.3.1",
+    "2.3.2",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "2.4.8",
+    "2.4.9",
+    "2.4.10",
+    "3.1.1",
+    "3.1.2",
+    "3.1.3",
+    "3.1.4",
+    "3.1.5",
+    "3.1.6",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.2.5",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "3.3.5",
+    "3.3.6",
+    "4.1.1",
+    "4.1.2"
+   ]
+  },
+  {
+   "id": "wcag-2.1-A",
+   "version": "2.1",
+   "level": "A",
+   "criteria_count": 30,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.4.1",
+    "1.4.2",
+    "2.1.1",
+    "2.1.2",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "3.1.1",
+    "3.2.1",
+    "3.2.2",
+    "3.3.1",
+    "3.3.2",
+    "4.1.1",
+    "4.1.2"
+   ]
+  },
+  {
+   "id": "wcag-2.1-AA",
+   "version": "2.1",
+   "level": "AA",
+   "criteria_count": 50,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.3.4",
+    "1.3.5",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "1.4.10",
+    "1.4.11",
+    "1.4.12",
+    "1.4.13",
+    "2.1.1",
+    "2.1.2",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "3.1.1",
+    "3.1.2",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "4.1.1",
+    "4.1.2",
+    "4.1.3"
+   ]
+  },
+  {
+   "id": "wcag-2.1-AAA",
+   "version": "2.1",
+   "level": "AAA",
+   "criteria_count": 78,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.2.6",
+    "1.2.7",
+    "1.2.8",
+    "1.2.9",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.3.4",
+    "1.3.5",
+    "1.3.6",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "1.4.6",
+    "1.4.7",
+    "1.4.8",
+    "1.4.9",
+    "1.4.10",
+    "1.4.11",
+    "1.4.12",
+    "1.4.13",
+    "2.1.1",
+    "2.1.2",
+    "2.1.3",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.2.3",
+    "2.2.4",
+    "2.2.5",
+    "2.2.6",
+    "2.3.1",
+    "2.3.2",
+    "2.3.3",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "2.4.8",
+    "2.4.9",
+    "2.4.10",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "2.5.5",
+    "2.5.6",
+    "3.1.1",
+    "3.1.2",
+    "3.1.3",
+    "3.1.4",
+    "3.1.5",
+    "3.1.6",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.2.5",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "3.3.5",
+    "3.3.6",
+    "4.1.1",
+    "4.1.2",
+    "4.1.3"
+   ]
+  },
+  {
+   "id": "wcag-2.2-A",
+   "version": "2.2",
+   "level": "A",
+   "criteria_count": 31,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.4.1",
+    "1.4.2",
+    "2.1.1",
+    "2.1.2",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "3.1.1",
+    "3.2.1",
+    "3.2.2",
+    "3.2.6",
+    "3.3.1",
+    "3.3.2",
+    "3.3.7",
+    "4.1.2"
+   ]
+  },
+  {
+   "id": "wcag-2.2-AA",
+   "version": "2.2",
+   "level": "AA",
+   "criteria_count": 55,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.3.4",
+    "1.3.5",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "1.4.10",
+    "1.4.11",
+    "1.4.12",
+    "1.4.13",
+    "2.1.1",
+    "2.1.2",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.3.1",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "2.4.11",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "2.5.7",
+    "2.5.8",
+    "3.1.1",
+    "3.1.2",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.2.6",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "3.3.7",
+    "3.3.8",
+    "4.1.2",
+    "4.1.3"
+   ]
+  },
+  {
+   "id": "wcag-2.2-AAA",
+   "version": "2.2",
+   "level": "AAA",
+   "criteria_count": 86,
+   "criteria": [
+    "1.1.1",
+    "1.2.1",
+    "1.2.2",
+    "1.2.3",
+    "1.2.4",
+    "1.2.5",
+    "1.2.6",
+    "1.2.7",
+    "1.2.8",
+    "1.2.9",
+    "1.3.1",
+    "1.3.2",
+    "1.3.3",
+    "1.3.4",
+    "1.3.5",
+    "1.3.6",
+    "1.4.1",
+    "1.4.2",
+    "1.4.3",
+    "1.4.4",
+    "1.4.5",
+    "1.4.6",
+    "1.4.7",
+    "1.4.8",
+    "1.4.9",
+    "1.4.10",
+    "1.4.11",
+    "1.4.12",
+    "1.4.13",
+    "2.1.1",
+    "2.1.2",
+    "2.1.3",
+    "2.1.4",
+    "2.2.1",
+    "2.2.2",
+    "2.2.3",
+    "2.2.4",
+    "2.2.5",
+    "2.2.6",
+    "2.3.1",
+    "2.3.2",
+    "2.3.3",
+    "2.4.1",
+    "2.4.2",
+    "2.4.3",
+    "2.4.4",
+    "2.4.5",
+    "2.4.6",
+    "2.4.7",
+    "2.4.8",
+    "2.4.9",
+    "2.4.10",
+    "2.4.11",
+    "2.4.12",
+    "2.4.13",
+    "2.5.1",
+    "2.5.2",
+    "2.5.3",
+    "2.5.4",
+    "2.5.5",
+    "2.5.6",
+    "2.5.7",
+    "2.5.8",
+    "3.1.1",
+    "3.1.2",
+    "3.1.3",
+    "3.1.4",
+    "3.1.5",
+    "3.1.6",
+    "3.2.1",
+    "3.2.2",
+    "3.2.3",
+    "3.2.4",
+    "3.2.5",
+    "3.2.6",
+    "3.3.1",
+    "3.3.2",
+    "3.3.3",
+    "3.3.4",
+    "3.3.5",
+    "3.3.6",
+    "3.3.7",
+    "3.3.8",
+    "3.3.9",
+    "4.1.2",
+    "4.1.3"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,4511 @@
+{
+ "schema": "dox-validate-corpus-expectations/1",
+ "note": "Expectations derive from the construction of each file and the cited requirement, not from any tool output. must_report: rule ids that shall be reported; must_not_report: rule ids that shall not be reported; exclusive_prefixes: every reported rule with one of these prefixes shall be in must_report or may_report; may_report: consequential findings that are allowed but not required; exit_code/result: allowed values; assessments: expected status of the named targets.",
+ "fixtures": [
+  {
+   "id": "ua1-good",
+   "file": "ua1-good.pdf",
+   "purpose": "Positive control: a PDF/UA-1 document whose machine-checkable requirements are all met.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations.",
+   "normative_basis": [
+    "ISO 14289-1:2014 clauses 5-7 (all machine-checkable Matterhorn conditions are satisfied by construction)",
+    "WCAG 2.x 1.1.1, 1.3.1, 1.4.3, 2.4.2, 3.1.1, 4.1.2 (automatable parts)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-PAC-FailFigureHasBBox",
+    "EQX-PACQ-FailOutlineIsNotPresentDespiteHeadings"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-PAC-Fail",
+    "EQX-PACQ-Fail",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "a079f6f5f755f082207c7debb275dad848b358cc781c66ad2ac1d60d04a2c9d8",
+   "bytes": 32367
+  },
+  {
+   "id": "ua2-good",
+   "file": "ua2-good.pdf",
+   "purpose": "Positive control for PDF/UA-2 and WTPDF 1.0: the machine-checkable requirements are met.",
+   "construction": "One-page tagged PDF 2.0 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. PDF 2.0 header, XMP pdfuaid:part 2 + pdfuaid:rev 2024, WTPDF accessibility and reuse declarations (pdfd:declarations), structure elements in the PDF 2.0 namespace, widget /Contents, no outline (PDF/UA-2 8.8 would require structure destinations).",
+   "normative_basis": [
+    "ISO 14289-2:2024 clauses 5 and 8",
+    "WTPDF 1.0 clause 6.1",
+    "ISO 14289-1 clause 5 / 6.1: a PDF/UA-1 file has pdfuaid:part 1 and a %PDF-1.n header, so the PDF/UA-1 profile fails"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-5-2",
+    "EQX-UA1-6.1-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA2-",
+    "EQX-WTPDF-",
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-2",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail",
+    "pdfua-2": "automated_pass_manual_required",
+    "wtpdf-1.0-accessibility": "automated_pass_manual_required",
+    "wtpdf-1.0-reuse": "automated_pass_manual_required",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "efff14db9561208eacef120771a252fea46903f3f3952192bcfe2a0797a88d95",
+   "bytes": 32857
+  },
+  {
+   "id": "ua1-good-5pages",
+   "file": "ua1-good-5pages.pdf",
+   "purpose": "Positive control, 5 pages, an element whose content spans two pages (MCR dictionaries with /Pg).",
+   "construction": "Five tagged pages, each H1/H2 + four P + Figure with Alt; one P owns marked content on pages 4 and 5. Otherwise as ua1-good.",
+   "normative_basis": [
+    "ISO 32000-1 14.7.4.2 (marked-content references on another page than the element's /Pg)",
+    "ISO 14289-1 clause 7"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-PAC-Fail",
+    "EQX-PACQ-Fail",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "dd7921472b36d81a4d8f58d2ff08f9b6bebc4441dc5362b9c7b7c99f3cc85d80",
+   "bytes": 41259
+  },
+  {
+   "id": "untagged-text",
+   "file": "untagged-text.pdf",
+   "purpose": "An untagged text document (no structure tree, no MarkInfo).",
+   "construction": "One page of text drawn with an embedded font, no StructTreeRoot, no MarkInfo, no marked content; Lang, XMP, DisplayDocTitle present.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 (Matterhorn 01-005 content neither tagged nor artifact; 01-006 no structure tree)",
+    "ISO 14289-1 6.2 / ISO 32000-1 14.7.1 (MarkInfo /Marked true)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-11",
+    "EQX-UA1-6.2-1",
+    "EQX-UA1-7.1-3"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": false,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "098151d7810f8812d617cbe99f9430a00fd705f4f3351baf9fc6ed56cb804731",
+   "bytes": 26022
+  },
+  {
+   "id": "marked-false",
+   "file": "marked-false.pdf",
+   "purpose": "Structure tree present but MarkInfo /Marked false.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: /MarkInfo << /Marked false >>.",
+   "normative_basis": [
+    "ISO 14289-1 6.2 (Marked shall be true); Matterhorn 06-002"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-6.2-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "0743fac8ef80667cf49cdb9abb3196dcff0c0974ed1033dd16e5fc5cb5d60129",
+   "bytes": 32368
+  },
+  {
+   "id": "suspects-true",
+   "file": "suspects-true.pdf",
+   "purpose": "MarkInfo /Suspects true.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: /MarkInfo << /Marked true /Suspects true >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 (Suspects shall be false if present); Matterhorn 01-002"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-4",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "08ae48b0481806474bc2407b19c0ebf5ed554fee27830f65488892d0a64b1210",
+   "bytes": 32382
+  },
+  {
+   "id": "content-untagged",
+   "file": "content-untagged.pdf",
+   "purpose": "Real content that is neither tagged nor an artifact.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: One text line drawn outside any marked-content sequence.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 3; Matterhorn 01-005"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-3",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailMarkedContentIsInLegalPosition"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "2beb75a07c17772e4a5c5ee1e58b5cda5eb461f31c9f607cdfe858646ed18e3f",
+   "bytes": 32472
+  },
+  {
+   "id": "artifact-in-tagged",
+   "file": "artifact-in-tagged.pdf",
+   "purpose": "An Artifact sequence nested inside tagged content.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A P element's marked-content sequence contains a nested /Artifact BMC ... EMC.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 2 (content marked as Artifact should not be inside tagged content); Matterhorn 01-003"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [
+    {
+     "rule": "EQX-UA1-7.1-2",
+     "reason": "the nested Artifact contains no tagged content, so clause 7.1 'tagged content shall not be present inside content marked as Artifact' is not violated; veraPDF 1.30.2 reports 7.1-2 for this file too (dox-validate reproduces it by design), see CORRECTNESS.md"
+    }
+   ],
+   "sha256": "f78919b6788301c0083d5ca6063df875537fc109d8ebcd62d6111cb4879eeac8",
+   "bytes": 32610
+  },
+  {
+   "id": "tagged-in-artifact",
+   "file": "tagged-in-artifact.pdf",
+   "purpose": "Tagged content nested inside an Artifact sequence.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A P element owns an MCID whose sequence is nested inside /Artifact BDC ... EMC.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 2 (tagged content should not be inside content marked as Artifact); Matterhorn 01-004"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailMarkedContentIsInLegalPosition"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "2affceb143de25a67ffcf9eaae70a1c185e9e2895c775abcaaf14df33f04951b",
+   "bytes": 32606
+  },
+  {
+   "id": "parenttree-missing",
+   "file": "parenttree-missing.pdf",
+   "purpose": "Structure tree without ParentTree.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: StructTreeRoot has no /ParentTree (and no ParentTreeNextKey).",
+   "normative_basis": [
+    "ISO 32000-1 14.7.4.4 (ParentTree required when elements own content items); PAC StructuralParentTreeMissing"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailStructuralParentTreeMissing",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "47da33768760e4a65215691730003fa06a23af7eff58e577be76f2d05b4aa94e",
+   "bytes": 32108
+  },
+  {
+   "id": "parenttree-entry-missing",
+   "file": "parenttree-entry-missing.pdf",
+   "purpose": "ParentTree without the entry for the page's StructParents key.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The ParentTree /Nums array omits key 0 (the page's /StructParents) while keeping the annotation entries.",
+   "normative_basis": [
+    "ISO 32000-1 14.7.4.4 (each StructParents key needs an entry); PAC StructuralParentTreeEntryMissing"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailStructuralParentTreeEntryMissing",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "ad2f5933e5d319bc91546c221cd946fe465ab99906352c773558e8e6335c1201",
+   "bytes": 32216
+  },
+  {
+   "id": "page-structparents-missing",
+   "file": "page-structparents-missing.pdf",
+   "purpose": "Page with marked content but without /StructParents.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The page dictionary has no /StructParents although its content has MCIDs.",
+   "normative_basis": [
+    "ISO 32000-1 14.7.4.4 (StructParents required for pages with marked-content sequences owned by elements); PAC StructuralParentTreePageHasNoStructPatents"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailStructuralParentTreePageHasNoStructPatents",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "68337f540313635839daf5e3cdac5fc72eb811e576d9eae477f7064e7e75ebf6",
+   "bytes": 32350
+  },
+  {
+   "id": "parenttree-wrong-owner",
+   "file": "parenttree-wrong-owner.pdf",
+   "purpose": "ParentTree entries that point to the wrong elements.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The ParentTree array of the page lists the owners of MCID 0 and MCID 1 swapped (the elements' /K are correct).",
+   "normative_basis": [
+    "ISO 32000-1 14.7.4.4 (the ParentTree maps each MCID to the element whose K contains it); PAC StructuralParentTreeInvalidReference"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailStructuralParentTreeInvalidReference",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "c0725df05717206ef58a780a0d55899b49d5d34aca9239fafa72ba732383c6c0",
+   "bytes": 32367
+  },
+  {
+   "id": "structelem-no-parent",
+   "file": "structelem-no-parent.pdf",
+   "purpose": "A structure element without its /P entry.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The first P element has no /P (parent) key.",
+   "normative_basis": [
+    "ISO 32000-1 14.7.2 Table 323 (P required); ISO 14289-1 7.1"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-12",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailStructureElementHasParentKey2"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [
+    {
+     "rule": "EQX-UA1-7.1-3",
+     "reason": "the P element is reachable from the root through /K and owns its MCIDs through the ParentTree, so its content is tagged; veraPDF 1.30.2 also reports 7.1-3 (it does not attach an element whose /P differs from its actual parent), see CORRECTNESS.md"
+    }
+   ],
+   "sha256": "ebceb0c68c9619a3a722bf6c8aee74b381ee9a20b5d49dfcbd474aeeabd2131e",
+   "bytes": 32357
+  },
+  {
+   "id": "rolemap-missing",
+   "file": "rolemap-missing.pdf",
+   "purpose": "A non-standard structure type without a role mapping.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The first P element is renamed /BodyText; the StructTreeRoot has no RoleMap.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 6 (non-standard types shall be mapped); Matterhorn 02-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-5",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-WarnMarkedContentIsInLegalPosition"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "b9acab6cf7908c6f3ae1b1e1598f87877cf72a3423b22fd97267885845896580",
+   "bytes": 32374
+  },
+  {
+   "id": "rolemap-good",
+   "file": "rolemap-good.pdf",
+   "purpose": "Positive control: a non-standard type mapped to P.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The first P element is renamed /BodyText and RoleMap << /BodyText /P >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 6; ISO 32000-1 14.8.6"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.1-5",
+    "EQX-UA1-7.1-6",
+    "EQX-UA1-7.1-7"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "673f48595236c6cb9776cbedb13abb1e70800eee8176ffbd33c6ab384d9570ef",
+   "bytes": 32402
+  },
+  {
+   "id": "rolemap-circular",
+   "file": "rolemap-circular.pdf",
+   "purpose": "A circular role mapping.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: First P renamed /BodyText; RoleMap << /BodyText /Para /Para /BodyText >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 6 (no circular mapping); Matterhorn 02-002"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-6",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.1-5",
+    "EQX-PAC-WarnMarkedContentIsInLegalPosition"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "23d0addc41d8afd1afe076f96b66dd57a5f46259f40ccf2099f1c3a00b668805",
+   "bytes": 32421
+  },
+  {
+   "id": "rolemap-standard-remapped",
+   "file": "rolemap-standard-remapped.pdf",
+   "purpose": "A standard structure type remapped.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: RoleMap << /P /Span >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 7 (standard tags shall not be remapped); Matterhorn 02-003"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-7",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "02a8ba76530b83c2bc556d6973a90eda7bf9419b656f88588a9d2ae99e43498c",
+   "bytes": 32391
+  },
+  {
+   "id": "list-wrong-nesting",
+   "file": "list-wrong-nesting.pdf",
+   "purpose": "List items outside a list.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The first LI is moved from L to Document, and its LBody from LI to Document.",
+   "normative_basis": [
+    "ISO 32000-1 14.8.4.3.3 (LI is a child of L, LBody a child of LI); veraPDF PDF/UA-1 7.2 containment rules (Matterhorn 09-004)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.2-17",
+    "EQX-UA1-7.2-18",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailLITagInvalidSyntax",
+    "EQX-PAC-FailLBodyTagInvalidSyntax",
+    "EQX-PAC-WarnLITagAsRoot",
+    "EQX-PACQ-FailLIContainsExactlyOneBody",
+    "EQX-UA2-8.2.5.25-2"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "b3fcdda0d5b897b394095aec55dc13f6d200e6aac9ca2c639f6f1488c9c8bd32",
+   "bytes": 32367
+  },
+  {
+   "id": "heading-skipped-level",
+   "file": "heading-skipped-level.pdf",
+   "purpose": "A numbered heading skips a level (H1 then H3).",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Headings H1, H3 (no H2) each followed by a P.",
+   "normative_basis": [
+    "ISO 14289-1 7.4.2; Matterhorn 14-003 (numbered heading levels in descending sequence are skipped)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailNoHeadingsSkipped",
+    "EQX-UA1-7.4.2-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "3509b58912567bd5fc420b9d6fc4d110eda9c890e899a15cb92697f98f9cccc1",
+   "bytes": 26990
+  },
+  {
+   "id": "heading-first-not-h1",
+   "file": "heading-first-not-h1.pdf",
+   "purpose": "The first numbered heading is H2.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Headings H2, H3, each followed by a P.",
+   "normative_basis": [
+    "ISO 14289-1 7.4.2; Matterhorn 14-002 (numbered headings used, but the first is not H1)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailFirstHeadingIsH1",
+    "EQX-UA1-7.4.2-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "e962ea264d4e624b94cfd7407e00d47b9b9fa3cf0091fb4233d48a2db51a0229",
+   "bytes": 26990
+  },
+  {
+   "id": "heading-good-sequence",
+   "file": "heading-good-sequence.pdf",
+   "purpose": "Positive control: H1, H2, H3, H2, H3 in order.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Headings H1 H2 H3 H2 H3 each followed by a P.",
+   "normative_basis": [
+    "ISO 14289-1 7.4.2"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-PAC-FailNoHeadingsSkipped",
+    "EQX-PAC-FailFirstHeadingIsH1",
+    "EQX-UA1-7.4.2-1"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-PAC-Fail",
+    "EQX-PACQ-Fail"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "6263785a9a4f584a5d0b191e6f8fd1f4956e0fa6e8c6e17f0cd0505ba00f2527",
+   "bytes": 28870
+  },
+  {
+   "id": "heading-h-and-hn",
+   "file": "heading-h-and-hn.pdf",
+   "purpose": "Both H and H1-H6 used.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Headings H1 and H (unnumbered) as siblings in Document.",
+   "normative_basis": [
+    "ISO 14289-1 7.4.4 (documents shall be either strongly or weakly structured, not both); Matterhorn 14-007"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.4.4-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.4.4-3",
+    "EQX-PAC-FailCaptionHeadingStructureTypesNotMixed"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "2291c473d9eed5ab307bdf6691d7f54d9ba40633c482794b8394d3076bcd52ec",
+   "bytes": 26988
+  },
+  {
+   "id": "heading-two-h-in-node",
+   "file": "heading-two-h-in-node.pdf",
+   "purpose": "Two unnumbered H elements in one node.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Two H elements as children of Document.",
+   "normative_basis": [
+    "ISO 14289-1 7.4.4 (each node shall contain at most one child H tag); Matterhorn 14-006"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.4.4-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "bfc4aaaf88a8324d0d721591555e7dc6e9b4c1ce8baadca18ccd28e4915e628c",
+   "bytes": 26986
+  },
+  {
+   "id": "headings-without-outline",
+   "file": "headings-without-outline.pdf",
+   "purpose": "Headings present, no document outline.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: No /Outlines in the Catalog.",
+   "normative_basis": [
+    "PAC 2026 quality check 'Headings are present without bookmarks' (not a PDF/UA-1 requirement; related to WCAG 2.4.5 Multiple Ways, which other means can satisfy)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PACQ-FailOutlineIsNotPresentDespiteHeadings",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "d971c494605c24752a4bd266a7b4959e7fde77dd5c2af988d2074ffa23d45a32",
+   "bytes": 31977
+  },
+  {
+   "id": "figure-no-alt",
+   "file": "figure-no-alt.pdf",
+   "purpose": "A Figure without alternative text.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The Figure element has neither /Alt nor /ActualText.",
+   "normative_basis": [
+    "ISO 14289-1 7.3 (Figure tags shall include an alternative representation or replacement text); Matterhorn 13-004",
+    "WCAG 2.x 1.1.1 Non-text Content (level A)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.3-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail",
+    "wcag-2.0-A": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "8919a7ca4faab662d029dad3927e37a0b59948c4ea9ee1713c34a0d359bb5860",
+   "bytes": 32311
+  },
+  {
+   "id": "figure-actualtext",
+   "file": "figure-actualtext.pdf",
+   "purpose": "Positive control: a Figure with /ActualText instead of /Alt.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: One Figure with /ActualText and no /Alt, otherwise as ua1-good (H1, P).",
+   "normative_basis": [
+    "ISO 14289-1 7.3 (alternative representation OR replacement text)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.3-1"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "d685777b0c9d18317c0a00db3a4f39b6d217325f169002b8a8bf2eb39057a4cd",
+   "bytes": 26681
+  },
+  {
+   "id": "figure-no-bbox",
+   "file": "figure-no-bbox.pdf",
+   "purpose": "A Figure on one page without a BBox attribute.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Figure with /Alt and no Layout /BBox.",
+   "normative_basis": [
+    "ISO 32000-1 14.8.5.4.3 Table 344 (BBox required for an illustration that appears in its entirety on one page)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailFigureHasBBox",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "ebba6eb1c5435147d58f3562786ec5d5a8bce93c09cdb68064135924702e396e",
+   "bytes": 26612
+  },
+  {
+   "id": "note-no-id",
+   "file": "note-no-id.pdf",
+   "purpose": "A Note element without ID.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Note (child of P) without /ID.",
+   "normative_basis": [
+    "ISO 14289-1 7.9 (Note tags shall have an ID entry); Matterhorn 19-003"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.9-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PACQ-WarnNoteContainsLbl",
+    "EQX-PACQ-WarnNoteTagInsidePTag",
+    "EQX-PACQ-WarningNoteHasReferringLinkOnPage"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "9a6f70c40693c6dbfb8930a161443f7e596f330befaf22040d9cfd11fd8b61f6",
+   "bytes": 26533
+  },
+  {
+   "id": "note-duplicate-id",
+   "file": "note-duplicate-id.pdf",
+   "purpose": "Two Note elements with the same ID.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Two Note elements with /ID (n1).",
+   "normative_basis": [
+    "ISO 14289-1 7.9 (unique ID); Matterhorn 19-004"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.9-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PACQ-WarnNoteContainsLbl",
+    "EQX-PACQ-WarnNoteTagInsidePTag",
+    "EQX-PACQ-WarningNoteHasReferringLinkOnPage"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "6cb8aba7ee01cff3e035158378323186f8d57227f6a253c6e7888af0298e8a5b",
+   "bytes": 26733
+  },
+  {
+   "id": "table-good",
+   "file": "table-good.pdf",
+   "purpose": "Positive control: a regular table with column headers and Scope.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: 3x3 table, TH with /Scope /Column.",
+   "normative_basis": [
+    "ISO 14289-1 7.5; ISO 32000-1 14.8.4.3.4"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.5-1",
+    "EQX-UA1-7.2-42",
+    "EQX-PAC-WarnTablesAreRegular"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "98d44c515940bbebb41157da144ee5d8e52e10e5572b1b8d0950d163bce83798",
+   "bytes": 28085
+  },
+  {
+   "id": "table-irregular",
+   "file": "table-irregular.pdf",
+   "purpose": "A row with fewer cells than the others.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: 3 columns in rows 1 and 2, 2 cells in row 3 (no ColSpan).",
+   "normative_basis": [
+    "ISO 14289-1 7.5 / ISO 32000-1 14.8.4.3.4; veraPDF PDF/UA-1 7.2-42 (rows shall have the same number of columns)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [
+    [
+     "EQX-UA1-7.2-42",
+     "EQX-UA1-7.2-43"
+    ]
+   ],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-WarnTablesAreRegular",
+    "EQX-UA1-7.2-41",
+    "EQX-UA2-8.2.5.26-3",
+    "EQX-UA2-8.2.5.26-4",
+    "EQX-UA2-8.2.5.26-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "3cce7011f0f2d979b8cd2a77e2a7952fbe5ecebb7434c56c502010dba18f9bb0",
+   "bytes": 27913
+  },
+  {
+   "id": "table-th-no-scope",
+   "file": "table-th-no-scope.pdf",
+   "purpose": "TH cells without Scope in a table without Headers/IDs.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: 3x3 table, TH without /Scope.",
+   "normative_basis": [
+    "ISO 14289-1 7.5; Matterhorn 15-003 (TH without Scope in a table not organised with Headers and IDs)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.5-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.5-2"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "3cf85d1b13b36c36809653fa3a758394b89825b2e9c968ffe8bf5410bd3473f7",
+   "bytes": 27983
+  },
+  {
+   "id": "table-td-in-table",
+   "file": "table-td-in-table.pdf",
+   "purpose": "TD cells directly inside Table (no TR).",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Table rows are flattened: TH/TD are children of Table.",
+   "normative_basis": [
+    "ISO 32000-1 14.8.4.3.4 (TH and TD are children of TR); veraPDF PDF/UA-1 7.2-3 / 7.2-8 / 7.2-9"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.2-3",
+    "EQX-UA1-7.2-9",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-8",
+    "EQX-UA1-7.2-41",
+    "EQX-UA1-7.2-42",
+    "EQX-UA1-7.2-43",
+    "EQX-UA1-7.5-1",
+    "EQX-UA1-7.5-2",
+    "EQX-UA1-7.2-15",
+    "EQX-PAC-FailTDTagInvalidSyntax",
+    "EQX-PAC-FailTHTagInvalidSyntax",
+    "EQX-PAC-FailTableTagInvalidSyntax",
+    "EQX-PACQ-WarningCompleteTables",
+    "EQX-PAC-WarnTablesAreRegular"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "583fe2bf82215ca6fc567cddb54f38829757aa72013149e936b8522ab0ee12f8",
+   "bytes": 27818
+  },
+  {
+   "id": "lang-missing",
+   "file": "lang-missing.pdf",
+   "purpose": "No natural language anywhere.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: No /Lang in the Catalog or on any element; XMP dc:title only x-default.",
+   "normative_basis": [
+    "ISO 14289-1 7.2 (natural language shall be determined); Matterhorn 11-001 (page content), 11-002 (Alt), 11-004 (outline), 11-005 (metadata); WCAG 2.x 3.1.1 Language of Page (level A)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.2-34",
+    "EQX-UA1-7.2-22",
+    "EQX-UA1-7.2-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-33",
+    "EQX-UA1-7.2-24",
+    "EQX-UA1-7.2-25",
+    "EQX-PAC-FailAltTextHasLanguage",
+    "EQX-UA2-8.4.4-1",
+    "EQX-UA1-7.2-29"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail",
+    "wcag-2.0-A": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "7fe6ed4b8baffabf26380c62d2f206a8889b3da8414920678d66ef4a17699620",
+   "bytes": 32353
+  },
+  {
+   "id": "lang-invalid",
+   "file": "lang-invalid.pdf",
+   "purpose": "A syntactically invalid language tag.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (en_US!) (underscore and '!' are not BCP 47).",
+   "normative_basis": [
+    "ISO 14289-1 7.2 + ISO 32000-1 14.9.2 (Lang is a language identifier per RFC 3066/BCP 47); veraPDF 7.2-29"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.2-29",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-34",
+    "EQX-UA1-7.2-22",
+    "EQX-UA1-7.2-2",
+    "EQX-UA1-7.2-33",
+    "EQX-UA1-7.2-24",
+    "EQX-UA1-7.2-25",
+    "EQX-PAC-FailValidLanguagePrimaryTagOther",
+    "EQX-PAC-FailAltTextHasLanguage"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "e1619ab92eade6ba563c3e37b9eac945fec9b59951722062b3fe40dd79c1d998",
+   "bytes": 32368
+  },
+  {
+   "id": "lang-private-use",
+   "file": "lang-private-use.pdf",
+   "purpose": "A private-use language tag.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (x-corpus).",
+   "normative_basis": [
+    "RFC 5646 2.2.7 (x- private use); PAC ValidLanguagePrimaryTagX"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailValidLanguagePrimaryTagX",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "25364c87888b8544416a1cd2c20f4886d35a498287e03bd83eff3e3cf583c204",
+   "bytes": 32370
+  },
+  {
+   "id": "lang-unknown-primary",
+   "file": "lang-unknown-primary.pdf",
+   "purpose": "A well-formed tag with an unregistered primary subtag.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (zz-ZZ).",
+   "normative_basis": [
+    "RFC 5646 / IANA language subtag registry ('zz' is not registered); PAC 'primary subtag is unknown'"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [
+    [
+     "EQX-PAC-FailValidLanguagePrimaryTagOther",
+     "EQX-UA1-7.2-29"
+    ]
+   ],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-29"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "0b9bd4a2e7fca67db3cacfa28e52c7f08844d712550a5f02c348bdd994a0a535",
+   "bytes": 32367
+  },
+  {
+   "id": "lang-valid-de",
+   "file": "lang-valid-de.pdf",
+   "purpose": "Positive control: a valid tag other than English (de-DE).",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (de-DE).",
+   "normative_basis": [
+    "ISO 32000-1 14.9.2; RFC 5646"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.2-29",
+    "EQX-UA1-7.2-34",
+    "EQX-PAC-FailValidLanguagePrimaryTagOther",
+    "EQX-PAC-FailValidLanguagePrimaryTagX"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "96286632db9da920308fdd0153c4f407eb5b066415c21f06947b96a86e89aefb",
+   "bytes": 32367
+  },
+  {
+   "id": "metadata-missing",
+   "file": "metadata-missing.pdf",
+   "purpose": "No XMP metadata stream.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The Catalog has no /Metadata.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 8 (Catalog shall contain Metadata); clause 5 (pdfuaid:part in XMP); Matterhorn 06-001, 07-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-8",
+    "EQX-UA1-5-1",
+    "EQX-UA2-8.11.1-2"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.1-9",
+    "EQX-UA1-7.2-33",
+    "EQX-UA2-5-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail",
+    "pdfua-2": "fail",
+    "wtpdf-1.0-accessibility": "fail",
+    "wtpdf-1.0-reuse": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "1883840739779db0cb4beecf17677538c3963a43b380f76e69703aa3524d1147",
+   "bytes": 31572
+  },
+  {
+   "id": "metadata-no-title",
+   "file": "metadata-no-title.pdf",
+   "purpose": "XMP without dc:title.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: XMP has pdfuaid:part but no dc:title (the Info /Title is present).",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 8 (Metadata shall contain a dc:title); Matterhorn 06-003; WCAG 2.x 2.4.2 Page Titled"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-9",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-33"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "23395a021f16ec9ef74ca2f11a978a45855602dea4ba69bb16cd64857d4c83a7",
+   "bytes": 32269
+  },
+  {
+   "id": "pdfuaid-missing",
+   "file": "pdfuaid-missing.pdf",
+   "purpose": "XMP without the PDF/UA identification.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: XMP has dc:title but no pdfuaid:part.",
+   "normative_basis": [
+    "ISO 14289-1 clause 5 (version identification in the pdfuaid schema); Matterhorn 06-002",
+    "ISO 14289-2 clause 5"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-5-1",
+    "EQX-UA2-5-1",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.2.5.2-2"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "1f49373fe8523d6240861bb3c3a4dd7b1228875d599e70403d91bb1011749b4b",
+   "bytes": 32337
+  },
+  {
+   "id": "displaydoctitle-false",
+   "file": "displaydoctitle-false.pdf",
+   "purpose": "DisplayDocTitle false.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: /ViewerPreferences << /DisplayDocTitle false >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 9; Matterhorn 07-002; WCAG 2.x 2.4.2"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-10",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.11.2-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "480b87d4080d8015f1e2913d12edd7ea041c06303e04b6da68eda33807a45ac7",
+   "bytes": 32368
+  },
+  {
+   "id": "displaydoctitle-missing",
+   "file": "displaydoctitle-missing.pdf",
+   "purpose": "No ViewerPreferences.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The Catalog has no /ViewerPreferences.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 paragraph 9; Matterhorn 07-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-10",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.11.2-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "fc400d53dcc88fe36d32d5b096b9bb864fd034bb4e19dd9825f7af6df9b1fa02",
+   "bytes": 32320
+  },
+  {
+   "id": "link-no-contents",
+   "file": "link-no-contents.pdf",
+   "purpose": "A Link annotation without /Contents.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The Link annotation has no /Contents entry.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.5 (links shall contain an alternate description via Contents); 7.18.1 (annotations need Contents or Alt on the enclosing element); Matterhorn 28-004"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.5-2",
+    "EQX-UA1-7.18.1-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-WCAG-1.4.1-UseOfColorReview"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "8071d17f95e57552a2d1416c77b397df284555fda4af517cb2ac91fb2fbaf1ee",
+   "bytes": 26733
+  },
+  {
+   "id": "link-not-tagged",
+   "file": "link-not-tagged.pdf",
+   "purpose": "A Link annotation outside the structure tree.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The link text is in a P, the Link annotation has no Link element, no OBJR and no /StructParent.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.5 (links shall be tagged as Link with an OBJR); ISO 14289-1 7.18.1; Matterhorn 28-011"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.5-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.18.1-2",
+    "EQX-PACQ-FailMissingLinkTags",
+    "EQX-PAC-FailStructuralParentTreeAnnotationHasNoStructPatent"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "7e5d82df25c5be714850eba44ed2fdc01f109bc56ef5a658491dbc94f517b987",
+   "bytes": 26604
+  },
+  {
+   "id": "annots-no-tabs",
+   "file": "annots-no-tabs.pdf",
+   "purpose": "A page with annotations but no /Tabs.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The page with a link and a field has no /Tabs entry.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.3 (Tabs /S on every page with annotations); Matterhorn 28-002"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.3-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.9.3.3-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "c76d92e59942b6916f22d34c4ce359697c76369990b9055e0d0748cf019ea8b6",
+   "bytes": 32358
+  },
+  {
+   "id": "annots-tabs-row",
+   "file": "annots-tabs-row.pdf",
+   "purpose": "A page with annotations and /Tabs /R.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: /Tabs /R (row order) instead of /S.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.3 (Tabs shall be S); Matterhorn 28-002"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.3-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.9.3.3-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "82429e8aa210dfbd14b4a2696afded232c38901f88253d009ca100f673758844",
+   "bytes": 32367
+  },
+  {
+   "id": "field-no-tu",
+   "file": "field-no-tu.pdf",
+   "purpose": "A form field without /TU and without Alt on its Form element.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Text field without /TU and /Contents; its Form element has no /Alt.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.1 (a form field shall have TU, or Alt on the enclosing element); Matterhorn 28-005; WCAG 2.x 4.1.2"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.1-3",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.10.2.3-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "c4a1c1a2fff942be3ff6f9c25aadf23dc2a3d2a5c7a9ced909ec31553b66cb4c",
+   "bytes": 26934
+  },
+  {
+   "id": "field-alt-instead-of-tu",
+   "file": "field-alt-instead-of-tu.pdf",
+   "purpose": "Positive control: no /TU, but /Alt on the Form element.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Text field without /TU and /Contents; its Form element has /Alt (Full name).",
+   "normative_basis": [
+    "ISO 14289-1 7.18.1 (TU or Alt on the enclosing structure element)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.18.1-3"
+   ],
+   "may_report": [
+    "EQX-UA2-8.10.2.3-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "2c1d29f441e7b5b927072ca397aabde2f3aa94ba135f798f94ab44346ed16208",
+   "bytes": 26951
+  },
+  {
+   "id": "field-not-in-form",
+   "file": "field-not-in-form.pdf",
+   "purpose": "A widget annotation outside a Form element.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: The text field (with /TU) has no Form element, no OBJR and no /StructParent.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.4 (widgets shall be nested in a Form tag); Matterhorn 28-010"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.4-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.10.1-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "67ff45292cacfce533c61f8edacfe92ba9065c9603d8ef841a5d3ce376c56f23",
+   "bytes": 26727
+  },
+  {
+   "id": "font-not-embedded",
+   "file": "font-not-embedded.pdf",
+   "purpose": "Text in a standard 14 font that is not embedded.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: F1/F2 are Helvetica and Helvetica-Bold, not embedded.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.4.1 (font programs shall be embedded); Matterhorn 31-009"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.21.4.1-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.4.5.5.1-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "67ac020bf98f3ca27bfdc5e364cca68aa9d92aa15828175c8d6e6d144cc6e93e",
+   "bytes": 8866
+  },
+  {
+   "id": "font-type0-no-tounicode",
+   "file": "font-type0-no-tounicode.pdf",
+   "purpose": "Composite font (Identity-H) without ToUnicode.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: F1 is a Type0/CIDFontType2 font with Identity-H and CIDToGIDMap /Identity, without /ToUnicode.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.7 (the font dictionary shall define the map of all used character codes to Unicode); Matterhorn 31-027"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.21.7-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.4.5.8-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "e37028ecb5fc3034b0d96bdce7ecaccd05e6572cedf53210c15df9d921351cbc",
+   "bytes": 33497
+  },
+  {
+   "id": "font-type0-good",
+   "file": "font-type0-good.pdf",
+   "purpose": "Positive control: composite font with ToUnicode.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: F1 is Type0/Identity-H with a ToUnicode CMap.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.3, 7.21.7"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.21.7-1",
+    "EQX-UA1-7.21.3.1-1",
+    "EQX-UA1-7.21.3.2-1",
+    "EQX-UA1-7.21.5-1"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "34e3824ae9c44718e2a4880196dcb7d7fd3fca520b92e79d91946ace1ecacef9",
+   "bytes": 35243
+  },
+  {
+   "id": "font-widths-mismatch",
+   "file": "font-widths-mismatch.pdf",
+   "purpose": "Widths array inconsistent with the embedded font program.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Every /Widths entry of F1 is 100 units too large.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.5 (glyph widths in the font dictionary and the font program shall be consistent); Matterhorn 31-012"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.21.5-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.4.5.6-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "255df1593f9be7f8f72df3559ac9be5a7ee6a8e388c3c78a09e1046fc082c528",
+   "bytes": 44213
+  },
+  {
+   "id": "font-truetype-no-encoding",
+   "file": "font-truetype-no-encoding.pdf",
+   "purpose": "Non-symbolic TrueType font without an encoding.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: F1 has /Flags 32 (nonsymbolic) and no /Encoding.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.6 (non-symbolic TrueType shall use MacRomanEncoding or WinAnsiEncoding); Matterhorn 31-016"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.21.6-2",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.4.5.7-2",
+    "EQX-UA1-7.21.6-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [
+    {
+     "rule": "EQX-UA1-7.21.4.1-2",
+     "reason": "ISO 32000-1 9.6.6.4: a non-symbolic TrueType font without Encoding maps codes through StandardEncoding and the Adobe Glyph List to the (3,1) cmap, which has every glyph used; veraPDF 1.30.2 also reports missing glyphs, see CORRECTNESS.md"
+    },
+    {
+     "rule": "EQX-UA2-8.4.5.5.1-2",
+     "reason": "ISO 32000-1 9.6.6.4: a non-symbolic TrueType font without Encoding maps codes through StandardEncoding and the Adobe Glyph List to the (3,1) cmap, which has every glyph used; veraPDF 1.30.2 also reports missing glyphs, see CORRECTNESS.md"
+    }
+   ],
+   "sha256": "9c2148043782f50ed4a4a34c12dbec2b536d719c6cf3d82bd4772e6364c1d9b3",
+   "bytes": 44185
+  },
+  {
+   "id": "font-symbolic-with-encoding",
+   "file": "font-symbolic-with-encoding.pdf",
+   "purpose": "Symbolic TrueType font with an Encoding entry.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: F1 has /Flags 4 (symbolic) and /Encoding /WinAnsiEncoding.",
+   "normative_basis": [
+    "ISO 14289-1 7.21.6 (symbolic TrueType fonts shall not contain an Encoding entry); Matterhorn 31-017"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.21.6-3",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.4.5.7-3",
+    "EQX-UA1-7.21.6-4",
+    "EQX-UA2-8.4.5.7-4",
+    "EQX-UA1-7.21.4.1-2",
+    "EQX-UA2-8.4.5.5.1-2"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "0ce98a732d0244a6f2dd20dc27556b9298e9905dbbd490ac84bef5c72f462d9a",
+   "bytes": 44211
+  },
+  {
+   "id": "contrast-black",
+   "file": "contrast-black.pdf",
+   "purpose": "Positive control: black 11 pt text on white (21:1).",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 11 pt regular text in DeviceGray 0/255 (#000000), contrast 21.000:1 against white (WCAG relative luminance), required 4.5:1 for normal text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-WCAG-1.4.3-TextContrastReview"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.0-AA": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "40b7f94708a5e5ff6462b283f6fd14c00310167a493a1bc22a48dd8af1b09e48",
+   "bytes": 26747
+  },
+  {
+   "id": "contrast-lightgrey",
+   "file": "contrast-lightgrey.pdf",
+   "purpose": "Light grey 11 pt text on white (1.6:1), clearly below 4.5:1.",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 11 pt regular text in DeviceGray 204/255 (#cccccc), contrast 1.606:1 against white (WCAG relative luminance), required 4.5:1 for normal text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailNotEnoughContrastForText"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "wcag-2.0-AA": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.1-A": "automated_pass_manual_required",
+    "wcag-2.2-A": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "c2ff72b814b4a82499082dbb545136f32e7e3a98937c31456c00bfecdbc991d8",
+   "bytes": 26751
+  },
+  {
+   "id": "contrast-boundary-pass",
+   "file": "contrast-boundary-pass.pdf",
+   "purpose": "11 pt #767676 on white (4.54:1), just above 4.5:1.",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 11 pt regular text in DeviceGray 118/255 (#767676), contrast 4.542:1 against white (WCAG relative luminance), required 4.5:1 for normal text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-WCAG-1.4.3-TextContrastReview"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.0-AA": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "e84ce0e9b398ac9bdd36b92da36e8dec57debe29dc9bc694c6f4b7c7c55dfc1c",
+   "bytes": 26757
+  },
+  {
+   "id": "contrast-boundary-fail",
+   "file": "contrast-boundary-fail.pdf",
+   "purpose": "11 pt #777777 on white (4.48:1), just below 4.5:1.",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 11 pt regular text in DeviceGray 119/255 (#777777), contrast 4.478:1 against white (WCAG relative luminance), required 4.5:1 for normal text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailNotEnoughContrastForText"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "wcag-2.0-AA": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.1-A": "automated_pass_manual_required",
+    "wcag-2.2-A": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "0db42b9c4a1de263652e8ceb110139f6a82d25c2a99bbaba169f0a3264720518",
+   "bytes": 26757
+  },
+  {
+   "id": "contrast-large-pass",
+   "file": "contrast-large-pass.pdf",
+   "purpose": "18 pt (large) #949494 on white (3.03:1), above the 3:1 large-text minimum.",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 18 pt regular text in DeviceGray 148/255 (#949494), contrast 3.033:1 against white (WCAG relative luminance), required 3:1 for large text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-WCAG-1.4.3-TextContrastReview"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required",
+    "wcag-2.0-AA": "automated_pass_manual_required",
+    "wcag-2.2-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "079573387fcc84ff351dfbb38b2a6169eacbf87e37572831dc38df5c4cab167c",
+   "bytes": 26796
+  },
+  {
+   "id": "contrast-large-fail",
+   "file": "contrast-large-fail.pdf",
+   "purpose": "18 pt (large) #a0a0a0 on white (2.67:1), below 3:1.",
+   "construction": "Tagged one-page document (H1 + 2 P, embedded fonts) on a white page; the first P is 18 pt regular text in DeviceGray 160/255 (#a0a0a0), contrast 2.615:1 against white (WCAG relative luminance), required 3:1 for large text.",
+   "normative_basis": [
+    "WCAG 2.x SC 1.4.3 Contrast (Minimum), level AA: 4.5:1, 3:1 for large text (18 pt, or 14 pt bold)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-WCAG-1.4.3-TextContrast",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PAC-FailNotEnoughContrastForText"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "wcag-2.0-AA": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail",
+    "wcag-2.0-A": "automated_pass_manual_required",
+    "wcag-2.1-A": "automated_pass_manual_required",
+    "wcag-2.2-A": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "7126cfeeab75c9d631b9884a71af01e7f2f74a46421a016ad8951bb8dd60cfbd",
+   "bytes": 26796
+  },
+  {
+   "id": "scanned-untagged",
+   "file": "scanned-untagged.pdf",
+   "purpose": "Image-only page (a 'scan'): no text objects, no structure.",
+   "construction": "One page painted by a 240x320 DeviceGray image that resembles text lines; no text, no StructTreeRoot, no MarkInfo.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 (no structure tree; content neither tagged nor artifact); Matterhorn 01-005, 01-006",
+    "WCAG 2.x 1.1.1 / 1.4.5 (images of text; manual)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.1-11",
+    "EQX-UA1-6.2-1",
+    "EQX-UA1-7.1-3"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": false,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "5d4f418ea09eed833d7849a44bdbe4e20b4b98288dd9ea22b5818ec9b1156113",
+   "bytes": 102262
+  },
+  {
+   "id": "scanned-tagged-figure",
+   "file": "scanned-tagged-figure.pdf",
+   "purpose": "Scope limit: a scanned page tagged as one Figure with Alt meets the machine-checkable PDF/UA-1 conditions, although the text itself is only an image (a manual check, WCAG 1.4.5 / PDF/UA 7.3, is needed to reject it).",
+   "construction": "One page painted by an image inside a Figure with /Alt and BBox; Lang, XMP, MarkInfo, DisplayDocTitle present.",
+   "normative_basis": [
+    "ISO 14289-1 7.1, 7.3 (machine-checkable parts satisfied)",
+    "WCAG 2.x 1.4.5 Images of Text (not machine-checkable)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PACQ-WarnDocumentHasHeadings",
+    "EQX-WCAG-1.4.11-NonTextContrastReview"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "ecb356e2f86974179f8240ff7b316b7a187240b2c9c4740426967c3b4dfe01c7",
+   "bytes": 102841
+  },
+  {
+   "id": "encrypted-user-password",
+   "file": "encrypted-user-password.pdf",
+   "purpose": "Encrypted with a user (open) password: cannot be opened without it.",
+   "construction": "ua1-good encrypted with the standard security handler, RC4 128-bit (V 2, R 3), user password 'corpus-secret', owner password 'corpus-owner', /P -4.",
+   "normative_basis": [
+    "ISO 32000-1 7.6.3 (a user password is needed to decrypt); the validator documents 'not processed' for such files"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed"
+    ]
+   },
+   "processed": false,
+   "assessments": {
+    "pdfua-1": "incomplete",
+    "pdfua-2": "incomplete",
+    "wtpdf-1.0-accessibility": "incomplete",
+    "wtpdf-1.0-reuse": "incomplete",
+    "wcag-2.0-A": "incomplete",
+    "wcag-2.0-AA": "incomplete",
+    "wcag-2.0-AAA": "incomplete",
+    "wcag-2.1-A": "incomplete",
+    "wcag-2.1-AA": "incomplete",
+    "wcag-2.1-AAA": "incomplete",
+    "wcag-2.2-A": "incomplete",
+    "wcag-2.2-AA": "incomplete",
+    "wcag-2.2-AAA": "incomplete"
+   },
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "b40f32d33d7e0cc8625f90beeae0a3ef4ec906324c2591e73f5f48efddcf98f6",
+   "bytes": 32897
+  },
+  {
+   "id": "encrypted-owner-only",
+   "file": "encrypted-owner-only.pdf",
+   "purpose": "Encrypted with an owner password only (empty user password): opens without a password.",
+   "construction": "ua1-good encrypted with RC4 128-bit (V 2, R 3), empty user password, owner password 'corpus-owner', /P -4 (all permissions, including bit 10 'extract for accessibility').",
+   "normative_basis": [
+    "ISO 32000-1 7.6.3.4 (empty user password opens the file)",
+    "ISO 14289-1 7.16 (P key present; bit 10 set)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.16-1"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-",
+    "EQX-PAC-Fail",
+    "EQX-PACQ-Fail",
+    "EQX-WCAG-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "b0974fd6e9a2c36a0ed3fdecb006c5fa4956bb454e4c9d9112ac4b1417e27cc5",
+   "bytes": 32897
+  },
+  {
+   "id": "malformed-zero-byte",
+   "file": "malformed-zero-byte.pdf",
+   "purpose": "Empty file.",
+   "construction": "0 bytes.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (file structure)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed"
+    ]
+   },
+   "processed": false,
+   "assessments": {
+    "pdfua-1": "incomplete",
+    "pdfua-2": "incomplete",
+    "wtpdf-1.0-accessibility": "incomplete",
+    "wtpdf-1.0-reuse": "incomplete",
+    "wcag-2.0-A": "incomplete",
+    "wcag-2.0-AA": "incomplete",
+    "wcag-2.0-AAA": "incomplete",
+    "wcag-2.1-A": "incomplete",
+    "wcag-2.1-AA": "incomplete",
+    "wcag-2.1-AAA": "incomplete",
+    "wcag-2.2-A": "incomplete",
+    "wcag-2.2-AA": "incomplete",
+    "wcag-2.2-AAA": "incomplete"
+   },
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "bytes": 0
+  },
+  {
+   "id": "malformed-not-pdf",
+   "file": "malformed-not-pdf.pdf",
+   "purpose": "A text file with a .pdf name.",
+   "construction": "ASCII text, no %PDF header.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (file structure)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed"
+    ]
+   },
+   "processed": false,
+   "assessments": {
+    "pdfua-1": "incomplete",
+    "pdfua-2": "incomplete",
+    "wtpdf-1.0-accessibility": "incomplete",
+    "wtpdf-1.0-reuse": "incomplete",
+    "wcag-2.0-A": "incomplete",
+    "wcag-2.0-AA": "incomplete",
+    "wcag-2.0-AAA": "incomplete",
+    "wcag-2.1-A": "incomplete",
+    "wcag-2.1-AA": "incomplete",
+    "wcag-2.1-AAA": "incomplete",
+    "wcag-2.2-A": "incomplete",
+    "wcag-2.2-AA": "incomplete",
+    "wcag-2.2-AAA": "incomplete"
+   },
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "c00d49dfc85fa1c2f71225fdc751043d41bfd9c5380858fcdff9e1a8fb31700f",
+   "bytes": 42
+  },
+  {
+   "id": "malformed-garbage",
+   "file": "malformed-garbage.pdf",
+   "purpose": "4 KiB of pseudo-random bytes.",
+   "construction": "Deterministic LCG output, no PDF syntax.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (file structure)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed"
+    ]
+   },
+   "processed": false,
+   "assessments": {
+    "pdfua-1": "incomplete",
+    "pdfua-2": "incomplete",
+    "wtpdf-1.0-accessibility": "incomplete",
+    "wtpdf-1.0-reuse": "incomplete",
+    "wcag-2.0-A": "incomplete",
+    "wcag-2.0-AA": "incomplete",
+    "wcag-2.0-AAA": "incomplete",
+    "wcag-2.1-A": "incomplete",
+    "wcag-2.1-AA": "incomplete",
+    "wcag-2.1-AAA": "incomplete",
+    "wcag-2.2-A": "incomplete",
+    "wcag-2.2-AA": "incomplete",
+    "wcag-2.2-AAA": "incomplete"
+   },
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "38f4e8bfc73c6d5466315d83214a95ac012762c45911a3b9e046a06978197b17",
+   "bytes": 4096
+  },
+  {
+   "id": "malformed-header-only",
+   "file": "malformed-header-only.pdf",
+   "purpose": "Only a header and an EOF marker.",
+   "construction": "%PDF-1.7 + %%EOF, no objects, no trailer.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (file structure)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed"
+    ]
+   },
+   "processed": false,
+   "assessments": {
+    "pdfua-1": "incomplete",
+    "pdfua-2": "incomplete",
+    "wtpdf-1.0-accessibility": "incomplete",
+    "wtpdf-1.0-reuse": "incomplete",
+    "wcag-2.0-A": "incomplete",
+    "wcag-2.0-AA": "incomplete",
+    "wcag-2.0-AAA": "incomplete",
+    "wcag-2.1-A": "incomplete",
+    "wcag-2.1-AA": "incomplete",
+    "wcag-2.1-AAA": "incomplete",
+    "wcag-2.2-A": "incomplete",
+    "wcag-2.2-AA": "incomplete",
+    "wcag-2.2-AAA": "incomplete"
+   },
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "1e7313ace78f0fb481a486939b4885902663102818090805515553d84e0bbfd3",
+   "bytes": 15
+  },
+  {
+   "id": "malformed-no-root",
+   "file": "malformed-no-root.pdf",
+   "purpose": "Trailer without /Root.",
+   "construction": "ua1-good with the trailer key /Root renamed to /Xoot.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (file structure)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed",
+    "incomplete"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed",
+     "incomplete"
+    ]
+   },
+   "processed": null,
+   "assessments": {},
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "33067a7196ca1388c04741b39e0ca3d9756f76f31880763727ba123dec44a45b",
+   "bytes": 32367
+  },
+  {
+   "id": "malformed-truncated",
+   "file": "malformed-truncated.pdf",
+   "purpose": "A file cut off at 60 % of its length (no xref, no trailer).",
+   "construction": "The first 60 % of the bytes of ua1-good.",
+   "normative_basis": [
+    "ISO 32000-1 7.5 (a file without cross-reference table and trailer is damaged; a repaired reading is not the file, so no rule may pass)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "not_processed",
+    "incomplete"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "not_processed",
+     "incomplete"
+    ]
+   },
+   "processed": null,
+   "assessments": {},
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "977342238798619ff89a0686a5481635a844a89ce3dc7c19a58d2162d7339afd",
+   "bytes": 19420
+  },
+  {
+   "id": "malformed-bad-xref",
+   "file": "malformed-bad-xref.pdf",
+   "purpose": "Cross-reference offsets all wrong by 7 bytes.",
+   "construction": "ua1-good with every in-use xref entry offset increased by 7.",
+   "normative_basis": [
+    "ISO 32000-1 7.5.4 (xref offsets locate the objects); dox-validate's documented policy: a file qpdf had to repair is reported with every rule incomplete (exit 2), never as a pass"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "incomplete"
+   ],
+   "any_basis": {
+    "exit_code": [
+     2
+    ],
+    "result": [
+     "incomplete"
+    ]
+   },
+   "processed": true,
+   "assessments": {},
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "68f654dde0507dba80c42da9567e60eb76535d0cdea683b0dc0840401451b2b8",
+   "bytes": 32367
+  },
+  {
+   "id": "edge-zero-pages",
+   "file": "edge-zero-pages.pdf",
+   "purpose": "A syntactically valid file with an empty page tree (no structure, no metadata).",
+   "construction": "Catalog + Pages with /Count 0 and no kids; nothing else.",
+   "normative_basis": [
+    "ISO 14289-1 7.1 (structure tree), 7.1 paragraph 8 (Metadata), 6.2 (MarkInfo)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": null,
+   "exit_code": [
+    2
+   ],
+   "result": [
+    "errors_found",
+    "incomplete",
+    "not_processed"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1,
+     2
+    ],
+    "result": [
+     "errors_found",
+     "incomplete",
+     "not_processed"
+    ]
+   },
+   "processed": null,
+   "assessments": {},
+   "tagged": null,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "1a8b8326c37f5884607f46150c73b945ea05c74130452aeaa67a904bbd71efb1",
+   "bytes": 315
+  },
+  {
+   "id": "edge-empty-tagged-page",
+   "file": "edge-empty-tagged-page.pdf",
+   "purpose": "A tagged document whose only page has an empty content stream and an empty Document element.",
+   "construction": "Catalog with all PDF/UA-1 metadata, StructTreeRoot -> Document with no kids, one page with empty content.",
+   "normative_basis": [
+    "ISO 14289-1 clause 7 (nothing to tag: no content requirement is violated)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-PACQ-WarnDocumentHasHeadings"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "028ffe174d8631d0d563ab7dcaf89422d28edcd5161405e4d7280b5bf278a5b5",
+   "bytes": 25556
+  },
+  {
+   "id": "edge-deep-structure",
+   "file": "edge-deep-structure.pdf",
+   "purpose": "Robustness: a structure tree 400 Div elements deep.",
+   "construction": "Document > 400 nested Div > P with one text line.",
+   "normative_basis": [
+    "ISO 32000-1 14.7.2 (no depth limit); the validator must terminate without a crash"
+   ],
+   "expectation_source": "construction",
+   "must_report": [],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [],
+   "exclusive_prefixes": [],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0,
+    2
+   ],
+   "result": [
+    "no_errors_found",
+    "incomplete"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1,
+     2
+    ],
+    "result": [
+     "errors_found",
+     "incomplete"
+    ]
+   },
+   "processed": true,
+   "assessments": {},
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "ce0c4a41d653f1534fd4d99c6ca7e70c028fea7929120a8a0317ccdc26543e54",
+   "bytes": 62786
+  },
+  {
+   "id": "edge-incremental-update",
+   "file": "edge-incremental-update.pdf",
+   "purpose": "An incremental update that removes /Lang from the Catalog: the newest revision counts.",
+   "construction": "ua1-good followed by an incremental update (new xref section with /Prev) that rewrites the Catalog without /Lang.",
+   "normative_basis": [
+    "ISO 32000-1 7.5.6 (incremental updates: the latest revision of an object is the valid one)",
+    "ISO 14289-1 7.2; Matterhorn 11-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.2-34",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.2-22",
+    "EQX-UA1-7.2-2",
+    "EQX-UA1-7.2-33",
+    "EQX-UA1-7.2-24",
+    "EQX-UA1-7.2-25",
+    "EQX-UA1-7.2-29",
+    "EQX-PAC-FailAltTextHasLanguage",
+    "EQX-UA2-8.4.4-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "1023b32fb6ec9994fe7fea79249fc4e44ca75bd7c1b944ea968a167e68f3d9a9",
+   "bytes": 32872
+  },
+  {
+   "id": "table-headers-ids",
+   "file": "table-headers-ids.pdf",
+   "purpose": "Positive control: header association by Headers/IDs instead of Scope.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: 3x3 table, TH with /ID and no /Scope, every TD with /A << /O /Table /Headers [(h<col>)] >>.",
+   "normative_basis": [
+    "ISO 14289-1 7.5 (Scope is required only when the structure is not determinable via Headers and IDs)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.5-1",
+    "EQX-UA1-7.5-2"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    0
+   ],
+   "result": [
+    "no_errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.1-AA": "automated_pass_manual_required"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "220496e47ecfc7f8af82aaa08b3a3c215f558f1fa3a52d48e6375b5c890f5ac6",
+   "bytes": 28252
+  },
+  {
+   "id": "annot-text-not-tagged",
+   "file": "annot-text-not-tagged.pdf",
+   "purpose": "A markup (Text) annotation outside the structure tree.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A /Text annotation with /Contents, no Annot element, no /StructParent.",
+   "normative_basis": [
+    "ISO 14289-1 7.18.1 (annotations other than Widget, PrinterMark and Link shall be nested in an Annot tag); Matterhorn 28-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.1-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.9.2.3-1",
+    "EQX-PAC-FailStructuralParentTreeAnnotationHasNoStructPatent"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "83ec624dafe33c631f378e6a0823a07ec7931ef4fe63fd72fa188defdf913c36",
+   "bytes": 32509
+  },
+  {
+   "id": "annot-trapnet",
+   "file": "annot-trapnet.pdf",
+   "purpose": "A TrapNet annotation.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A /TrapNet annotation with /Rect [100 100 200 200] (inside the page).",
+   "normative_basis": [
+    "ISO 14289-1 7.18.2 (TrapNet annotations shall not be permitted); Matterhorn 28-003"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.18.2-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA1-7.18.1-1",
+    "EQX-UA1-7.18.1-2",
+    "EQX-UA2-8.9.2.4.15-1",
+    "EQX-UA2-8.9.2.3-1",
+    "EQX-PAC-FailStructuralParentTreeAnnotationHasNoStructPatent",
+    "EQX-PAC-FailAnnotationHasAltText"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "ea4eab2b708493f541faaf2e55bfe05ed1cc3bb86ec241c4bfb8c025d0252c53",
+   "bytes": 32520
+  },
+  {
+   "id": "oc-config-no-name",
+   "file": "oc-config-no-name.pdf",
+   "purpose": "Optional content configuration without /Name.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: /OCProperties /D without a /Name entry.",
+   "normative_basis": [
+    "ISO 14289-1 7.10 (each optional content configuration dictionary shall contain Name); Matterhorn 20-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.10-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.7-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "018db343e9160913be2103aaac0c6ebbd596a6c0273d5a6afc12e10def3dba31",
+   "bytes": 32509
+  },
+  {
+   "id": "embedded-file-no-name",
+   "file": "embedded-file-no-name.pdf",
+   "purpose": "Embedded file specification without /F and /UF.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: EmbeddedFiles name tree with a Filespec lacking F and UF.",
+   "normative_basis": [
+    "ISO 14289-1 7.11 (file specification dictionaries for embedded files shall contain F and UF); Matterhorn 21-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.11-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.14.1-1"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "88f3814994792292f11732841f93ea72731769d69905329e760e9877598b22af",
+   "bytes": 32609
+  },
+  {
+   "id": "xfa-dynamic",
+   "file": "xfa-dynamic.pdf",
+   "purpose": "Dynamic XFA form.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: AcroForm /XFA stream whose config packet sets acrobat7/dynamicRender to 'required', and Catalog /NeedsRendering true.",
+   "normative_basis": [
+    "ISO 14289-1 7.15 (no dynamic XFA forms); Matterhorn 25-001"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-UA1-7.15-1",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [],
+   "may_report": [
+    "EQX-UA2-8.10.1-3"
+   ],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "f9dfdfb94c04de251e9514477c7d2031b30aa77721e5a8ac639a2ed330b91031",
+   "bytes": 32707
+  }
+ ]
+}

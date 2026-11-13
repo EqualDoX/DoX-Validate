@@ -1,0 +1,961 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/EqualDoX/DoX-Validate/schema/eqx-validator-output-1.schema.json",
+ "title": "dox-validate report (eqx-validator-output/1)",
+ "description": "One validation report as written by `dox-validate --format json` (src/report/output.cpp, render_json). Several files give one report per line (JSON Lines). summary.result and summary.exit_code follow the result basis (summary.basis, --target); findings and assessments do not depend on it. Key order is fixed by the writer; all keys listed as required are always present. Optional keys: rule_selection (only with --rules), file_repaired (only when processed), error (only when not processed), input.pdf_version/pages/tagged (only when processed), locations[].detail (only when non-empty). timing_ms holds the fixed phases plus one key per module that ran (and '<module>.prepare' / 'create_modules' when they took more than 1 ms).",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "schema",
+  "validator",
+  "profiles",
+  "input",
+  "processed",
+  "summary",
+  "findings",
+  "rules_evaluated",
+  "rules_incomplete",
+  "rules_not_applicable",
+  "assessments",
+  "diagnostics",
+  "timing_ms"
+ ],
+ "properties": {
+  "schema": {
+   "const": "eqx-validator-output/1"
+  },
+  "validator": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "name",
+    "version",
+    "catalog_sha256",
+    "rule_semantics"
+   ],
+   "properties": {
+    "name": {
+     "const": "dox-validate"
+    },
+    "version": {
+     "type": "string"
+    },
+    "catalog_sha256": {
+     "type": "string",
+     "pattern": "^[0-9a-f]{64}$"
+    },
+    "rule_semantics": {
+     "type": "string"
+    }
+   }
+  },
+  "profiles": {
+   "const": [
+    "pdfua-1",
+    "pdfua-2",
+    "wtpdf-1.0-accessibility",
+    "wtpdf-1.0-reuse",
+    "wcag-2.0-A",
+    "wcag-2.0-AA",
+    "wcag-2.0-AAA",
+    "wcag-2.1-A",
+    "wcag-2.1-AA",
+    "wcag-2.1-AAA",
+    "wcag-2.2-A",
+    "wcag-2.2-AA",
+    "wcag-2.2-AAA"
+   ]
+  },
+  "input": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "path",
+    "sha256",
+    "bytes"
+   ],
+   "properties": {
+    "path": {
+     "type": "string"
+    },
+    "sha256": {
+     "type": "string",
+     "pattern": "^([0-9a-f]{64})?$",
+     "description": "empty when the file could not be read"
+    },
+    "bytes": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "pdf_version": {
+     "type": "string"
+    },
+    "pages": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "tagged": {
+     "type": "boolean"
+    },
+    "pdfua_part": {
+     "type": [
+      "integer",
+      "null"
+     ],
+     "description": "pdfuaid:part of the catalog's XMP metadata; null when none is declared"
+    }
+   }
+  },
+  "rule_selection": {
+   "type": "string",
+   "minLength": 1,
+   "description": "--rules PREFIX: only these rules were evaluated"
+  },
+  "processed": {
+   "type": "boolean"
+  },
+  "file_repaired": {
+   "type": "boolean"
+  },
+  "error": {
+   "type": "string",
+   "description": "why the file could not be processed"
+  },
+  "summary": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "result",
+    "exit_code",
+    "basis",
+    "targets",
+    "failed_targets",
+    "incomplete_targets",
+    "error_rules",
+    "warning_rules",
+    "error_occurrences",
+    "warning_occurrences",
+    "rules_evaluated",
+    "rules_incomplete",
+    "rules_not_applicable"
+   ],
+   "properties": {
+    "result": {
+     "enum": [
+      "not_processed",
+      "incomplete",
+      "errors_found",
+      "no_errors_found"
+     ]
+    },
+    "exit_code": {
+     "enum": [
+      0,
+      1,
+      2
+     ]
+    },
+    "basis": {
+     "enum": [
+      "auto",
+      "targets",
+      "any"
+     ],
+     "description": "--target: auto = the declared PDF/UA part (pdfuaid:part 2: pdfua-2, else pdfua-1) and wcag-2.1-AA; targets = the listed targets; any = every error-severity finding and every required rule decide"
+    },
+    "targets": {
+     "$ref": "#/$defs/target_list",
+     "description": "the deciding targets (empty for any)"
+    },
+    "failed_targets": {
+     "$ref": "#/$defs/target_list"
+    },
+    "incomplete_targets": {
+     "$ref": "#/$defs/target_list"
+    },
+    "error_rules": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "warning_rules": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "error_occurrences": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "warning_occurrences": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "rules_evaluated": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "rules_incomplete": {
+     "type": "integer",
+     "minimum": 0
+    },
+    "rules_not_applicable": {
+     "type": "integer",
+     "minimum": 0
+    }
+   },
+   "allOf": [
+    {
+     "if": {
+      "properties": {
+       "result": {
+        "const": "not_processed"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "exit_code": {
+        "const": 2
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "result": {
+        "const": "incomplete"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "exit_code": {
+        "const": 2
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "result": {
+        "const": "errors_found"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "exit_code": {
+        "const": 1
+       },
+       "error_rules": {
+        "minimum": 1
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "result": {
+        "const": "no_errors_found"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "exit_code": {
+        "const": 0
+       },
+       "failed_targets": {
+        "maxItems": 0
+       },
+       "incomplete_targets": {
+        "maxItems": 0
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "basis": {
+        "const": "any"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "targets": {
+        "maxItems": 0
+       },
+       "failed_targets": {
+        "maxItems": 0
+       },
+       "incomplete_targets": {
+        "maxItems": 0
+       }
+      }
+     },
+     "else": {
+      "properties": {
+       "targets": {
+        "minItems": 1
+       }
+      }
+     }
+    },
+    {
+     "if": {
+      "properties": {
+       "basis": {
+        "const": "any"
+       },
+       "result": {
+        "const": "no_errors_found"
+       }
+      }
+     },
+     "then": {
+      "properties": {
+       "error_rules": {
+        "const": 0
+       }
+      }
+     }
+    }
+   ]
+  },
+  "findings": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/finding"
+   }
+  },
+  "rules_evaluated": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/rule_id"
+   },
+   "uniqueItems": true
+  },
+  "rules_incomplete": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "rule",
+     "reason"
+    ],
+    "properties": {
+     "rule": {
+      "$ref": "#/$defs/rule_id"
+     },
+     "reason": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "rules_not_applicable": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+     "rule",
+     "reason"
+    ],
+    "properties": {
+     "rule": {
+      "$ref": "#/$defs/rule_id"
+     },
+     "reason": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "assessments": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "pdfua-1",
+    "pdfua-2",
+    "wtpdf-1.0-accessibility",
+    "wtpdf-1.0-reuse",
+    "wcag-2.0-A",
+    "wcag-2.0-AA",
+    "wcag-2.0-AAA",
+    "wcag-2.1-A",
+    "wcag-2.1-AA",
+    "wcag-2.1-AAA",
+    "wcag-2.2-A",
+    "wcag-2.2-AA",
+    "wcag-2.2-AAA",
+    "pdfua-1+wcag-2.0-A",
+    "pdfua-1+wcag-2.0-AA",
+    "pdfua-1+wcag-2.0-AAA",
+    "pdfua-1+wcag-2.1-A",
+    "pdfua-1+wcag-2.1-AA",
+    "pdfua-1+wcag-2.1-AAA",
+    "pdfua-1+wcag-2.2-A",
+    "pdfua-1+wcag-2.2-AA",
+    "pdfua-1+wcag-2.2-AAA",
+    "pdfua-2+wcag-2.0-A",
+    "pdfua-2+wcag-2.0-AA",
+    "pdfua-2+wcag-2.0-AAA",
+    "pdfua-2+wcag-2.1-A",
+    "pdfua-2+wcag-2.1-AA",
+    "pdfua-2+wcag-2.1-AAA",
+    "pdfua-2+wcag-2.2-A",
+    "pdfua-2+wcag-2.2-AA",
+    "pdfua-2+wcag-2.2-AAA"
+   ],
+   "properties": {
+    "pdfua-1": {
+     "$ref": "#/$defs/target"
+    },
+    "pdfua-2": {
+     "$ref": "#/$defs/target"
+    },
+    "wtpdf-1.0-accessibility": {
+     "$ref": "#/$defs/target"
+    },
+    "wtpdf-1.0-reuse": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.0-A": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.0-AA": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.0-AAA": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.1-A": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.1-AA": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.1-AAA": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.2-A": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.2-AA": {
+     "$ref": "#/$defs/target"
+    },
+    "wcag-2.2-AAA": {
+     "$ref": "#/$defs/target"
+    },
+    "pdfua-1+wcag-2.0-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.0-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.0-AAA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.1-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.1-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.1-AAA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.2-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.2-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-1+wcag-2.2-AAA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.0-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.0-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.0-AAA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.1-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.1-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.1-AAA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.2-A": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.2-AA": {
+     "$ref": "#/$defs/combined"
+    },
+    "pdfua-2+wcag-2.2-AAA": {
+     "$ref": "#/$defs/combined"
+    }
+   }
+  },
+  "diagnostics": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "timing_ms": {
+   "type": "object",
+   "required": [
+    "hash",
+    "parse",
+    "structure",
+    "interpret",
+    "assess",
+    "total"
+   ],
+   "additionalProperties": {
+    "type": "number",
+    "minimum": 0
+   },
+   "properties": {
+    "hash": {
+     "type": "number",
+     "minimum": 0
+    },
+    "parse": {
+     "type": "number",
+     "minimum": 0
+    },
+    "structure": {
+     "type": "number",
+     "minimum": 0
+    },
+    "interpret": {
+     "type": "number",
+     "minimum": 0
+    },
+    "assess": {
+     "type": "number",
+     "minimum": 0
+    },
+    "total": {
+     "type": "number",
+     "minimum": 0
+    }
+   }
+  }
+ },
+ "allOf": [
+  {
+   "if": {
+    "properties": {
+     "processed": {
+      "const": true
+     }
+    }
+   },
+   "then": {
+    "required": [
+     "file_repaired"
+    ],
+    "not": {
+     "required": [
+      "error"
+     ]
+    },
+    "properties": {
+     "input": {
+      "required": [
+       "pdf_version",
+       "pages",
+       "tagged",
+       "pdfua_part"
+      ]
+     },
+     "summary": {
+      "properties": {
+       "result": {
+        "enum": [
+         "incomplete",
+         "errors_found",
+         "no_errors_found"
+        ]
+       }
+      }
+     }
+    }
+   },
+   "else": {
+    "required": [
+     "error"
+    ],
+    "not": {
+     "required": [
+      "file_repaired"
+     ]
+    },
+    "properties": {
+     "input": {
+      "not": {
+       "anyOf": [
+        {
+         "required": [
+          "pdf_version"
+         ]
+        },
+        {
+         "required": [
+          "pages"
+         ]
+        },
+        {
+         "required": [
+          "tagged"
+         ]
+        },
+        {
+         "required": [
+          "pdfua_part"
+         ]
+        }
+       ]
+      }
+     },
+     "findings": {
+      "maxItems": 0
+     },
+     "rules_evaluated": {
+      "maxItems": 0
+     },
+     "summary": {
+      "properties": {
+       "result": {
+        "const": "not_processed"
+       }
+      }
+     }
+    }
+   }
+  }
+ ],
+ "$defs": {
+  "target_list": {
+   "type": "array",
+   "uniqueItems": true,
+   "items": {
+    "enum": [
+     "pdfua-1",
+     "pdfua-2",
+     "wtpdf-1.0-accessibility",
+     "wtpdf-1.0-reuse",
+     "wcag-2.0-A",
+     "wcag-2.0-AA",
+     "wcag-2.0-AAA",
+     "wcag-2.1-A",
+     "wcag-2.1-AA",
+     "wcag-2.1-AAA",
+     "wcag-2.2-A",
+     "wcag-2.2-AA",
+     "wcag-2.2-AAA"
+    ]
+   }
+  },
+  "rule_id": {
+   "type": "string",
+   "pattern": "^EQX-[A-Z0-9]+-\\S+$"
+  },
+  "finding": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "rule",
+    "severity",
+    "kind",
+    "title",
+    "explanation",
+    "module",
+    "occurrences",
+    "non_pac_occurrences",
+    "locations",
+    "references"
+   ],
+   "properties": {
+    "rule": {
+     "$ref": "#/$defs/rule_id"
+    },
+    "severity": {
+     "enum": [
+      "error",
+      "warning"
+     ],
+     "description": "From the catalogue; warnings never fail a target or the exit status."
+    },
+    "kind": {
+     "enum": [
+      "violation",
+      "warning",
+      "recommendation"
+     ]
+    },
+    "title": {
+     "type": "string"
+    },
+    "explanation": {
+     "type": "string"
+    },
+    "module": {
+     "type": "string",
+     "minLength": 1,
+     "description": "The engine module that owns the rule."
+    },
+    "occurrences": {
+     "type": "integer",
+     "minimum": 1,
+     "description": "All occurrences, also those beyond --max-locations."
+    },
+    "non_pac_occurrences": {
+     "type": "integer",
+     "minimum": 0,
+     "description": "Occurrences raised by the non-PAC (veraPDF-semantics) condition of a rule that merges both; at most occurrences."
+    },
+    "locations": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+       "page",
+       "obj"
+      ],
+      "properties": {
+       "page": {
+        "type": [
+         "integer",
+         "null"
+        ],
+        "minimum": 1,
+        "description": "1-based page number"
+       },
+       "obj": {
+        "type": [
+         "string",
+         "null"
+        ],
+        "pattern": "^[0-9]+ [0-9]+$",
+        "description": "object number and generation"
+       },
+       "detail": {
+        "type": "string",
+        "description": "present only when non-empty"
+       }
+      }
+     }
+    },
+    "references": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "standards",
+      "sources"
+     ],
+     "properties": {
+      "standards": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "standard",
+         "obligation"
+        ],
+        "properties": {
+         "standard": {
+          "type": "string"
+         },
+         "obligation": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "clause": {
+          "type": "string"
+         },
+         "sc": {
+          "type": "string"
+         },
+         "matterhorn": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "via": {},
+         "level_by_version": {
+          "type": "object",
+          "additionalProperties": {
+           "type": [
+            "string",
+            "null"
+           ]
+          }
+         }
+        },
+        "additionalProperties": false
+       }
+      },
+      "sources": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "tool",
+         "version"
+        ],
+        "properties": {
+         "tool": {
+          "enum": [
+           "veraPDF",
+           "PAC",
+           "EqualDoX"
+          ]
+         },
+         "version": {
+          "type": "string"
+         },
+         "profile": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "rule": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "specification": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "tab": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "check": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "condition": {
+          "type": [
+           "string",
+           "null"
+          ]
+         },
+         "text": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        },
+        "additionalProperties": false
+       }
+      }
+     }
+    }
+   }
+  },
+  "target": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "status",
+    "failed_rules",
+    "warning_rules",
+    "unevaluated_rules",
+    "manual_required"
+   ],
+   "properties": {
+    "status": {
+     "enum": [
+      "fail",
+      "incomplete",
+      "automated_pass_manual_required"
+     ],
+     "description": "Automated checks never give 'pass'. fail: an error-severity rule of the target has a finding; incomplete: no failure, but a required rule was not evaluated or the file was not processed."
+    },
+    "failed_rules": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/rule_id"
+     },
+     "uniqueItems": true
+    },
+    "warning_rules": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/rule_id"
+     },
+     "uniqueItems": true
+    },
+    "unevaluated_rules": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/rule_id"
+     },
+     "uniqueItems": true
+    },
+    "manual_required": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     },
+     "description": "Requirements of the target that need human evaluation (Matterhorn / WCAG identifiers)."
+    }
+   }
+  },
+  "combined": {
+   "type": "object",
+   "additionalProperties": false,
+   "required": [
+    "status",
+    "meaning"
+   ],
+   "properties": {
+    "status": {
+     "enum": [
+      "both",
+      "pdfua_only",
+      "wcag_only",
+      "neither",
+      "pdfua_fail_wcag_incomplete",
+      "wcag_fail_pdfua_incomplete",
+      "undetermined"
+     ]
+    },
+    "meaning": {
+     "type": "string"
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,4 @@
+{
+ "note": "Suspected validator defects found with this corpus (details and repro in CORRECTNESS.md). Fixtures listed here are expected failures (strict xfail) as long as the defect exists; remove an entry once it is fixed. D1 (WCAG 1.4.1 review next to underlined links) was fixed in f37a695 and removed.",
+ "defects": {}
+}

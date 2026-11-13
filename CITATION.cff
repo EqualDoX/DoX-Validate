@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use DoX-Validate in a scientific publication, cite it as below and name EqualDoX as the developing organisation."
+title: "DoX-Validate: PDF Accessibility Validator"
+type: software
+authors:
+  - family-names: Ehrhardt
+    given-names: Matthis
+    affiliation: EqualDoX
+repository-code: "https://github.com/EqualDoX/DoX-Validate"
+url: "https://github.com/EqualDoX/DoX-Validate"
+version: 0.2.0
+date-released: 2026-11-13
+abstract: >-
+  DoX-Validate is a native command-line tool for automated PDF accessibility
+  checks. It checks a PDF against PDF/UA-1, PDF/UA-2, WTPDF 1.0 and WCAG
+  2.0/2.1/2.2 in a single pass, reports each machine-checkable violation with
+  its page, object and rule, and lists the requirements that still need manual
+  evaluation. Results are machine-readable (versioned JSON and JSON Lines).
+keywords:
+  - PDF
+  - accessibility
+  - PDF/UA
+  - WCAG
+  - WTPDF
+  - validation
+  - command-line tool
+preferred-citation:
+  type: software
+  title: "DoX-Validate: PDF Accessibility Validator"
+  authors:
+    - family-names: Ehrhardt
+      given-names: Matthis
+      affiliation: EqualDoX
+  publisher:
+    name: EqualDoX
+  year: 2026
+  url: "https://github.com/EqualDoX/DoX-Validate"
+  repository-code: "https://github.com/EqualDoX/DoX-Validate"

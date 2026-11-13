@@ -1,0 +1,15 @@
+{
+ "note": "veraPDF corpus files whose file-name verdict dox-validate does not reproduce, after analysis (CORRECTNESS.md section 3). 'numbering': the file violates a neighbouring test of the same clause, which dox-validate reports, and so do veraPDF 1.30.2 and 1.30.4; the named test itself is not violated by the file as reported by either veraPDF release. 'version': veraPDF 1.30.4 reports the named test, veraPDF 1.30.2 (whose semantics dox-validate reproduces) does not.",
+ "disputes": {
+  "verapdf-ua1-7.1-t05-fail-d": {"class": "numbering", "reason": "reported as 7.1-6 (circular role mapping) by dox-validate and veraPDF 1.30.2/1.30.4; 7.1-5 only by dox-validate's merged PAC condition (non_pac_occurrences 0)"},
+  "verapdf-ua1-7.2-t03-fail-b": {"class": "numbering", "reason": "reported as 7.2-39 (more than one Caption in Table) by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t03-fail-c": {"class": "numbering", "reason": "reported as 7.2-16 (Caption not first or last kid of Table) by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t19-fail-a": {"class": "numbering", "reason": "reported as 7.2-40 (Caption not first kid of L) by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t19-fail-c": {"class": "numbering", "reason": "reported as 7.2-40 by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t27-fail-a": {"class": "numbering", "reason": "reported as 7.2-28 (Caption not first kid of TOC) by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t27-fail-b": {"class": "numbering", "reason": "reported as 7.2-28 by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.2-t41-fail-a": {"class": "numbering", "reason": "reported as 7.2-42 (rows with different column counts) by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua2-8.7-t02-fail-a": {"class": "numbering", "reason": "reported as 8.7-1 by dox-validate and veraPDF 1.30.2/1.30.4"},
+  "verapdf-ua1-7.5-t01-fail-c": {"class": "version", "reason": "veraPDF 1.30.4 reports 7.5-1 (TH without Scope), veraPDF 1.30.2 reports nothing; dox-validate follows 1.30.2"}
+ }
+}

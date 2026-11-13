@@ -1,0 +1,21 @@
+# Build trees
+build/
+build-*/
+cmake-build-*/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Downloaded or regenerated test and benchmark inputs (reproduced by scripts, never committed)
+tests/corpus/.cache/
+bench/.tools/
+bench/.cache/
+bench/runs/
+
+# Editors and local tooling
+.vscode/
+.idea/
+*.swp

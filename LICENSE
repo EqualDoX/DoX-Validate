@@ -1,0 +1,275 @@
+===============================================================================
+PROPOSED FINAL TEXT, PENDING LEGAL REVIEW - NOT IN EFFECT
+
+This license text has not yet been reviewed by a lawyer and is not in effect.
+Until this notice is removed, no rights are granted in the EqualDoX material in
+this repository (all rights reserved). Third-party material remains available
+under its own licenses, as stated in THIRD_PARTY_NOTICES.md. For permission to
+use the EqualDoX material before then, contact EqualDoX (https://equaldox.de).
+===============================================================================
+
+EqualDoX Attribution License
+Version 1.0
+SPDX identifier: LicenseRef-EqualDoX-Attribution-1.0
+
+Copyright (c) 2026 EqualDoX UG (haftungsbeschränkt) i.G., Mannheim, Germany
+https://equaldox.de
+
+DoX-Validate was developed by Matthis Ehrhardt for EqualDoX.
+
+This is a custom license. It permits private, internal, academic and commercial
+use free of charge. It requires a link to https://equaldox.de in publicly
+distributed products and publicly accessible services, and a citation in
+scientific publications. It is not the MIT License, the Apache License or any
+other standard license, it is not approved by the Open Source Initiative, and
+it is not compatible with the GNU General Public License.
+
+
+1. Definitions
+
+"Licensor" means EqualDoX UG (haftungsbeschränkt) i.G., Geraer Ring 2, 68309
+Mannheim, Germany, a company in formation, including the company after its
+registration in the commercial register and its legal successors.
+
+"Software" means DoX-Validate as made available by the Licensor, in source or
+object form, including its documentation, data, rule catalogue and test
+material, to the extent that the Licensor holds the rights required to license
+it. Third-Party Material is not part of the Software. Unless stated otherwise,
+references to the Software include modified versions of it and parts of it.
+
+"Third-Party Material" means the material that THIRD_PARTY_NOTICES.md
+identifies as originating from, or being based on, works of third parties, and
+any other material in which the Licensor does not hold the rights required to
+license it.
+
+"You" means the natural or legal person exercising rights under this License.
+
+"Affiliate" means a legal entity that controls, is controlled by or is under
+common control with You. "Control" means holding, directly or indirectly, more
+than 50% of the voting rights in an entity, or the power to direct its
+management.
+
+"Third Party" means any person other than You, Your Affiliates and the
+employees, officers and contractors acting on behalf of You or Your Affiliates.
+
+"Public Product" means any software, device or other product that contains the
+Software and that You distribute or otherwise make available to Third Parties,
+whether for a fee or free of charge.
+
+"Public Service" means any service, including a website, web application,
+application programming interface, software-as-a-service or other hosted
+offering, that uses the Software, that You operate or have operated on Your
+behalf, and that is accessible to Third Parties, whether for a fee or free of
+charge and with or without registration.
+
+"Internal Use" means any use of the Software other than distributing a Public
+Product or providing a Public Service. The following are Internal Use and are
+neither a Public Product nor a Public Service:
+    (a) private use by a natural person, and use by You and Your Affiliates for
+        their own purposes, including passing the Software between them;
+    (b) installing, adapting, operating or delivering the Software, or a
+        solution that contains it, as a contractor or service provider for a
+        single customer's internal operations, whether on the customer's
+        premises or hosted for it, unless the solution is a product that You
+        offer to customers generally or a service accessible to persons outside
+        that customer and its Affiliates.
+
+"Scientific Publication" means a publication of research results that is made
+available to the public, such as a journal article, conference paper, preprint,
+book, published thesis or research report.
+
+
+2. License grant
+
+2.1 Subject to the terms of this License, the Licensor grants You a worldwide,
+    non-exclusive, royalty-free license, unlimited in time and, except as
+    provided in Section 8, irrevocable, to use the Software for any purpose,
+    including private, internal business, academic, scientific and commercial
+    purposes, and in particular to:
+    (a) run, load, display and store the Software, and reproduce it for these
+        purposes;
+    (b) modify, translate, adapt and otherwise transform the Software, and use
+        the results;
+    (c) reproduce and distribute the Software, including by sale, in original
+        or modified form, alone or as part of other works, including
+        proprietary and commercial products;
+    (d) make the Software available to the public and use it to provide
+        services, including commercial software-as-a-service.
+    No license fee is payable and no prior permission is required.
+
+2.2 Every person who receives the Software, directly or indirectly, including
+    as part of a Public Product, automatically receives a license to the
+    Software from the Licensor under this License. You may choose the terms for
+    Your own contributions and for Your products and services, but You may not
+    impose terms that purport to release recipients from the conditions of this
+    License.
+
+2.3 To the extent that the Licensor owns or controls patent claims that are
+    necessarily infringed by the Software as made available by the Licensor,
+    the Licensor grants You a royalty-free license under those claims to
+    exercise the rights granted in Section 2.1. If You bring a legal action
+    alleging that the Software infringes a patent, this patent license ends for
+    You on the date the action is filed.
+
+2.4 No rights are granted except as expressly stated in this License.
+
+
+3. Conditions
+
+The rights granted in Section 2 are subject to the following conditions. In
+particular, the rights to distribute a Public Product and to provide a Public
+Service are granted only on the condition that You comply with Section 3.2.
+
+3.1 Notices. If You distribute the Software, in source or object form, alone or
+    as part of another product, including in the cases described in item (b) of
+    the definition of Internal Use, You must include the copyright notice
+    above, the text of this License, and THIRD_PARTY_NOTICES.md and the license
+    texts in LICENSES/ (or equivalent notices) for the Third-Party Material
+    that the distributed copy contains. You must not remove or alter copyright,
+    license or attribution notices contained in the Software. You may add
+    notices for Your own modifications.
+
+3.2 Public attribution. If You distribute a Public Product or provide a Public
+    Service, You must provide an attribution that:
+    (a) names DoX-Validate or EqualDoX and contains the URL
+        https://equaldox.de, for example "Uses DoX-Validate by EqualDoX:
+        https://equaldox.de". Naming EqualDoX or DoX-Validate without the URL
+        does not satisfy this condition;
+    (b) is a functional hyperlink to https://equaldox.de wherever the medium in
+        which it appears supports clickable links (for example websites, web
+        applications, HTML or PDF documents and graphical user interfaces). In
+        media without clickable links (for example printed material,
+        command-line output, plain-text files or devices without a suitable
+        display), the written-out URL suffices;
+    (c) is reasonably accessible to the recipients or users, for example in the
+        documentation, in an "About", credits or acknowledgements section, or
+        in the legal notices. It does not need to appear on every page, screen,
+        report or result; and
+    (d) remains available for as long as You distribute the Public Product or
+        provide the Public Service.
+    An attribution that a supplier has already included in a product satisfies
+    this condition for You while it remains in place and accessible. Internal
+    Use does not require this attribution.
+
+3.3 Scientific citation. If You are an author of a Scientific Publication whose
+    published research results were obtained in whole or in part by using the
+    Software, You must ensure that the publication cites the Software. The
+    citation must identify:
+    (a) Matthis Ehrhardt as the author;
+    (b) DoX-Validate as the software;
+    (c) EqualDoX as the developing organisation; and
+    (d) the repository https://github.com/EqualDoX/DoX-Validate.
+    Any conventional citation style may be used. A clickable link is not
+    required, provided that the repository is identifiable. The repository
+    address in (d) also identifies EqualDoX for the purpose of (c), so a
+    citation generated from CITATION.cff, for example with GitHub's "Cite this
+    repository", satisfies this condition. Example:
+
+        Ehrhardt, Matthis. (2026). DoX-Validate: PDF Accessibility Validator.
+        EqualDoX. https://github.com/EqualDoX/DoX-Validate
+
+    Citation metadata is provided in CITATION.cff. Use of the Software for
+    research or teaching without a Scientific Publication does not require a
+    citation.
+
+
+4. Third-Party Material
+
+This License applies only to the Software, that is, to material in which the
+Licensor holds the rights required to license it. Third-Party Material is
+licensed by its rights holders under its own terms, which
+THIRD_PARTY_NOTICES.md identifies file by file or part by part, together with
+the location of each license text. These terms include the Mozilla Public
+License 2.0, the BSD 3-Clause License, the Apache License 2.0, the Creative
+Commons Attribution 4.0 International License, the W3C Document License, CC0
+1.0, the SIL Open Font License 1.1 and Adobe's terms for its AFM font metrics.
+This License does not restrict any right granted by those terms, and the
+conditions of Sections 3.2 and 3.3 do not apply to Third-Party Material. When
+You use or distribute Third-Party Material, You must comply with its terms; for
+example, whoever distributes the MPL-2.0 files in object form must make their
+source code available to the recipients.
+
+
+5. Names and trademarks
+
+This License grants no rights in the name "EqualDoX", the EqualDoX logo or any
+other trademark or trade name of the Licensor, except to use the names
+"EqualDoX" and "DoX-Validate" as required by Section 3 and to state the origin
+of the Software truthfully. You must not suggest that the Licensor endorses or
+is responsible for You, Your products or services, or a modified version of the
+Software.
+
+
+6. Warranty
+
+The Licensor provides the Software free of charge. The Licensor is responsible
+for defects in quality or title of the Software only if it has fraudulently
+concealed them, or where mandatory law provides otherwise. In particular, the
+Licensor does not warrant that the Software is free of errors, that its results
+are accurate or complete, or that a document that the Software reports without
+errors conforms to any standard or legal requirement. Automated checks do not
+replace the manual evaluation of accessibility.
+
+
+7. Liability
+
+7.1 The Licensor is liable without limitation, in accordance with the statutory
+    provisions:
+    (a) for damage caused intentionally or by gross negligence;
+    (b) for damage resulting from injury to life, body or health;
+    (c) for defects that the Licensor has fraudulently concealed; and
+    (d) under mandatory product liability law, in Germany the
+        Produkthaftungsgesetz.
+
+7.2 In all other cases, the Licensor's liability is excluded, whatever the
+    legal ground.
+
+7.3 Sections 6 and 7 also apply to the personal liability of the Licensor's
+    legal representatives, employees and vicarious agents.
+
+
+8. Termination
+
+8.1 If You fail to comply with this License, Your rights under it end
+    automatically.
+
+8.2 If You remedy the non-compliance within 30 days after receiving notice of
+    it from the Licensor or after becoming aware of it, whichever is earlier,
+    Your rights are reinstated as if they had not ended. Notice in text form,
+    for example by e-mail, suffices. This does not apply if the Licensor has
+    notified You of a non-compliance with this License before.
+
+8.3 Termination does not affect the licenses of persons who have received the
+    Software from You or through You, as long as they comply with this License.
+    Sections 4 to 7, 9 and 10 continue to apply after termination.
+
+
+9. Governing law and place of jurisdiction
+
+9.1 This License is governed by the law of the Federal Republic of Germany,
+    excluding the United Nations Convention on Contracts for the International
+    Sale of Goods (CISG). If You are a consumer, this choice of law does not
+    deprive You of the protection of the mandatory provisions of the law of the
+    country of Your habitual residence.
+
+9.2 If You are a merchant (Kaufmann), a legal entity under public law or a
+    special fund under public law, or if You have no general place of
+    jurisdiction in Germany, the exclusive place of jurisdiction for all
+    disputes arising out of or in connection with this License is the
+    Licensor's seat, Mannheim, Germany. The Licensor may also bring proceedings
+    at Your general place of jurisdiction. Mandatory statutory places of
+    jurisdiction, in particular for consumers, remain unaffected.
+
+
+10. General
+
+10.1 You accept this License by exercising any right granted under it.
+
+10.2 If a provision of this License is invalid or unenforceable, the remaining
+     provisions remain in effect.
+
+10.3 This License is written in English. Translations are for information only;
+     if they differ, the English text prevails.
+
+10.4 The Licensor may publish new versions of this License. Software that You
+     received under this version remains licensed to You under this version.

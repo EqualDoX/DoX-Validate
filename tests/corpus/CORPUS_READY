@@ -1,0 +1,5 @@
+corpus: frozen
+build command (from the repository root): python3 tests/corpus/build_corpus.py
+output: tests/corpus/.cache/full/ (157 files: 84 fixtures, 6 generated size tiers, 67 public core documents)
+corpus_manifest.json sha256: 3b03181043e3205bac6155d229fc0be98c7955a9113deadb30e9fb946b1ffae4
+optional superset for correctness work only (not for benchmarking): python3 tests/corpus/build_corpus.py --suites --out DIR

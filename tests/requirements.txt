@@ -1,0 +1,5 @@
+# Test dependencies of the dox-validate black-box suite:
+#   python3 -m venv .venv && .venv/bin/pip install -r tests/requirements.txt
+pytest==8.3.4        # test runner
+jsonschema==4.23.0   # validates reports against schema/eqx-validator-output-1.schema.json (draft 2020-12)
+fonttools==4.55.3    # only for tests/corpus/fonts/make_subset.py (one-off rebuild of the committed test fonts)
