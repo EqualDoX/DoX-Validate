@@ -110,7 +110,8 @@ public:
         // default: every element in document order; --reference-dedup: only the model objects veraPDF validates
         // (direct elements sharing an /S are validated once), in its order
         const bool ref_mode = ctx.reference_dedup;
-        const auto by_identity = se::elem_index_map(st);
+        // (the map is read in reference mode only)
+        const auto by_identity = ref_mode ? se::elem_index_map(st) : std::unordered_map<const void*, int>();
         auto checked = [&](const Obj& d) {
             if (!ref_mode) return true;
             auto it = by_identity.find(se::identity(d));
