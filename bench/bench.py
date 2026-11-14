@@ -40,6 +40,9 @@ TOOLS = HERE / ".tools"
 RESULTS = HERE / "results"
 JRE = TOOLS / "jre-21.0.13+9"
 DOX = ROOT / "build-bench" / "dox-validate"
+# Optional second dox-validate build for before/after comparisons (variants dox-base, dox-base-ua1rules), e.g. a Release
+# build of an earlier commit: $DOX_BASELINE, default build-baseline/dox-validate.
+DOX_BASE = Path(os.environ.get("DOX_BASELINE") or ROOT / "build-baseline" / "dox-validate")
 RUSAGE_EXEC = TOOLS / "rusage_exec"
 CPDF = TOOLS / "cpdf-2.9.3" / "cpdf"
 VERAPDF = {"1.30.4": TOOLS / "verapdf-1.30.4" / "verapdf", "1.30.2": TOOLS / "verapdf-1.30.2" / "verapdf"}
@@ -56,6 +59,10 @@ def argv_for(variant: str, files: list[str], workers: int = 1) -> list[str]:
         return [str(DOX), "--format", "json", "--jobs", str(workers), *files]
     if variant == "dox-ua1rules":   # supplementary: only the rules that mirror veraPDF's PDF/UA-1 profile
         return [str(DOX), "--format", "json", "--jobs", str(workers), "--rules", "EQX-UA1-", *files]
+    if variant == "dox-base":       # before/after: another dox-validate build (DOX_BASE), same call as dox
+        return [str(DOX_BASE), "--format", "json", "--jobs", str(workers), *files]
+    if variant == "dox-base-ua1rules":
+        return [str(DOX_BASE), "--format", "json", "--jobs", str(workers), "--rules", "EQX-UA1-", *files]
     if variant == "cpdf-ua1":       # secondary competitor: cpdf's partial Matterhorn (PDF/UA-1) verifier, one file per run
         assert len(files) <= 1 and workers == 1
         return [str(CPDF), "-verify", "PDF/UA-1(matterhorn)", "-json", *files]
