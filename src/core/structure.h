@@ -99,7 +99,7 @@ public:
         : tree_(tree), words_(words), n_(n), page_(page) {}
     std::size_t size() const { return n_; }
     bool empty() const { return n_ == 0; }
-    inline StructKid operator[](std::size_t i) const;
+    [[gnu::always_inline]] inline StructKid operator[](std::size_t i) const;
     iterator begin() const { return {this, 0}; }
     iterator end() const { return {this, n_}; }
 
@@ -160,7 +160,7 @@ public:
         using reference = StructElem;
 
         iterator(const StructTree* tree, std::size_t i) : tree_(tree), i_(i) {}
-        inline StructElem operator*() const;
+        [[gnu::always_inline]] inline StructElem operator*() const;
         iterator& operator++() {
             ++i_;
             return *this;
@@ -181,7 +181,7 @@ public:
     explicit StructElems(const StructTree* tree) : tree_(tree) {}
     inline std::size_t size() const;
     bool empty() const { return size() == 0; }
-    inline StructElem operator[](std::size_t i) const;
+    [[gnu::always_inline]] inline StructElem operator[](std::size_t i) const;
     iterator begin() const { return {tree_, 0}; }
     iterator end() const { return {tree_, size()}; }
 
@@ -198,7 +198,8 @@ public:
     Obj root() const { return root_; }
     ObjRef root_ref() const { return root_ref_; }
     StructElems elems() const { return StructElems(this); }
-    inline StructElem elem(int i) const;
+    // (A view is made in place, inlined: only the members that are read get built.)
+    [[gnu::always_inline]] inline StructElem elem(int i) const;
     const std::vector<int>& root_elems() const { return root_elems_; }
     // Element indices are in pre-order (first kid first, each element at its first occurrence).
     // veraPDF's validation order (simulated BaseValidator traversal): only elements it validates.
@@ -302,7 +303,7 @@ private:
         Obj dict, obj;
         ObjRef page;
     };
-    inline StructKid kid_view(std::uint64_t word, ObjRef mcid_page) const;
+    [[gnu::always_inline]] inline StructKid kid_view(std::uint64_t word, ObjRef mcid_page) const;
     static const int* ints_of(const Rec& r) { return reinterpret_cast<const int*>(r.block + r.n_kids); }
     static std::span<const int> struct_kids_of(const Rec& r) { return {ints_of(r), r.n_struct}; }
     static std::span<const int> elems_of(const Rec& r) {
