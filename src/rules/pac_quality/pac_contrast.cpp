@@ -1766,7 +1766,7 @@ public:
     void on_stream_end(const ContentModel& cm, int si) override;
     void on_glyph(const ContentModel& cm, const GlyphEvent& ev) override;
 
-    std::vector<ContrastFinding> findings;
+    std::vector<ContrastMeasure> findings;
     std::vector<ArtifactTextPiece> artifact_pieces;
     std::vector<ContrastFinding> missing_res;   // PAC closes such a document
     bool gave_up = false;   // a page exceeded the geometry or pixel budget and was not judged
@@ -3144,14 +3144,17 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
         const double ratio = wcag_contrast(fg, f.bg);
         if (ratio + 1e-9 >= need) continue;
         const StreamInstance& s = cm.streams[it.stream];
-        char buf[200];
-        unsigned char fg8[3] = {to8(fg[0]), to8(fg[1]), to8(fg[2])}, bg8[3] = {to8(f.bg[0]), to8(f.bg[1]), to8(f.bg[2])};
-        std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s, %.1f pt%s), needs %.1f:1", ratio, hex8(fg8).c_str(), hex8(bg8).c_str(), tr.size_user, large ? ", large" : "", need);
-        std::string text = to_utf8(tr.text);
-        if (text.size() > 40) text = text.substr(0, 40) + "...";
-        const std::string detail = std::string(buf) + (text.empty() ? "" : ": \"" + text + "\"");
+        ContrastMeasure m;   // its detail: ContrastMeasure::detail
+        m.page = s.page;
+        m.obj = s.ref;
+        m.ratio = ratio;
+        m.size_user = tr.size_user;
+        m.need = need;
+        m.text = it.text;
+        m.large = large;
+        for (int k = 0; k < 3; ++k) m.fg[k] = to8(fg[k]), m.bg[k] = to8(f.bg[k]);
         for (std::size_t k = range.first; k < range.second; ++k)
-            if (pieces_[k].box.intersects(page_box)) findings.push_back({s.page, s.ref, detail});
+            if (pieces_[k].box.intersects(page_box)) findings.push_back(m);
     }
     if (last_needed < 0) return;
 
@@ -3869,13 +3872,19 @@ void ContrastEngine::check_text(const ContentModel& cm, const ContentItem& it, c
             wcag_text(cm, it, piece, piece.box, wf, wb, true, true, false);
         }
         if (worst + 1e-9 >= need) continue;
-        char buf[200];
-        std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on rendered %s, %.1f pt%s), needs %.1f:1", worst, hex8(worst_fg).c_str(),
-                      hex8(worst_bg).c_str(), tr.size_user, large ? ", large" : "", need);
-        std::string text = to_utf8(tr.text);
-        if (text.size() > 40) text = text.substr(0, 40) + "...";
         const StreamInstance& s = cm.streams[it.stream];
-        findings.push_back({s.page, s.ref, std::string(buf) + (text.empty() ? "" : ": \"" + text + "\"")});
+        ContrastMeasure m;   // its detail: ContrastMeasure::detail
+        m.page = s.page;
+        m.obj = s.ref;
+        m.ratio = worst;
+        m.size_user = tr.size_user;
+        m.need = need;
+        m.text = it.text;
+        m.rendered = true;
+        m.large = large;
+        std::copy(worst_fg, worst_fg + 3, m.fg);
+        std::copy(worst_bg, worst_bg + 3, m.bg);
+        findings.push_back(m);
     }
 }
 
@@ -3923,8 +3932,17 @@ std::pair<std::size_t, std::size_t> ContrastEngine::piece_range(int stream, std:
 
 std::unique_ptr<ContentObserver> make_contrast_observer(ValidationContext& ctx) { return std::make_unique<ContrastEngine>(ctx); }
 
-const std::vector<ContrastFinding>& contrast_findings(const ContentObserver& observer) {
+const std::vector<ContrastMeasure>& contrast_findings(const ContentObserver& observer) {
     return static_cast<const ContrastEngine&>(observer).findings;
+}
+
+std::string ContrastMeasure::detail(const ContentModel& cm) const {
+    char buf[200];
+    std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s%s, %.1f pt%s), needs %.1f:1", ratio, hex8(fg).c_str(), rendered ? "rendered " : "",
+                  hex8(bg).c_str(), size_user, large ? ", large" : "", need);
+    std::string run = to_utf8(cm.texts[std::size_t(text)].text);
+    if (run.size() > 40) run = run.substr(0, 40) + "...";
+    return std::string(buf) + (run.empty() ? "" : ": \"" + run + "\"");
 }
 
 bool contrast_gave_up(const ContentObserver& observer) { return static_cast<const ContrastEngine&>(observer).gave_up; }

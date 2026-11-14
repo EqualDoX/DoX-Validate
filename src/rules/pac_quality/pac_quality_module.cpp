@@ -454,7 +454,12 @@ public:
         if (contrast_) {
             static const RuleIndex rc = R("EQX-PAC-FailNotEnoughContrastForText");
             if (!pacc::contrast_gave_up(*contrast_)) ctx.findings.erase(rc);   // else its findings keep the rule reported
-            for (const pacc::ContrastFinding& f : pacc::contrast_findings(*contrast_)) ctx.report(rc, f.page, f.obj, f.detail);
+            // The detail of a finding is made here, from what was measured, unless the finding is only counted (the
+            // record is full; no detail of this rule starts with "PAC:").
+            for (const pacc::ContrastMeasure& f : pacc::contrast_findings(*contrast_)) {
+                if (ctx.findings.saturated(rc)) ctx.report(rc, f.page, f.obj);
+                else ctx.report(rc, f.page, f.obj, f.detail(ctx.content));
+            }
         }
         static const RuleIndex ru = R("EQX-UA1-7.21.7-1");
         for (const UnmappedCodes::Hit& h : unmapped_.hits) {

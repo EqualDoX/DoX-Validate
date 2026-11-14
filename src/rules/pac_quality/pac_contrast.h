@@ -26,6 +26,21 @@ struct ContrastFinding {
     std::string detail;
 };
 
+// One text piece below the contrast PAC asks for: what was measured, kept as numbers. The detail text of the finding is
+// made from them when the finding is reported (detail), and not at all for a finding that is only counted.
+struct ContrastMeasure {
+    int page = -1;
+    ObjRef obj;
+    double ratio = 0;                   // the contrast measured
+    double size_user = 0;               // the text size in pt
+    double need = 0;                    // the contrast asked for (3.0 for large text, else 4.5)
+    int text = -1;                      // the text run (ContentModel::texts)
+    unsigned char fg[3] = {0, 0, 0}, bg[3] = {0, 0, 0};
+    bool rendered = false;              // the background was measured on the rendering
+    bool large = false;
+    std::string detail(const ContentModel& cm) const;
+};
+
 // Text in an /Artifact sequence (PAC's text pieces, see pac_contrast.cpp).
 struct ArtifactTextPiece {
     int page = -1;
@@ -39,7 +54,7 @@ class ContrastEngine;
 // Observer owned by the pac_quality module.
 std::unique_ptr<ContentObserver> make_contrast_observer(ValidationContext& ctx);
 // The findings gathered during interpretation (the observer made by make_contrast_observer).
-const std::vector<ContrastFinding>& contrast_findings(const ContentObserver& observer);
+const std::vector<ContrastMeasure>& contrast_findings(const ContentObserver& observer);
 const std::vector<ArtifactTextPiece>& artifact_text_pieces(const ContentObserver& observer);
 // Operators naming a resource that does not exist.
 const std::vector<ContrastFinding>& missing_resources(const ContentObserver& observer);
