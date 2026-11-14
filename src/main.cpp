@@ -13,6 +13,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <qpdf/Pl_Flate.hh>
 #include <qpdf/Pl_RunLength.hh>
@@ -290,11 +291,52 @@ static int real_main(int argc, char** argv) {
     if (jobs == 0) jobs = files.size() > 1 ? std::max(1u, std::thread::hardware_concurrency()) : 1;
     // A one-file run ends with this file's report: nothing has to be torn down before the process exits.
     opt.process_exits_after = files.size() == 1 && !kFullTeardown;
+    // A result is reported as soon as it and every earlier file's result are complete, in argument order, and released
+    // right after. A run over many files prints while it works and holds only the results that still wait for an
+    // earlier file, not all of them until the end. The calls on stdout and stderr and their order are those of
+    // reporting everything after the last validation.
     std::vector<std::unique_ptr<Result>> results(files.size());
+    std::mutex report_mutex;
+    std::size_t reported = 0;   // the results of files [0, reported) are written
+    bool reporting = false;     // a thread is writing; it also takes the results that become ready meanwhile
+    int status = 0;
+    bool written = true;
+    auto report = [&](const Result& r) {
+        if (json) {
+            std::string s = render_json(r, pretty && files.size() == 1, basis);
+            written = std::fwrite(s.data(), 1, s.size(), stdout) == s.size() && written;
+            written = std::fputc('\n', stdout) != EOF && written;
+        } else {
+            std::string s = render_text(r, verbose, basis);
+            written = std::fwrite(s.data(), 1, s.size(), stdout) == s.size() && written;
+        }
+        const Summary sum = summarize(r, basis);
+        if (!r.processed)
+            std::fprintf(stderr, "dox-validate: %s: not processed: %s\n", r.path.c_str(), r.error.c_str());
+        else if (sum.required_rules_incomplete)
+            std::fprintf(stderr, "dox-validate: %s: %zu required rule(s) could not be evaluated (see rules_incomplete)\n",
+                         r.path.c_str(), sum.required_rules_incomplete);
+        status = std::max(status, sum.exit_code);
+    };
+    auto finished = [&](std::size_t i, std::unique_ptr<Result> r) {
+        std::unique_lock<std::mutex> lock(report_mutex);
+        results[i] = std::move(r);
+        if (reporting) return;   // the writing thread sees this result when it looks again
+        reporting = true;
+        while (reported < results.size() && results[reported]) {
+            std::unique_ptr<Result> head = std::move(results[reported]);
+            lock.unlock();
+            report(*head);
+            head.reset();
+            lock.lock();
+            ++reported;
+        }
+        reporting = false;
+    };
     std::atomic<std::size_t> next{0};
     auto worker = [&]() {
         for (std::size_t i; (i = next++) < files.size();)
-            results[i] = std::make_unique<Result>(validate_file(files[i], opt));
+            finished(i, std::make_unique<Result>(validate_file(files[i], opt)));
     };
     unsigned n = std::min<unsigned>(jobs, static_cast<unsigned>(files.size()));
     limit_memory(max_memory_mb, std::max(1u, n));
@@ -310,25 +352,6 @@ static int real_main(int argc, char** argv) {
         if (started == 0) worker();   // this thread already has the big stack
         for (std::size_t k = 0; k < n; ++k)
             if (pool[k].id != pthread_t{}) pthread_join(pool[k].id, nullptr);
-    }
-    int status = 0;
-    bool written = true;
-    for (const auto& r : results) {
-        if (json) {
-            std::string s = render_json(*r, pretty && files.size() == 1, basis);
-            written = std::fwrite(s.data(), 1, s.size(), stdout) == s.size() && written;
-            written = std::fputc('\n', stdout) != EOF && written;
-        } else {
-            std::string s = render_text(*r, verbose, basis);
-            written = std::fwrite(s.data(), 1, s.size(), stdout) == s.size() && written;
-        }
-        const Summary sum = summarize(*r, basis);
-        if (!r->processed)
-            std::fprintf(stderr, "dox-validate: %s: not processed: %s\n", r->path.c_str(), r->error.c_str());
-        else if (sum.required_rules_incomplete)
-            std::fprintf(stderr, "dox-validate: %s: %zu required rule(s) could not be evaluated (see rules_incomplete)\n",
-                         r->path.c_str(), sum.required_rules_incomplete);
-        status = std::max(status, sum.exit_code);
     }
     if (std::fflush(stdout) != 0 || !written) {
         std::fprintf(stderr, "dox-validate: the report could not be written\n");
