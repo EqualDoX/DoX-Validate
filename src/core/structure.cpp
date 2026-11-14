@@ -173,14 +173,51 @@ std::optional<std::string> StructTree::parent_lang(const Obj& d) const {
 }
 
 bool StructTree::reaches_root(const Obj& d) const {
-    std::unordered_set<std::uint64_t> seen;
-    Obj e = d;
-    while (e.isDictionary()) {
-        if (cos::name_is(e, "Type", "StructTreeRoot")) return true;
-        if (e.isIndirect() && !seen.insert(ref_of(e).key()).second) break;
-        e = cos::get(e, "P");
+    // The answer belongs to the dictionary alone: its /P chain is fixed, and every dictionary on the chain has the
+    // answer of the walk that passes it (the root reached: all of them reach it; a non-dictionary or a dictionary
+    // met again: none does). It is kept per indirect dictionary, so a walk ends at the first one already answered and
+    // a tree is walked once in all, not once per element. Elements of the tree keep it by index, other dictionaries
+    // (outside the traversal) by object.
+    enum : std::uint8_t { kUnknown = 0, kNo = 1, kYes = 2, kWalking = 3 };
+    if (reaches_root_elem_.size() != elems_.size()) reaches_root_elem_.assign(elems_.size(), kUnknown);
+    auto slot = [&](std::uint64_t key) -> std::uint8_t& {
+        auto it = by_ref_.find(key);
+        return it != by_ref_.end() ? reaches_root_elem_[static_cast<std::size_t>(it->second)] : reaches_root_other_[key];
+    };
+    std::vector<std::uint64_t> path;   // the indirect dictionaries of this walk, marked kWalking meanwhile
+    bool result = false;
+    try {
+        Obj e = d;
+        while (e.isDictionary()) {
+            std::uint64_t key = 0;
+            std::uint8_t* state = nullptr;
+            bool element = false;   // an element of the traversal: its /Type is absent or /StructElem (collect_kid)
+            if (e.isIndirect()) {
+                key = ref_of(e).key();
+                element = by_ref_.find(key) != by_ref_.end();
+                state = &slot(key);
+                if (*state == kNo || *state == kYes) {
+                    result = *state == kYes;
+                    break;
+                }
+            }
+            if (!element && cos::name_is(e, "Type", "StructTreeRoot")) {
+                result = true;
+                break;
+            }
+            if (state) {
+                if (*state == kWalking) break;   // met again in this walk: a loop
+                *state = kWalking;
+                path.push_back(key);
+            }
+            e = cos::get(e, "P");
+        }
+    } catch (...) {
+        for (std::uint64_t k : path) slot(k) = kUnknown;   // nothing learned
+        throw;
     }
-    return false;
+    for (std::uint64_t k : path) slot(k) = result ? kYes : kNo;
+    return result;
 }
 
 bool StructTree::has_ancestor_standard(const Obj& d, const std::string& standard_type, Flavor f) const {

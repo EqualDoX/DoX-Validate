@@ -241,10 +241,18 @@ private:
             bool any = false;
         };
         std::vector<Untagged> per_stream(cm.streams.size());
+        // Whether an item is tagged or in an artifact depends on its stream and frame only, and items come in runs of
+        // one frame: decided when the frame changes.
+        int run_stream = -1, run_frame = -2;
+        bool run_untagged = false;
         for (const ContentItem& it : cm.items) {
             if (skipped(ctx, it.stream)) continue;
-            if (tagged(ctx, cm.item_struct_parent(it))) continue;
-            if (cm.parents_tags_contain(it.stream, it.frame, "Artifact")) continue;
+            if (it.stream != run_stream || it.frame != run_frame) {
+                run_stream = it.stream;
+                run_frame = it.frame;
+                run_untagged = !tagged(ctx, cm.item_struct_parent(it)) && !cm.parents_tags_contain(it.stream, it.frame, "Artifact");
+            }
+            if (!run_untagged) continue;
             Untagged& u = per_stream[it.stream];
             if (!u.any) u.first_op = it.op_index;
             u.any = true;
@@ -265,14 +273,10 @@ private:
     }
 
     // GFSEGroupedContent.isTaggedContent: the /P chain of the structure parent reaches the StructTreeRoot
-    // (memoised per indirect structure element).
-    std::unordered_map<std::uint64_t, bool> tagged_cache_;
-    bool tagged(const ValidationContext& ctx, const Obj& parent) {
+    // (StructTree::reaches_root keeps the answer per structure element).
+    static bool tagged(const ValidationContext& ctx, const Obj& parent) {
         if (!parent.isDictionary()) return false;
-        if (!parent.isIndirect()) return ctx.st.reaches_root(parent);
-        auto [it, fresh] = tagged_cache_.try_emplace(ref_of(parent).key(), false);
-        if (fresh) it->second = ctx.st.reaches_root(parent);
-        return it->second;
+        return ctx.st.reaches_root(parent);
     }
 
     // GFOpMarkedContent.getInheritedLang + GFSEMarkedContent.getinheritedLang (stream default language).
