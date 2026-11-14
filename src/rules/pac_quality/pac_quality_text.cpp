@@ -160,24 +160,33 @@ std::u32string normalize_toc_text(std::u32string_view s) {
     return out.substr(lead);
 }
 
-bool toc_text_matches(std::u32string_view toc_entry, std::u32string_view heading) {
-    std::u32string a = normalize_toc_text(toc_entry), b = normalize_toc_text(heading);
+TocText toc_text(std::u32string_view s) {
+    TocText t;
+    t.normalized = normalize_toc_text(s);
+    // A heading hyphenated over its lines matches the unhyphenated entry (a real-world sample: "preg-nancy", "coun-tries").
+    const std::u32string& n = t.normalized;
+    for (std::size_t i = 0; i < n.size(); ++i) {
+        if (n[i] == U'-' || n[i] == 0x00AD) {
+            if (i + 1 < n.size() && n[i + 1] == U' ') ++i;
+            continue;
+        }
+        t.unhyphenated.push_back(n[i]);
+    }
+    return t;
+}
+
+bool toc_text_matches(const TocText& toc_entry, const TocText& heading) {
+    const std::u32string& a = toc_entry.normalized;
+    const std::u32string& b = heading.normalized;
     if (a.empty() || b.empty()) return false;
     if (a.find(b) != std::u32string::npos || b.find(a) != std::u32string::npos) return true;
-    // A heading hyphenated over its lines matches the unhyphenated entry (a real-world sample: "preg-nancy", "coun-tries").
-    auto unhyphenated = [](const std::u32string& t) {
-        std::u32string o;
-        for (std::size_t i = 0; i < t.size(); ++i) {
-            if (t[i] == U'-' || t[i] == 0x00AD) {
-                if (i + 1 < t.size() && t[i + 1] == U' ') ++i;
-                continue;
-            }
-            o.push_back(t[i]);
-        }
-        return o;
-    };
-    const std::u32string a2 = unhyphenated(a), b2 = unhyphenated(b);
+    const std::u32string& a2 = toc_entry.unhyphenated;
+    const std::u32string& b2 = heading.unhyphenated;
     return a2.find(b2) != std::u32string::npos || b2.find(a2) != std::u32string::npos;
+}
+
+bool toc_text_matches(std::u32string_view toc_entry, std::u32string_view heading) {
+    return toc_text_matches(toc_text(toc_entry), toc_text(heading));
 }
 
 }  // namespace eqx::pacq

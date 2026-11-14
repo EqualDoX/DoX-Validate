@@ -1026,6 +1026,7 @@ private:
         std::vector<TextAcc> heading_text;
         heading_text.reserve(headings.size());
         for (int h : headings) heading_text.push_back(full_text(h));
+        std::vector<pacq::TocText> heading_toc;   // filled by the first entry that is matched against the headings
 
         for (const StructElem& e : st.elems()) {
             if (std17(e) != "TOCI") continue;
@@ -1052,12 +1053,12 @@ private:
             // CheckFailTOCIWithLinkedDescendants exists in PAC's strings, but one Link anywhere below the TOCI passes (PAC
             // documentation; measured on probe toc_desc: TOCI > P > Link, and on
             // a real-world sample: 23 x TOCI > Reference > Link). PAC 26.1 was never seen reporting the condition.
-            if (!links.empty()) check_toc_destination(e.index, links, headings, heading_text);
+            if (!links.empty()) check_toc_destination(e.index, links, headings, heading_text, heading_toc);
         }
     }
 
     void check_toc_destination(int toci, const std::vector<int>& links, const std::vector<int>& headings,
-                               const std::vector<TextAcc>& heading_text) {
+                               const std::vector<TextAcc>& heading_text, std::vector<pacq::TocText>& heading_toc) {
         static const RuleIndex kIncorrect = R("EQX-PACQ-WarnTOCILinkPointsToIncorrectDestination");
         static const RuleIndex kNameTable = R("EQX-PACQ-WarnTOCILinkHasNoCorrespondingNameTableEntry");
         static const RuleIndex kNamed = R("EQX-PACQ-WarnTOCILinkIsNamed");
@@ -1124,9 +1125,15 @@ private:
         }
         std::vector<std::size_t> matches;
         bool unknown_heading = false;
+        // The texts as toc_text_matches compares them: of every heading once for the document, of this entry once.
+        if (heading_toc.size() != headings.size()) {
+            heading_toc.clear();
+            heading_toc.reserve(headings.size());
+            for (const TextAcc& t : heading_text) heading_toc.push_back(pacq::toc_text(t.text));
+        }
+        const pacq::TocText link_toc = pacq::toc_text(link_text.text), entry_toc = pacq::toc_text(entry_text.text);
         for (std::size_t h = 0; h < headings.size(); ++h) {
-            if (pacq::toc_text_matches(link_text.text, heading_text[h].text) ||
-                pacq::toc_text_matches(entry_text.text, heading_text[h].text))
+            if (pacq::toc_text_matches(link_toc, heading_toc[h]) || pacq::toc_text_matches(entry_toc, heading_toc[h]))
                 matches.push_back(h);
             else if (heading_text[h].unmapped > 0)
                 unknown_heading = true;

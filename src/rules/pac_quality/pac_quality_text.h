@@ -32,5 +32,14 @@ bool looks_like_path_or_file_name(std::string_view utf8);
 std::u32string normalize_toc_text(std::u32string_view s);
 // True when the normalised texts are both non-empty and one contains the other.
 bool toc_text_matches(std::u32string_view toc_entry, std::u32string_view heading);
+// The forms of a text that toc_text_matches compares, for a text matched against many others (every heading of a
+// document against every TOC entry): made once, then toc_text_matches(TocText, TocText) gives the same answer as the
+// function above on the texts they were made from.
+struct TocText {
+    std::u32string normalized;     // normalize_toc_text
+    std::u32string unhyphenated;   // ... without hyphens and soft hyphens (and the space after one)
+};
+TocText toc_text(std::u32string_view s);
+bool toc_text_matches(const TocText& toc_entry, const TocText& heading);
 
 }  // namespace eqx::pacq
