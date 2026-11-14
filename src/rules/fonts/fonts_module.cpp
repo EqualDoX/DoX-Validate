@@ -20,7 +20,7 @@ namespace eqx {
 
 namespace {
 
-using fontimpl::GlyphFacts;
+namespace GlyphBits = fontimpl::GlyphBits;
 using fontimpl::VeraFont;
 using fontimpl::VeraKind;
 
@@ -170,19 +170,29 @@ public:
         const std::uint8_t classes = gs.tr == 3 ? SeenCodes::kShownTr3 : (SeenCodes::kShown | SeenCodes::kProgram);
         const std::uint8_t pua_bit = s.semantic ? SeenCodes::kPua : 0;
         auto show = [&](const std::string& bytes) {
-            codes_.clear();
-            font->vera_codes(bytes, codes_);
-            if (codes_.empty()) return;
+            // The codes of the string, as VeraFont::vera_codes lists them. Single bytes and plain byte pairs (nearly
+            // every font) are read off the string; any other CMap goes through the list.
+            const bool direct = font->codes_direct();
+            if (direct) {
+                if (bytes.empty() || (font->vkind == VeraKind::Type0 && !font->cmap_file)) return;   // no codes
+            } else {
+                codes_.clear();
+                font->vera_codes(bytes, codes_);
+                if (codes_.empty()) return;
+            }
             if (!seen) seen = &seen_codes(si, font);
             const std::uint8_t* low = seen->pages.empty() ? nullptr : seen->pages[0].get();   // flags of the codes below 256
-            for (const CharCode& c : codes_) {
+            const auto one = [&](std::uint32_t code) __attribute__((always_inline)) {
                 if (same_classes) {
-                    const std::uint8_t fl = low && c.code < 256 ? low[c.code] : seen->at(c.code);
-                    if ((fl & classes) == classes && !(fl & pua_bit)) continue;
+                    const std::uint8_t fl = low && code < 256 ? low[code] : seen->at(code);
+                    if ((fl & classes) == classes && !(fl & pua_bit)) return;
                 }
-                glyph(m, s, si, frame, font, c.code, gs.tr, raw_ok, *seen);
+                glyph(m, s, si, frame, font, code, gs.tr, raw_ok, *seen);
                 low = seen->pages.empty() ? nullptr : seen->pages[0].get();   // glyph() may have made the page
-            }
+            };
+            if (direct) font->each_code(bytes, one);
+            else
+                for (const CharCode& c : codes_) one(c.code);
         };
         if (first.type == Operand::String) show(first.s);
         else if (first.type == Operand::Array)
@@ -356,13 +366,15 @@ private:
                std::uint32_t code, int tr, bool raw_ok, SeenCodes& seen) {
         const bool tr3 = tr == 3;
         const bool real = s.semantic;
-        const GlyphFacts* gp = nullptr;
+        bool have_bits = false;
+        std::uint16_t g = 0;   // GlyphBits of the code
         // --reference-dedup: GFGlyph computes presence and widths only when its raw font instance was marked
         // successfully parsed when the glyph object was created (glyph ids: font, code, rendering mode, marked
         // content, stream); a reused glyph object keeps that state.
         bool facts = true;
         if (ctx_->reference_dedup) {
-            gp = &f->glyph(code);
+            g = f->glyph_bits(code);
+            have_bits = true;
             facts = glyph_objects_.emplace(GlyphKey{f, code, frame >= 0 ? -1 : si, frame >= 0 ? frame * 8 + tr : tr},
                                            raw_ok).first->second;
         }
@@ -374,24 +386,24 @@ private:
         // (kPua is known once any class was evaluated: the glyph facts are read before a flag is set).
         if (!program && !first_shown && !(real && (fl & SeenCodes::kPua))) return;
         const Rules& r = rules();
-        const GlyphFacts& g = gp ? *gp : f->glyph(code);
-        if (g.has_unicode20 && g.unicode_pua20) fl |= SeenCodes::kPua;
+        if (!have_bits) g = f->glyph_bits(code);
+        const bool pua20 = (g & GlyphBits::kHasUnicode20) && (g & GlyphBits::kUnicodePua20);
+        if (pua20) fl |= SeenCodes::kPua;
         if (program) {
             fl |= SeenCodes::kProgram;
-            if (g.present && !*g.present) report_glyph(r.glyph1, r.glyph2, s, f, code, "glyph missing:");
-            // The rule is |a - b| <= 1: a NaN width (a broken unitsPerEm) does not satisfy it.
-            if (g.width_program && g.width_dictionary && !(std::fabs(*g.width_program - *g.width_dictionary) <= 1))
-                report_glyph(r.width1, r.width2, s, f, code, "width mismatch:");
+            if (g & GlyphBits::kMissing) report_glyph(r.glyph1, r.glyph2, s, f, code, "glyph missing:");
+            // The rule is |a - b| <= 1: a NaN width (a broken unitsPerEm) does not satisfy it (GlyphBits::of).
+            if (g & GlyphBits::kWidthMismatch) report_glyph(r.width1, r.width2, s, f, code, "width mismatch:");
         }
         if (first_shown) {
             fl |= shown;
-            if (!g.has_unicode) report_glyph(r.unicode1, kNoRule, s, f, code, "no Unicode mapping:");
-            else if (g.unicode_invalid) report_glyph(r.badunicode1, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
-            if (!g.has_unicode20) report_glyph(r.unicode2, kNoRule, s, f, code, "no Unicode mapping:");
-            else if (g.unicode_invalid20) report_glyph(r.badunicode2, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
-            if (g.name == GlyphFacts::Name::Notdef) report_glyph(r.notdef1, r.notdef2, s, f, code, ".notdef glyph:");
+            if (!(g & GlyphBits::kHasUnicode)) report_glyph(r.unicode1, kNoRule, s, f, code, "no Unicode mapping:");
+            else if (g & GlyphBits::kUnicodeInvalid) report_glyph(r.badunicode1, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
+            if (!(g & GlyphBits::kHasUnicode20)) report_glyph(r.unicode2, kNoRule, s, f, code, "no Unicode mapping:");
+            else if (g & GlyphBits::kUnicodeInvalid20) report_glyph(r.badunicode2, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
+            if (g & GlyphBits::kNotdef) report_glyph(r.notdef1, r.notdef2, s, f, code, ".notdef glyph:");
         }
-        if (real && g.has_unicode20 && g.unicode_pua20 &&
+        if (real && pua20 &&
             seen.pua.insert((static_cast<std::uint64_t>(code) << 32) | static_cast<std::uint32_t>(frame)).second) {
             if (!actual_or_alt(m, s, frame)) report_glyph(r.pua, kNoRule, s, f, code, "PUA without ActualText/Alt:");
         }

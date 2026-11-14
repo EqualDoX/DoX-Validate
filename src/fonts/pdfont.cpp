@@ -918,12 +918,12 @@ void VeraFont::codes(std::string_view bytes, std::vector<CharCode>& out) const {
 }
 
 double VeraFont::advance(std::uint32_t code) const {
+    if (const CodeEntry* e = find(code); e && (e->have & kHaveAdvance)) return e->advance;
+    const double w = compute_advance(code);   // before the record is touched: it may throw
     CodeEntry& e = entry(code);
-    if (!e.has_advance) {
-        e.advance = compute_advance(code);
-        e.has_advance = true;
-    }
-    return e.advance;
+    e.advance = w;
+    e.have |= kHaveAdvance;
+    return w;
 }
 
 double VeraFont::compute_advance(std::uint32_t code) const {
@@ -958,22 +958,69 @@ double VeraFont::compute_advance(std::uint32_t code) const {
 
 const std::u32string* VeraFont::to_unicode(std::uint32_t code) const {
     if (vkind == VeraKind::None) return nullptr;
-    CodeEntry& e = entry(code);
-    if (!e.has_u32) {
-        const GlyphFacts& g = glyph(code);
-        if (g.has_unicode) e.u32 = u16_to_u32(g.unicode);
-        e.has_u32 = true;
-    }
-    return e.u32 ? &*e.u32 : nullptr;
+    const CodeEntry* e = find(code);
+    return e && (e->have & kHaveFacts) ? e->u32 : fill_facts(code).u32;
 }
 
-const GlyphFacts& VeraFont::glyph(std::uint32_t code) const {
+std::uint16_t GlyphBits::of(const GlyphFacts& g) {
+    std::uint16_t b = 0;
+    if (g.present && !*g.present) b |= kMissing;
+    if (g.width_program && g.width_dictionary && !(std::fabs(*g.width_program - *g.width_dictionary) <= 1)) b |= kWidthMismatch;
+    if (g.has_unicode) b |= kHasUnicode;
+    if (g.unicode_invalid) b |= kUnicodeInvalid;
+    if (g.has_unicode20) b |= kHasUnicode20;
+    if (g.unicode_invalid20) b |= kUnicodeInvalid20;
+    if (g.unicode_pua20) b |= kUnicodePua20;
+    if (g.name == GlyphFacts::Name::Notdef) b |= kNotdef;
+    return b;
+}
+
+const VeraFont::CodeEntry& VeraFont::fill_facts(std::uint32_t code) const {
+    const GlyphFacts g = compute(code);   // before the record is touched: an exception leaves the code without facts
+    const std::u32string* text = nullptr;
+    if (g.has_unicode) text = &*cache->texts.insert(u16_to_u32(g.unicode)).first;
     CodeEntry& e = entry(code);
-    if (!e.has_glyph) {
-        e.glyph = compute(code);   // an exception leaves the entry without facts: the next request computes again
-        e.has_glyph = true;
+    e.bits = GlyphBits::of(g);
+    e.u32 = text;
+    e.have |= kHaveFacts;
+    return e;
+}
+
+const VeraFont::CodeEntry* VeraFont::find_wide(std::uint32_t code) const {
+    auto it = wide_.find(code);
+    return it == wide_.end() ? nullptr : &entries_[it->second];
+}
+
+const VeraFont::CodeEntry* VeraFont::find_slow(std::uint32_t code) const {
+    if (code < 0x10000) {
+        const std::size_t p = code >> 8;
+        const std::uint16_t slot = p < pages_.size() && pages_[p] ? pages_[p][code & 0xFF] : kNoSlot;
+        if (slot != kNoSlot) return &entries_[slot - 1];
     }
-    return e.glyph;
+    return wide_.empty() ? nullptr : find_wide(code);
+}
+
+VeraFont::CodeEntry& VeraFont::entry(std::uint32_t code) const {
+    if (const CodeEntry* e = find(code)) return const_cast<CodeEntry&>(*e);
+    // a slot number is the record's position + 1; the 65535 numbers cover every font but one that shows more codes
+    if (code < 0x10000 && entries_.size() < 0xFFFF) {
+        std::uint16_t* page = nullptr;
+        if (code < 256) {
+            if (!low_) low_ = std::make_unique<std::uint16_t[]>(256);   // value-initialised: no slot
+            page = low_.get();
+        } else {
+            const std::size_t p = code >> 8;
+            if (p >= pages_.size()) pages_.resize(p + 1);
+            if (!pages_[p]) pages_[p] = std::make_unique<std::uint16_t[]>(256);
+            page = pages_[p].get();
+        }
+        entries_.emplace_back();
+        page[code & 0xFF] = static_cast<std::uint16_t>(entries_.size());
+        return entries_.back();
+    }
+    wide_.emplace(code, static_cast<std::uint32_t>(entries_.size()));
+    entries_.emplace_back();
+    return entries_.back();
 }
 
 GlyphFacts VeraFont::compute(std::uint32_t ucode) const {

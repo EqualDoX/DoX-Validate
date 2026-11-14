@@ -18,6 +18,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "core/cos.h"
@@ -46,6 +47,9 @@ struct DocCache {
         Obj array;   // a direct array of direct integers with these values, when a font had one: the others refer to it
     };
     std::unordered_multimap<std::uint64_t, SharedWidths> widths;   // by a hash of the values
+    // The Unicode values of character codes: one string per distinct text, referred to by every font and code with
+    // that value (VeraFont::to_unicode hands these out; elements of a set never move).
+    std::unordered_set<std::u32string> texts;
 };
 
 // veraPDF PDCMap over a COS object (name, stream or anything else).
@@ -95,6 +99,21 @@ struct GlyphFacts {
     std::int32_t cid = -1;                    // CID glyphs
 };
 
+// What the glyph rules read of GlyphFacts, as bits (VeraFont::glyph_bits).
+namespace GlyphBits {
+enum : std::uint16_t {
+    kMissing = 1,             // present is known and false
+    kWidthMismatch = 2,       // both widths are known and not |program - dictionary| <= 1 (NaN does not satisfy it)
+    kHasUnicode = 4,
+    kUnicodeInvalid = 8,
+    kHasUnicode20 = 16,
+    kUnicodeInvalid20 = 32,
+    kUnicodePua20 = 64,
+    kNotdef = 128,            // name == Name::Notdef
+};
+std::uint16_t of(const GlyphFacts& g);
+}  // namespace GlyphBits
+
 // Facts of a CIDFont (descendant) as GFPDCIDFont exposes them.
 struct CidFontFacts {
     bool present = false;
@@ -138,10 +157,33 @@ public:
     std::optional<std::string> cidfont_registry, cidfont_ordering;
     std::int64_t cidfont_supplement = 0;
 
-    // Glyph facts (cached per code).
-    const GlyphFacts& glyph(std::uint32_t code) const;
+    // The facts of a code that the glyph rules read (GlyphBits), computed at the first request for the code's facts
+    // or Unicode value and kept.
+    std::uint16_t glyph_bits(std::uint32_t code) const {
+        const CodeEntry* e = find(code);
+        return e && (e->have & kHaveFacts) ? e->bits : fill_facts(code).bits;
+    }
+    // Every fact of a code, computed afresh (tests and diagnostics; the rules read glyph_bits).
+    GlyphFacts facts(std::uint32_t code) const { return compute(code); }
     // veraPDF readCode semantics: codes of a shown string; false when veraPDF reads none (Type 0 without CMap).
     void vera_codes(std::string_view bytes, std::vector<CharCode>& out) const;
+
+    // True when the codes of a shown string are its single bytes, or plain byte pairs (CMap::plain_two_byte), or none
+    // at all (a Type 0 font without a CMap): each_code then hands them to fn one by one, without the list.
+    bool codes_direct() const { return vkind != VeraKind::Type0 || !cmap_file || cmap_file->plain_two_byte(); }
+    template <class Fn>
+    [[gnu::always_inline]] void each_code(std::string_view bytes, Fn&& fn) const {   // only when codes_direct()
+        if (vkind != VeraKind::Type0) {
+            for (unsigned char c : bytes) fn(static_cast<std::uint32_t>(c));
+            return;
+        }
+        if (!cmap_file) return;
+        const std::size_t n = bytes.size();
+        for (std::size_t at = 0; at < n;) {
+            const std::uint32_t b0 = static_cast<unsigned char>(bytes[at++]);
+            fn((b0 << 8) | (at < n ? static_cast<unsigned char>(bytes[at++]) : 0xFFu));
+        }
+    }
 
     // Rule properties computed on demand.
     bool charset_lists_all_glyphs(bool* undecidable) const;   // GFPDType1Font.getcharSetListsAllGlyphs
@@ -167,33 +209,38 @@ private:
     GlyphFacts compute(std::uint32_t code) const;
     double compute_advance(std::uint32_t code) const;
 
-    // What the font knows about one character code, each part computed on its first request (the glyph facts
-    // load the font program, so their order follows the content, as in veraPDF). One record per code instead of one
-    // node in each of three maps.
+    // What the font keeps about one character code, each part computed on its first request (the glyph facts load
+    // the font program, so their order follows the content, as in veraPDF): the advance, and with the glyph facts
+    // (as GlyphBits) the Unicode value. 24 bytes; a font of a few dozen codes per page times thousands of fonts made
+    // the per-code records the second largest block of a document's heap when each was a hash-map node.
     struct CodeEntry {
-        GlyphFacts glyph;
-        std::optional<std::u32string> u32;
         double advance = 0;
-        bool has_glyph = false, has_u32 = false, has_advance = false;
+        const std::u32string* u32 = nullptr;   // the Unicode value, one string per distinct text of the document
+        std::uint16_t bits = 0;                // GlyphBits
+        std::uint8_t have = 0;                 // kHaveAdvance, kHaveFacts
     };
-    // The entry of a code. Every glyph asks three times (advance, Unicode, glyph facts): the entries asked for last
-    // are found through a small table indexed by the low bits of the code, without hashing.
-    CodeEntry& entry(std::uint32_t code) const {
-        if (!recent_) recent_.reset(new Recent[kRecent]());
-        Recent& r = recent_[code & (kRecent - 1)];
-        if (r.entry && r.code == code) return *r.entry;
-        CodeEntry& e = codes_[code];   // nodes of the map never move
-        r.code = code;
-        r.entry = &e;
-        return e;
+    enum : std::uint8_t { kHaveAdvance = 1, kHaveFacts = 2 };
+    static constexpr std::uint16_t kNoSlot = 0;
+
+    // The record of a code, nullptr when none was made yet. Codes below 0x10000 are found through tables of 256
+    // slot numbers (one for the single-byte codes, one per high byte for two-byte codes), without hashing.
+    const CodeEntry* find(std::uint32_t code) const {
+        if (code < 256) {
+            const std::uint16_t slot = low_ ? low_[code] : kNoSlot;
+            if (slot != kNoSlot) return &entries_[slot - 1];
+            return wide_.empty() ? nullptr : find_wide(code);
+        }
+        return find_slow(code);
     }
-    struct Recent {
-        std::uint32_t code = 0;
-        CodeEntry* entry = nullptr;
-    };
-    static constexpr std::uint32_t kRecent = 128;   // no two ASCII codes share a slot
-    mutable std::unordered_map<std::uint32_t, CodeEntry> codes_;
-    mutable std::unique_ptr<Recent[]> recent_;
+    const CodeEntry* find_slow(std::uint32_t code) const;
+    const CodeEntry* find_wide(std::uint32_t code) const;
+    CodeEntry& entry(std::uint32_t code) const;         // the record of a code, made when missing
+    const CodeEntry& fill_facts(std::uint32_t code) const;   // computes the facts and the Unicode value
+
+    mutable std::vector<CodeEntry> entries_;
+    mutable std::unique_ptr<std::uint16_t[]> low_;                  // codes 0 .. 255: slot + 1
+    mutable std::vector<std::unique_ptr<std::uint16_t[]>> pages_;   // codes 256 .. 0xFFFF by code >> 8: slot + 1
+    mutable std::unordered_map<std::uint32_t, std::uint32_t> wide_; // longer codes, and what a slot number cannot hold
 };
 
 std::unique_ptr<VeraFont> load_vera_font(Document& doc, std::shared_ptr<DocCache> cache, const Obj& font_dict);
