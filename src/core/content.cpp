@@ -1,5 +1,6 @@
 #include "core/content.h"
 
+#include <qpdf/Buffer.hh>
 #include <qpdf/Pipeline.hh>
 #include <qpdf/QPDFObjectHandle.hh>
 #include <zlib.h>
@@ -277,6 +278,30 @@ struct Exec {
 
 double clamp01(double v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
+// The bytes of a buffer that qpdf filled for this caller alone: taken over where qpdf can hand them out
+// (Buffer::move), copied otherwise.
+template <class B>
+std::string take_bytes(B& buf) {
+    if constexpr (requires { std::string(buf.move()); }) {
+        return buf.move();
+    } else {
+        return std::string(reinterpret_cast<const char*>(buf.getBuffer()), buf.getSize());
+    }
+}
+
+// cos::stream_data for a content stream: the same decoding (specialized level, so RunLengthDecode too) and the same
+// error, without copying the decoded stream out of qpdf's buffer.
+std::optional<std::string> content_stream_data(const Obj& stream, std::string* error) {
+    if (!stream.isStream()) return std::nullopt;
+    try {
+        auto buf = const_cast<Obj&>(stream).getStreamData(qpdf_dl_specialized);
+        return take_bytes(*buf);
+    } catch (std::exception& e) {
+        if (error) *error = e.what();
+        return std::nullopt;
+    }
+}
+
 class Interpreter {
 public:
     Interpreter(Document& doc, const StructTree& st, FontRegistry& fonts, ContentModel& m,
@@ -343,7 +368,7 @@ bool Interpreter::stream_bytes(StreamInstance& s, std::string& out) {
         std::string err;
         // A Flate stream whose data simply ends early decodes here with a warning (qpdf: "input stream is complete but
         // output may still be valid", about 1.5 % of real documents): no byte of the file stays unread.
-        auto d = cos::stream_data(part, &err);
+        auto d = content_stream_data(part, &err);
         if (d) {
             // Decoded, but the data is not what was written: read it, and the verdict stays open.
             if (cos::flate_checksum_failed(part, *d)) s.decode_error = "Flate checksum of the content stream failed";
@@ -362,7 +387,8 @@ bool Interpreter::stream_bytes(StreamInstance& s, std::string& out) {
             if (!part.isStream()) continue;
             std::string one;
             read_one(part, one);
-            out.append(one);
+            if (out.empty()) out = std::move(one);   // the first part (often the only one) is not copied
+            else out.append(one);
             out.push_back('\n');
         }
         return true;
