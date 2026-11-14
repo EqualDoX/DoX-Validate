@@ -499,6 +499,11 @@ public:
     // begin_run(). The record is complete after every call, so the model stays readable if interpretation stops.
     content_detail::TextRecord& begin_run(int item, const content_detail::TextStyle& style);
     void append(const char32_t* s, std::size_t n) {
+        if (n == 1 && *s < 0x100 && open_shift_ == 0 && end_ != cap_) {   // one narrow code point: nearly every glyph
+            *end_++ = static_cast<unsigned char>(*s);
+            ++open_->len;
+            return;
+        }
         std::uint32_t all = 0;
         for (std::size_t i = 0; i < n; ++i) all |= s[i];
         const unsigned shift = all < 0x100 ? 0 : all < 0x10000 ? 1 : 2;
@@ -563,6 +568,8 @@ struct GlyphEvent {
 class ContentModel;
 
 // Observers receive every glyph and operator while the interpreter runs (no glyph list is stored).
+// The callbacks of this class must stay empty: the interpreter does not call a callback on an observer whose class
+// does not override it.
 class ContentObserver {
 public:
     virtual ~ContentObserver() = default;

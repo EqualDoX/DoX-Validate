@@ -278,6 +278,44 @@ struct Exec {
 
 double clamp01(double v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
 
+// hypot of the last arguments it was called with, kept: the text matrix of consecutive text-showing operators
+// mostly differs in its translation only, and the function returns the same value for the same arguments.
+struct HypotMemo {
+    double x = 0, y = 0, value = 0;
+    double operator()(double a, double b) {
+        if (a == x && b == y) return value;
+        x = a;
+        y = b;
+        return value = std::hypot(a, b);
+    }
+};
+
+// Whether an observer's class implements a callback, that is overrides the empty one of ContentObserver. The
+// interpreter calls a callback only on the observers that implement it: per glyph and per operator, the calls that
+// would return at once are most of the dispatch. Decided from the virtual table with GCC's conversion of a bound
+// member function; another compiler takes every observer to implement every callback, which is as correct.
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpmf-conversions"
+bool implements_on_glyph(ContentObserver* o) {
+    using Fn = void (*)(ContentObserver*, const ContentModel&, const GlyphEvent&);
+    return (Fn)(o->*(&ContentObserver::on_glyph)) != (Fn)(&ContentObserver::on_glyph);
+}
+bool implements_on_operator(ContentObserver* o) {
+    using Fn = void (*)(ContentObserver*, const ContentModel&, int, std::uint32_t, const RawOp&, const GState&);
+    return (Fn)(o->*(&ContentObserver::on_operator)) != (Fn)(&ContentObserver::on_operator);
+}
+bool implements_on_stream_end(ContentObserver* o) {
+    using Fn = void (*)(ContentObserver*, const ContentModel&, int);
+    return (Fn)(o->*(&ContentObserver::on_stream_end)) != (Fn)(&ContentObserver::on_stream_end);
+}
+#pragma GCC diagnostic pop
+#else
+bool implements_on_glyph(ContentObserver*) { return true; }
+bool implements_on_operator(ContentObserver*) { return true; }
+bool implements_on_stream_end(ContentObserver*) { return true; }
+#endif
+
 // The bytes of a buffer that qpdf filled for this caller alone: taken over where qpdf can hand them out
 // (Buffer::move), copied otherwise.
 template <class B>
@@ -306,7 +344,14 @@ class Interpreter {
 public:
     Interpreter(Document& doc, const StructTree& st, FontRegistry& fonts, ContentModel& m,
                 const std::vector<ContentObserver*>& obs, const InterpreterLimits& lim)
-        : doc_(doc), st_(st), fonts_(fonts), m_(m), obs_(obs), lim_(lim) {}
+        : doc_(doc), st_(st), fonts_(fonts), m_(m), lim_(lim) {
+        // in the order of `obs`, so every callback reaches the observers in the order it always did
+        for (ContentObserver* o : obs) {
+            if (implements_on_glyph(o)) glyph_obs_.push_back(o);
+            if (implements_on_operator(o)) op_obs_.push_back(o);
+            if (implements_on_stream_end(o)) end_obs_.push_back(o);
+        }
+    }
 
     void run();
 
@@ -346,7 +391,7 @@ private:
     const StructTree& st_;
     FontRegistry& fonts_;
     ContentModel& m_;
-    const std::vector<ContentObserver*>& obs_;
+    std::vector<ContentObserver*> glyph_obs_, op_obs_, end_obs_;   // the observers implementing each callback
     InterpreterLimits lim_;
     std::uint64_t ops_total_ = 0;
     std::unordered_set<std::uint64_t> active_;          // streams being interpreted (recursion check)
@@ -359,6 +404,7 @@ private:
     std::vector<double> comps_;
     bool hard_stop_ = false;
     const Obj null_ = Obj::newNull();
+    HypotMemo hypot_cd_, hypot_ab_, hypot_trm_;
 };
 
 bool Interpreter::stream_bytes(StreamInstance& s, std::string& out) {
@@ -790,7 +836,7 @@ void Interpreter::finish(Exec& x) {
             if (m_.frames[root].end_op == 0xffffffffu) it.frame = -1;
         }
     }
-    for (ContentObserver* ob : obs_) ob->on_stream_end(m_, si);
+    for (ContentObserver* ob : end_obs_) ob->on_stream_end(m_, si);
     if (x.active_key) active_.erase(ref_of(s.stream).key());
 }
 
@@ -845,23 +891,28 @@ bool Interpreter::step(Exec& x) {
     // `run` and `item` are the records of the operator's text run and item (null outside semantic streams).
     auto show_string = [&](const std::string& bytes, std::uint32_t opi, std::uint32_t& gidx, TextRecord* run,
                            content_detail::ItemRecord* item, Rect& tb, bool& tb_valid) {
-        if (!gs.font) return;
+        const Font* const font = gs.font;
+        if (!font) return;
         codes.clear();
-        gs.font->codes(bytes, codes);
+        font->codes(bytes, codes);
         if (codes.empty()) return;
         // Trm = [Tfs*Th 0 0 Tfs 0 Ts] x Tm x CTM, and showing a glyph only translates Tm along its own axes:
         // glyph k's point (gx, gy) is base(cum_x + gx*Tfs*Th, cum_y + gy*Tfs + Ts) with base = Tm0 x CTM.
-        const double tfs = gs.font_size;
+        // The text state cannot change while the string is shown (the observers of a glyph do not get at it): it
+        // is read once.
+        const double tfs = gs.font_size, ts = gs.ts, th = gs.th, tc = gs.tc, tw = gs.tw;
         const Matrix base = tm * gs.ctm;
-        const double size_user = std::abs(tfs) * std::hypot(base.c, base.d);
-        const double dir_norm = std::hypot(base.a, base.b);
-        const double g2t = gs.font->glyph_to_text();
-        const bool vertical = gs.font->vertical();
+        const double size_user = std::abs(tfs) * hypot_cd_(base.c, base.d);
+        const double dir_norm = hypot_ab_(base.a, base.b);
+        const double g2t = font->glyph_to_text();
+        const bool vertical = font->vertical();
+        ContentObserver* const* const glyph_obs = glyph_obs_.data();
+        const std::size_t n_glyph_obs = glyph_obs_.size();
         double cum_x = 0, cum_y = 0;
         double span_x0 = 0, span_x1 = 0, span_y0 = 0, span_y1 = 0;
         bool span = false;
         GlyphEvent ev;
-        ev.font = gs.font;
+        ev.font = font;
         ev.tr = gs.tr;
         ev.stream = si;
         ev.frame = fstack.empty() ? -1 : fstack.back();
@@ -869,18 +920,18 @@ bool Interpreter::step(Exec& x) {
         ev.real_content = semantic;
         ev.size_user = size_user;
         for (const CharCode& c : codes) {
-            const double w0 = gs.font->advance(c.code) * g2t;
+            const double w0 = font->advance(c.code) * g2t;
             ev.code = c;
             ev.glyph_index = gidx++;
-            base.apply(cum_x, cum_y + gs.ts, ev.x, ev.y);
-            ev.advance_user = std::abs(w0 * tfs * gs.th) * dir_norm;
-            for (ContentObserver* o : obs_) o->on_glyph(m_, ev);
+            base.apply(cum_x, cum_y + ts, ev.x, ev.y);
+            ev.advance_user = std::abs(w0 * tfs * th) * dir_norm;
+            for (std::size_t k = 0; k < n_glyph_obs; ++k) glyph_obs[k]->on_glyph(m_, ev);
             if (run) {
                 ++item->glyphs;
-                if (const std::u32string* u = gs.font->to_unicode(c.code)) m_.texts.append(u->data(), u->size());
+                if (const std::u32string* u = font->to_unicode(c.code)) m_.texts.append(u->data(), u->size());
                 else ++run->unmapped;
                 // Glyph box in text space: advance wide (0.5 em when zero), baseline-relative [-0.2, 0.8] em.
-                const double wq = (w0 != 0 ? w0 : 0.5) * tfs * gs.th;
+                const double wq = (w0 != 0 ? w0 : 0.5) * tfs * th;
                 const double gx0 = std::min(cum_x, cum_x + wq), gx1 = std::max(cum_x, cum_x + wq);
                 if (!span) {
                     span_x0 = gx0, span_x1 = gx1, span_y0 = span_y1 = cum_y;
@@ -892,13 +943,13 @@ bool Interpreter::step(Exec& x) {
                     span_y1 = std::max(span_y1, cum_y);
                 }
             }
-            if (vertical) cum_y -= w0 * tfs + gs.tc;
-            else cum_x += (w0 * tfs + gs.tc + (gs.font->word_space(c) ? gs.tw : 0)) * gs.th;
+            if (vertical) cum_y -= w0 * tfs + tc;
+            else cum_x += (w0 * tfs + tc + (font->word_space(c) ? tw : 0)) * th;
         }
         tm = Matrix{1, 0, 0, 1, cum_x, cum_y} * tm;
         if (run && span) {
-            const double ylo = std::min(span_y0 + gs.ts - 0.2 * tfs, span_y0 + gs.ts + 0.8 * tfs);
-            const double yhi = std::max(span_y1 + gs.ts - 0.2 * tfs, span_y1 + gs.ts + 0.8 * tfs);
+            const double ylo = std::min(span_y0 + ts - 0.2 * tfs, span_y0 + ts + 0.8 * tfs);
+            const double yhi = std::max(span_y1 + ts - 0.2 * tfs, span_y1 + ts + 0.8 * tfs);
             double xs[4], ys[4];
             base.apply(span_x0, ylo, xs[0], ys[0]);
             base.apply(span_x1, ylo, xs[1], ys[1]);
@@ -930,7 +981,7 @@ bool Interpreter::step(Exec& x) {
         style.stroke = gs.stroke;
         style.fill_alpha = gs.fill_alpha;
         Matrix trm = Matrix{gs.font_size * gs.th, 0, 0, gs.font_size, 0, gs.ts} * tm * gs.ctm;
-        style.size_user = std::hypot(trm.c, trm.d);
+        style.size_user = hypot_trm_(trm.c, trm.d);
         TextRecord& run = m_.texts.begin_run(item, style);
         return {&run, &m_.items.record(static_cast<std::size_t>(item))};
     };
@@ -950,7 +1001,7 @@ bool Interpreter::step(Exec& x) {
         }
         const std::uint32_t opi = op_index++;
         std::vector<Operand>& a = *op.operands;
-        for (ContentObserver* o : obs_) o->on_operator(m_, si, opi, op, gs);
+        for (ContentObserver* o : op_obs_) o->on_operator(m_, si, opi, op, gs);
         const Op oc = op.code;
         auto num = [&](std::size_t i) -> double { return i < a.size() && a[i].is_number() ? a[i].num() : 0.0; };
         auto nums_ok = [&](std::size_t n) {
