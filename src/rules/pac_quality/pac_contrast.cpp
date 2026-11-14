@@ -978,9 +978,23 @@ double wcag_contrast(const float a[3], const float b[3]) {
     auto lum = [](const float* c) {
         return 0.2126 * wcag::srgb_channel(c[0]) + 0.7152 * wcag::srgb_channel(c[1]) + 0.0722 * wcag::srgb_channel(c[2]);
     };
+    // Text runs come in long rows of one colour on one background: the pair asked last is answered from memory (per
+    // thread: files are validated in parallel). The function is pure, so the kept ratio is the ratio.
+    struct Last {
+        float a[3], b[3];
+        double ratio = 0;
+        bool set = false;
+    };
+    static thread_local Last last;
+    if (last.set && std::memcmp(last.a, a, sizeof last.a) == 0 && std::memcmp(last.b, b, sizeof last.b) == 0) return last.ratio;
     double la = lum(a), lb = lum(b);
     if (la < lb) std::swap(la, lb);
-    return (la + 0.05) / (lb + 0.05);
+    const double ratio = (la + 0.05) / (lb + 0.05);
+    std::memcpy(last.a, a, sizeof last.a);
+    std::memcpy(last.b, b, sizeof last.b);
+    last.ratio = ratio;
+    last.set = true;
+    return ratio;
 }
 
 bool reduce_image(const Obj& image, int max_side, ReducedImage& out, std::string* why) {
@@ -1831,6 +1845,10 @@ private:
     Obj inline_image_stream(const RawOp& op, const StreamState& st);
     bool oc_is_off(const Obj& oc);
     std::unordered_set<std::uint64_t> hidden_ops_;      // operators inside switched-off optional content, this page
+    // Whether the item's operator is one of them (mostly there are none on the page: asked before the set is searched).
+    bool hidden_op(const ContentItem& it) const {
+        return !hidden_ops_.empty() && hidden_ops_.count((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index) != 0;
+    }
     bool oc_read_ = false;
     bool oc_base_off_ = false;
     std::unordered_set<std::uint64_t> oc_off_, oc_on_;
@@ -2816,7 +2834,7 @@ std::optional<ObjRef> ContrastEngine::figure_of(const ContentModel& cm, const Co
 void ContrastEngine::wcag_text(const ContentModel& cm, const ContentItem& it, const TextPiece& piece, const Rect& box, const float* fg,
                                const float* bg, bool rendered, bool exact_bg, bool artifact) {
     static const RuleIndex rc = R("EQX-WCAG-1.4.3-TextContrast"), rr = R("EQX-WCAG-1.4.3-TextContrastReview");
-    if (hidden_ops_.count((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index)) return;   // optional content that is off
+    if (hidden_op(it)) return;   // optional content that is off
     const TextRun& tr = cm.texts[std::size_t(it.text)];
     bool clipped = false;
     if (piece.clip >= 0) {
@@ -2829,13 +2847,13 @@ void ContrastEngine::wcag_text(const ContentModel& cm, const ContentItem& it, co
     const double a = std::clamp(double(tr.fill_alpha) * piece.alpha, 0.0, 1.0);
     wcag::TextFacts f;
     float fgc[3];
-    for (int k = 0; k < 3; ++k) {
-        fgc[k] = float(a * fg[k] + (1 - a) * bg[k]);
+    for (int k = 0; k < 3; ++k) fgc[k] = float(a * fg[k] + (1 - a) * bg[k]);
+    f.ratio = wcag_contrast(fgc, bg);
+    if (f.ratio >= 4.5) return;
+    for (int k = 0; k < 3; ++k) {   // the colours of the detail: only a text below 4.5:1 gets that far
         f.fg[k] = to8(fgc[k]);
         f.bg[k] = to8(bg[k]);
     }
-    f.ratio = wcag_contrast(fgc, bg);
-    if (f.ratio >= 4.5) return;
     f.size = tr.size_user;
     // wcag::bold_state(tr.font, tr.tr): -1 without a font and for fill-and-stroke modes, else a fact of the font
     // dictionary, read once per font
@@ -3005,7 +3023,7 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
     for (const int idx : items) {
         const ContentItem& it = cm.items[idx];
         if (it.kind == ContentItem::Kind::LineArt && it.paint && it.bbox_valid &&
-            !hidden_ops_.count((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index) && figure_of(cm, it) &&
+            !hidden_op(it) && figure_of(cm, it) &&
             !cm.parents_tags_contain(it.stream, it.frame, "Artifact"))
             fig_items.push_back(idx);
     }
@@ -3048,7 +3066,7 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
         const ContentItem& it = cm.items[idx];
         const bool painter = (it.kind == ContentItem::Kind::LineArt && it.paint) || it.kind == ContentItem::Kind::InlineImage ||
                              it.kind == ContentItem::Kind::ImageXObject || it.kind == ContentItem::Kind::Shading;
-        if (!painter || hidden_ops_.count((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index)) continue;
+        if (!painter || hidden_op(it)) continue;
         Rect r = painted_box(it);
         int x0, y0, x1, y1;
         cell_range(r, x0, y0, x1, y1);
@@ -3182,7 +3200,7 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
         const ContentItem& it = cm.items[items[n]];
         if (it.kind == ContentItem::Kind::Text) continue;
         auto found = paint_of_.find((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index);
-        if (found == paint_of_.end() || hidden_ops_.count((std::uint64_t(std::uint32_t(it.stream)) << 32) | it.op_index)) continue;
+        if (found == paint_of_.end() || hidden_op(it)) continue;
         const Paint& p = paints_[std::size_t(found->second)];
         Rect outer = p.box;
         if (p.stroke) {   // a straight line has an empty path box
