@@ -41,8 +41,17 @@ struct RuleInfo {
 using RuleIndex = std::uint32_t;
 constexpr RuleIndex kNoRule = 0xffffffffu;
 
+// A rule as the generated table holds it: its texts are offsets into one block of strings, so the table has no
+// pointers that would have to be relocated (and its pages written) whenever the program is loaded.
+struct RuleRecord {
+    std::uint32_t id, title, family, detection, references_json;   // offsets into catalog_strings()
+    std::uint32_t targets, concerns;
+    std::uint8_t severity, kind, required;
+};
+
 // Generated functions (catalog_data.cpp).
-const RuleInfo* catalog_rules(std::size_t* n);
+const RuleRecord* catalog_records(std::size_t* n);
+const char* catalog_strings();
 const char* const* catalog_manual(int target);
 const char* catalog_sha256();
 // The ids of the rules [first, last) as the JSON report writes them: "ID","ID",...,"ID" (no escaping needed, which
@@ -54,7 +63,12 @@ public:
     static const Catalog& get();
 
     std::size_t size() const { return n_; }
-    const RuleInfo& rule(RuleIndex i) const { return rules_[i]; }
+    // The rule with its texts (assembled from the record; bind it to a const reference or read a field directly).
+    RuleInfo rule(RuleIndex i) const {
+        const RuleRecord& r = records_[i];
+        return {strings_ + r.id, strings_ + r.title, r.severity, r.kind, r.targets, r.concerns, r.required,
+                strings_ + r.family, strings_ + r.detection, strings_ + r.references_json};
+    }
     // Index of a canonical id; kNoRule when unknown.
     RuleIndex find(std::string_view id) const;
     // Index of a canonical id; aborts (programming error) when unknown.
@@ -65,7 +79,8 @@ public:
 
 private:
     Catalog();
-    const RuleInfo* rules_ = nullptr;
+    const RuleRecord* records_ = nullptr;
+    const char* strings_ = nullptr;
     std::size_t n_ = 0;
 };
 
