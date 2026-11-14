@@ -24,6 +24,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <exception>
+#include <functional>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -192,15 +194,309 @@ struct Grid {
     }
 };
 
+// --- Reading the content items page by page -----------------------------------------------------------
+// The rules below read every content item, in the order of the items. They take what they need of a page's items
+// when the page's content stream has ended (ItemTap, an observer), so the interpreter can give those items back
+// (ContentModel::release_consumed) instead of keeping the document's content until the modules run.
+//
+// What is taken is small and is what the rules compute from the items alone. Everything that reads the PDF's
+// objects (whether a structure element reaches the tree's root, a language, a font descriptor) and every report is
+// left to run(), which works on what was taken, in the order of the items: the findings, their order, the order
+// in which objects are first read (the order of qpdf's warnings) and the place where a failure stops the module
+// are those of reading the items there.
+
+// Consecutive content items of one stream instance and one marked-content sequence.
+struct ItemRun {
+    int stream = -1;
+    int frame = -1;
+    std::uint32_t first_op = 0;        // operator of its first item
+    std::uint32_t first_text_op = 0;   // operator of its first text item, when it has one
+    std::uint32_t count[5] = {0, 0, 0, 0, 0};   // its items per ContentItem::Kind
+};
+
+// What a text-contrast finding's detail is made from.
+struct ContrastDetail {
+    int stream = -1;
+    std::uint32_t font = 0;       // index of the font whose weight decides the threshold (events EitherWay and UnlessBold)
+    double ratio = 0, size = 0;
+    float fg[3] = {0, 0, 0}, bg[3] = {0, 0, 0};
+    std::string text;             // of the run, cut as in the detail
+};
+
+// One step of the text-contrast check, in the order of the text items.
+struct ContrastEvent {
+    enum Kind : std::uint8_t {
+        AskBold,           // bold_font(fonts[a]) is asked here for the first time
+        Large,             // a finding with detail a, large text (18 pt and more)
+        Small,             // a finding with detail a, text below 14 pt
+        EitherWay,         // a finding with detail a, 14 to 18 pt, below 3:1: large when its font is bold
+        UnlessBold,        // 14 to 18 pt, between 3:1 and 4.5:1: a finding with detail a unless its font is bold
+        CountCertain,      // findings that are only counted: the rule's record is full when they are reported
+        CountUnlessBold,   // such findings unless fonts[a] is bold
+    };
+    Kind kind;
+    std::uint32_t a;
+    std::uint32_t n;       // how many times in a row
+};
+
+// A failure while a page was taken, thrown again where run() would have met it.
+struct TakeFailure final : std::exception {
+    std::string message;
+    const char* what() const noexcept override { return message.c_str(); }
+};
+
+class ItemTap final : public ContentObserver {
+public:
+    const Document* doc = nullptr;
+    std::size_t max_locations = 0;
+
+    std::vector<ItemRun> runs;
+    std::vector<ContrastEvent> events;
+    std::vector<ContrastDetail> details;
+    std::vector<const Font*> fonts;
+
+    void on_stream_end(const ContentModel& cm, int si) override {
+        if (cm.streams[static_cast<std::size_t>(si)].kind == StreamInstance::Kind::Page) take(cm);
+    }
+
+    // Takes the items that were not taken yet: those of the page that has ended, or, called from run(), what an
+    // interpretation that stopped early left.
+    void take(const ContentModel& cm) {
+        const std::size_t begin = taken_, end = cm.items.size();
+        taken_ = end;
+        if (begin >= end) return;
+        // A failure here (memory) is one run() would have had reading the same items: it is kept, the part that
+        // failed takes nothing more, and run() throws it where that part's work is.
+        if (!runs_failed_) guarded(runs_failed_, runs_what_, [&] { take_runs(cm, begin, end); });
+        if (!contrast_failed_) guarded(contrast_failed_, contrast_what_, [&] { take_contrast(cm, begin, end); });
+    }
+
+    void rethrow_runs() const {
+        if (runs_failed_) throw failure(runs_what_);
+    }
+    void rethrow_contrast() const {
+        if (contrast_failed_) throw failure(contrast_what_);
+    }
+
+private:
+    std::size_t taken_ = 0;
+    bool runs_failed_ = false, contrast_failed_ = false;
+    std::string runs_what_, contrast_what_;
+    // text contrast: which details are kept
+    std::unordered_map<const Font*, std::uint32_t> font_index_;
+    std::unordered_map<std::string, std::uint32_t> detail_index_;                         // finding as it will be reported -> its detail
+    std::unordered_set<std::size_t> certain_;                                             // findings whatever the fonts' weights
+    std::unordered_map<const Font*, std::unordered_set<std::size_t>> by_font_;            // 14 to 18 pt findings per font
+    bool record_full_ = false;   // from here on the rule's record is full whatever the fonts' weights
+
+    static TakeFailure failure(const std::string& what) {
+        TakeFailure f;
+        f.message = what;
+        return f;
+    }
+    template <class F>
+    static void guarded(bool& failed, std::string& what, F&& work) {
+        try {
+            work();
+        } catch (const std::exception& e) {
+            failed = true;
+            try {
+                what = e.what();
+            } catch (...) {
+                what.clear();
+            }
+        }
+    }
+
+    void take_runs(const ContentModel& cm, std::size_t begin, std::size_t end) {
+        bool fresh = true;   // items of different calls are of different pages: never one run
+        for (std::size_t i = begin; i < end; ++i) {
+            const ContentItem& it = cm.items[i];
+            if (fresh || runs.back().stream != it.stream || runs.back().frame != it.frame) {
+                ItemRun r;
+                r.stream = it.stream;
+                r.frame = it.frame;
+                r.first_op = it.op_index;
+                runs.push_back(r);
+                fresh = false;
+            }
+            ItemRun& r = runs.back();
+            if (it.kind == ContentItem::Kind::Text && r.count[static_cast<int>(ContentItem::Kind::Text)] == 0) r.first_text_op = it.op_index;
+            ++r.count[static_cast<int>(it.kind)];
+        }
+    }
+
+    // --- text contrast: the check of every text item up to its contrast ratio; what is left for run() is asking
+    // the weight of a font (bold_font reads its descriptor) and reporting.
+    void take_contrast(const ContentModel& cm, std::size_t begin, std::size_t end) {
+        const auto& pages = doc->pages();
+        static const float white[3] = {1, 1, 1};
+        std::optional<Grid> grid;
+        int grid_page = -1;
+        for (std::size_t i = begin; i < end; ++i) {
+            const ContentItem& it = cm.items[i];
+            const int pg = cm.streams[static_cast<std::size_t>(it.stream)].page;
+            if (pg < 0 || pg >= static_cast<int>(pages.size())) continue;
+            if (!grid || pg != grid_page) {   // the items of a page follow each other
+                grid.emplace();
+                grid->box = pages[static_cast<std::size_t>(pg)].media_box;
+                grid_page = pg;
+            }
+            const int idx = static_cast<int>(i);
+            if (it.kind == ContentItem::Kind::Text) {
+                take_text(cm, *grid, idx, white);
+                continue;
+            }
+            bool painter = (it.kind == ContentItem::Kind::LineArt && (it.paint & 1)) ||
+                           it.kind == ContentItem::Kind::InlineImage || it.kind == ContentItem::Kind::ImageXObject ||
+                           it.kind == ContentItem::Kind::Shading;
+            if (!painter) continue;
+            Rect r = it.bbox_valid ? it.bbox : grid->box;   // shadings without a box cover the page
+            grid->add(idx, r);
+        }
+    }
+
+    void take_text(const ContentModel& cm, const Grid& grid, int idx, const float white[3]) {
+        const ContentItem& it = cm.items[static_cast<std::size_t>(idx)];
+        if (it.text < 0 || !it.bbox_valid) return;
+        const TextRun& tr = cm.texts[static_cast<std::size_t>(it.text)];
+        if (tr.glyphs == 0) return;
+        if (tr.tr == 3 || tr.tr == 7) return;                              // invisible text
+        if (cm.parents_tags_contain(it.stream, it.frame, "Artifact")) return;   // incidental content
+        if (tr.unmapped == 0 && is_whitespace_only(tr.text)) return;       // white space excluded (PAC 24.4.3)
+        const bool stroke_only = tr.tr == 1 || tr.tr == 5;
+        const Color& tc = stroke_only ? tr.stroke : tr.fill;
+        if (!tc.known()) return;
+        // Background: the last painter before the text that intersects it.
+        int x0, y0, x1, y1;
+        grid.cell_range(it.bbox, x0, y0, x1, y1);
+        int best = -1;
+        for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x) {
+                const auto& v = grid.cells[y * Grid::N + x];
+                auto pos = std::lower_bound(v.begin(), v.end(), idx);
+                while (pos != v.begin()) {
+                    --pos;
+                    if (*pos <= best) break;
+                    const ContentItem& p = cm.items[static_cast<std::size_t>(*pos)];
+                    Rect pr = p.bbox_valid ? p.bbox : grid.box;
+                    if (pr.intersects(it.bbox)) {
+                        best = *pos;
+                        break;
+                    }
+                }
+            }
+        const float* bg = white;
+        if (best >= 0) {
+            const ContentItem& p = cm.items[static_cast<std::size_t>(best)];
+            bool exact = p.kind == ContentItem::Kind::LineArt && p.exact_rect && p.fill.known() && p.fill_alpha >= 1.0f &&
+                         covers(p.bbox, it.bbox, 0.5);
+            if (!exact) return;   // background not determinable without rendering
+            bg = p.fill.rgb;
+        }
+        float fg[3] = {tc.rgb[0], tc.rgb[1], tc.rgb[2]};
+        double a = std::clamp(tr.fill_alpha, 0.0, 1.0);
+        if (a < 1.0 && !stroke_only)
+            for (int k = 0; k < 3; ++k) fg[k] = static_cast<float>(a * fg[k] + (1 - a) * bg[k]);
+        double ratio = contrast(fg, bg);
+        // large = size >= 18 || (size >= 14 && bold_font(font)), need = large ? 3.0 : 4.5, a finding when
+        // ratio + 1e-9 < need: decided here as far as it does not depend on the font's weight.
+        const bool big = tr.size_user >= 18.0;
+        const bool asks_weight = !big && tr.size_user >= 14.0;
+        const bool below3 = !(ratio + 1e-9 >= 3.0), below45 = !(ratio + 1e-9 >= 4.5);
+        if (!asks_weight) {
+            if (big ? below3 : below45) finding(cm, it, tr, big ? ContrastEvent::Large : ContrastEvent::Small, ratio, fg, bg);
+            return;
+        }
+        font_of(tr.font);        // AskBold where the font's weight is asked first
+        if (!below45) return;    // passes at either threshold
+        finding(cm, it, tr, below3 ? ContrastEvent::EitherWay : ContrastEvent::UnlessBold, ratio, fg, bg);
+    }
+
+    std::uint32_t font_of(const Font* f) {
+        auto [pos, fresh] = font_index_.emplace(f, static_cast<std::uint32_t>(fonts.size()));
+        if (fresh) {
+            fonts.push_back(f);
+            events.push_back({ContrastEvent::AskBold, pos->second, 1});
+        }
+        return pos->second;
+    }
+
+    void event(ContrastEvent::Kind kind, std::uint32_t a) {
+        if (!events.empty() && events.back().kind == kind && events.back().a == a && events.back().n != 0xffffffffu) {
+            ++events.back().n;
+            return;
+        }
+        events.push_back({kind, a, 1});
+    }
+
+    // A finding, or one that depends on its font's weight. Its detail is kept as long as the record of the rule can
+    // still take a location when it is reported. That is certain not to be the case, whatever the fonts' weights are,
+    // (1) once max_locations findings that do not depend on a weight, with different details, come before it: they
+    // are reported before it and fill the record; (2) for a finding that depends on the weight of its font, once
+    // max_locations findings of that font in the 14 to 18 pt range, with different details, come before it: if the
+    // font is not bold they are all reported and fill the record, if it is bold this one is no finding. "Different
+    // details" is judged on the detail without its threshold part: details that differ there differ as reported.
+    void finding(const ContentModel& cm, const ContentItem& it, const TextRun& tr, ContrastEvent::Kind kind, double ratio,
+                 const float fg[3], const float bg[3]) {
+        const bool weighed = kind == ContrastEvent::EitherWay || kind == ContrastEvent::UnlessBold;
+        const bool certain = kind != ContrastEvent::UnlessBold;
+        if (record_full_) {
+            if (certain) event(ContrastEvent::CountCertain, 0);
+            else event(ContrastEvent::CountUnlessBold, font_index_.at(tr.font));
+            return;
+        }
+        std::unordered_set<std::size_t>* of_font = weighed ? &by_font_[tr.font] : nullptr;
+        if (!certain && of_font->size() >= max_locations) {
+            event(ContrastEvent::CountUnlessBold, font_index_.at(tr.font));
+            return;
+        }
+        const StreamInstance& s = cm.streams[static_cast<std::size_t>(it.stream)];
+        std::string text = to_utf8(tr.text);
+        if (text.size() > 40) text = text.substr(0, 40) + "...";
+        char buf[200];
+        std::snprintf(buf, sizeof buf, "|%.2f|%s|%s|%.1f|", ratio, hex(fg).c_str(), hex(bg).c_str(), tr.size_user);
+        std::string key = std::to_string(page_number(s.page)) + '|' + s.ref.str() + buf + text;   // the detail without its threshold part
+        const std::size_t skeleton = std::hash<std::string>()(key);
+        key.push_back('\x01');
+        key.push_back(static_cast<char>('0' + kind));
+        if (weighed) key += std::to_string(font_index_.at(tr.font));   // the same detail when the same font decides
+        auto [pos, fresh] = detail_index_.emplace(std::move(key), static_cast<std::uint32_t>(details.size()));
+        if (fresh) {
+            ContrastDetail d;
+            d.stream = it.stream;
+            d.font = weighed ? font_index_.at(tr.font) : 0;
+            d.ratio = ratio;
+            d.size = tr.size_user;
+            for (int k = 0; k < 3; ++k) d.fg[k] = fg[k], d.bg[k] = bg[k];
+            d.text = std::move(text);
+            details.push_back(std::move(d));
+        }
+        event(kind, pos->second);
+        if (certain) certain_.insert(skeleton);
+        if (of_font) of_font->insert(skeleton);
+        if (certain_.size() >= max_locations) {   // (1): no detail is kept from here on
+            record_full_ = true;
+            detail_index_ = {};
+            certain_ = {};
+            by_font_ = {};
+        }
+    }
+};
+
 class Module final : public RuleModule {
 public:
     const char* name() const override { return "content"; }
 
-    void prepare(ValidationContext&, std::vector<ContentObserver*>& observers) override {
+    void prepare(ValidationContext& ctx, std::vector<ContentObserver*>& observers) override {
         observers.push_back(&syntax_);
+        tap_.doc = &ctx.doc;
+        tap_.max_locations = ctx.findings.max_locations();
+        observers.push_back(&tap_);
     }
 
     void run(ValidationContext& ctx) override {
+        tap_.take(ctx.content);   // what no page end delivered (the interpretation stopped inside a page)
         tagging(ctx);
         marked_content_language(ctx);
         xobjects(ctx);
@@ -211,6 +507,7 @@ public:
 
 private:
     SyntaxObserver syntax_;
+    ItemTap tap_;
 
     static bool in_se_tree(const ContentModel& cm, int frame) {
         const McFrame& f = cm.frames[frame];
@@ -255,20 +552,22 @@ private:
         std::vector<Untagged> per_stream(cm.streams.size());
         // Whether an item is tagged or in an artifact depends on its stream and frame only, and items come in runs of
         // one frame: decided when the frame changes.
+        // (The items were taken page by page as runs of one stream and frame, ItemTap: a run stands for its items.)
+        tap_.rethrow_runs();
         int run_stream = -1, run_frame = -2;
         bool run_untagged = false;
-        for (const ContentItem& it : cm.items) {
+        for (const ItemRun& it : tap_.runs) {
             if (skipped(ctx, it.stream)) continue;
             if (it.stream != run_stream || it.frame != run_frame) {
                 run_stream = it.stream;
                 run_frame = it.frame;
-                run_untagged = !tagged(ctx, cm.item_struct_parent(it)) && !cm.parents_tags_contain(it.stream, it.frame, "Artifact");
+                run_untagged = !tagged(ctx, cm.item_struct_parent(it.stream, it.frame)) && !cm.parents_tags_contain(it.stream, it.frame, "Artifact");
             }
             if (!run_untagged) continue;
             Untagged& u = per_stream[it.stream];
-            if (!u.any) u.first_op = it.op_index;
+            if (!u.any) u.first_op = it.first_op;
             u.any = true;
-            ++u.count[static_cast<int>(it.kind)];
+            for (int k = 0; k < 5; ++k) u.count[k] += it.count[k];
         }
         static const char* kinds[] = {"text", "path", "shading", "inline image", "image"};
         for (std::size_t i = 0; i < per_stream.size(); ++i) {
@@ -330,12 +629,14 @@ private:
             if (f.e) ctx.report(r732, s.page, s.ref, where + " has E without a language");
         }
         std::vector<std::pair<std::uint32_t, std::uint32_t>> per_stream(cm.streams.size(), {0, 0});   // count, first op
-        for (const ContentItem& it : cm.items) {
-            if (it.kind != ContentItem::Kind::Text || skipped(ctx, it.stream)) continue;
+        // The language of a text item is that of its stream and frame: asked once for the text items of a run.
+        for (const ItemRun& it : tap_.runs) {
+            const std::uint32_t texts = it.count[static_cast<int>(ContentItem::Kind::Text)];
+            if (texts == 0 || skipped(ctx, it.stream)) continue;
             if (cm.lang_value(ctx.st, it.stream, it.frame)) continue;
             auto& c = per_stream[it.stream];
-            if (c.first == 0) c.second = it.op_index;
-            ++c.first;
+            if (c.first == 0) c.second = it.first_text_op;
+            c.first += texts;
         }
         for (std::size_t i = 0; i < per_stream.size(); ++i) {
             if (per_stream[i].first == 0) continue;
@@ -419,93 +720,51 @@ private:
             }
     }
 
+    // The contrast of every text item was measured when its page ended (ItemTap::take_contrast). Here, in the order
+    // of the text items: the weight of a font is asked where the check asks it first, and the findings are reported.
     void text_contrast(ValidationContext& ctx) {
         static const RuleIndex rc = R("EQX-PAC-FailNotEnoughContrastForText");
         const ContentModel& cm = ctx.content;
-        const auto& pages = ctx.doc.pages();
-        std::vector<std::vector<int>> per_page(pages.size());
-        for (std::size_t i = 0; i < cm.items.size(); ++i) {
-            int pg = cm.streams[cm.items[i].stream].page;
-            if (pg >= 0 && pg < static_cast<int>(pages.size())) per_page[pg].push_back(static_cast<int>(i));
-        }
-        static const float white[3] = {1, 1, 1};
-        for (std::size_t pg = 0; pg < per_page.size(); ++pg) {
-            Grid grid;
-            grid.box = pages[pg].media_box;
-            for (int idx : per_page[pg]) {
-                const ContentItem& it = cm.items[idx];
-                if (it.kind == ContentItem::Kind::Text) {
-                    check_text(ctx, grid, idx, white, rc);
-                    continue;
-                }
-                bool painter = (it.kind == ContentItem::Kind::LineArt && (it.paint & 1)) ||
-                               it.kind == ContentItem::Kind::InlineImage || it.kind == ContentItem::Kind::ImageXObject ||
-                               it.kind == ContentItem::Kind::Shading;
-                if (!painter) continue;
-                Rect r = it.bbox_valid ? it.bbox : grid.box;   // shadings without a box cover the page
-                grid.add(idx, r);
+        std::vector<signed char> bold(tap_.fonts.size(), -1);
+        const auto is_bold = [&](std::uint32_t font) {
+            if (bold[font] < 0) bold[font] = bold_font(tap_.fonts[font]) ? 1 : 0;
+            return bold[font] == 1;
+        };
+        const auto report = [&](const ContrastDetail& d, bool large) {
+            const StreamInstance& s = cm.streams[static_cast<std::size_t>(d.stream)];
+            if (ctx.findings.saturated(rc)) {   // only counted: the record is full, the detail would be dropped
+                ctx.report(rc, s.page, s.ref);
+                return;
             }
-        }
-    }
-
-    void check_text(ValidationContext& ctx, const Grid& grid, int idx, const float white[3], RuleIndex rc) {
-        const ContentModel& cm = ctx.content;
-        const ContentItem& it = cm.items[idx];
-        if (it.text < 0 || !it.bbox_valid) return;
-        const TextRun& tr = cm.texts[it.text];
-        if (tr.glyphs == 0) return;
-        if (tr.tr == 3 || tr.tr == 7) return;                              // invisible text
-        if (cm.parents_tags_contain(it.stream, it.frame, "Artifact")) return;   // incidental content
-        if (tr.unmapped == 0 && is_whitespace_only(tr.text)) return;       // white space excluded (PAC 24.4.3)
-        const bool stroke_only = tr.tr == 1 || tr.tr == 5;
-        const Color& tc = stroke_only ? tr.stroke : tr.fill;
-        if (!tc.known()) return;
-        // Background: the last painter before the text that intersects it.
-        int x0, y0, x1, y1;
-        grid.cell_range(it.bbox, x0, y0, x1, y1);
-        int best = -1;
-        for (int y = y0; y <= y1; ++y)
-            for (int x = x0; x <= x1; ++x) {
-                const auto& v = grid.cells[y * Grid::N + x];
-                auto pos = std::lower_bound(v.begin(), v.end(), idx);
-                while (pos != v.begin()) {
-                    --pos;
-                    if (*pos <= best) break;
-                    const ContentItem& p = cm.items[*pos];
-                    Rect pr = p.bbox_valid ? p.bbox : grid.box;
-                    if (pr.intersects(it.bbox)) {
-                        best = *pos;
+            char buf[200];
+            std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s, %.1f pt%s), needs %.1f:1", d.ratio,
+                          hex(d.fg).c_str(), hex(d.bg).c_str(), d.size, large ? ", large" : "", large ? 3.0 : 4.5);
+            ctx.report(rc, s.page, s.ref, std::string(buf) + (d.text.empty() ? "" : ": \"" + d.text + "\""));
+        };
+        // A finding whose detail was not kept: the record is full by now (ItemTap::finding), so it is only counted.
+        const auto count = [&] {
+            if (!ctx.findings.saturated(rc) && ctx.findings.max_locations() != 0)
+                throw std::logic_error("text contrast: a finding without its detail meets a record that is not full");
+            ctx.report(rc, -1, ObjRef{});
+        };
+        for (const ContrastEvent& e : tap_.events) {
+            for (std::uint32_t n = 0; n < e.n; ++n) {
+                switch (e.kind) {
+                    case ContrastEvent::AskBold: (void)is_bold(e.a); break;
+                    case ContrastEvent::Large: report(tap_.details[e.a], true); break;
+                    case ContrastEvent::Small: report(tap_.details[e.a], false); break;
+                    case ContrastEvent::EitherWay: report(tap_.details[e.a], is_bold(tap_.details[e.a].font)); break;
+                    case ContrastEvent::UnlessBold:
+                        if (!is_bold(tap_.details[e.a].font)) report(tap_.details[e.a], false);
                         break;
-                    }
+                    case ContrastEvent::CountCertain: count(); break;
+                    case ContrastEvent::CountUnlessBold:
+                        if (!is_bold(e.a)) count();
+                        break;
                 }
             }
-        const float* bg = white;
-        if (best >= 0) {
-            const ContentItem& p = cm.items[best];
-            bool exact = p.kind == ContentItem::Kind::LineArt && p.exact_rect && p.fill.known() && p.fill_alpha >= 1.0f &&
-                         covers(p.bbox, it.bbox, 0.5);
-            if (!exact) return;   // background not determinable without rendering
-            bg = p.fill.rgb;
         }
-        float fg[3] = {tc.rgb[0], tc.rgb[1], tc.rgb[2]};
-        double a = std::clamp(tr.fill_alpha, 0.0, 1.0);
-        if (a < 1.0 && !stroke_only)
-            for (int k = 0; k < 3; ++k) fg[k] = static_cast<float>(a * fg[k] + (1 - a) * bg[k]);
-        double ratio = contrast(fg, bg);
-        bool large = tr.size_user >= 18.0 || (tr.size_user >= 14.0 && bold_font(tr.font));
-        double need = large ? 3.0 : 4.5;
-        if (ratio + 1e-9 >= need) return;
-        const StreamInstance& s = cm.streams[it.stream];
-        if (ctx.findings.saturated(rc)) {   // only counted: the record is full, the detail would be dropped
-            ctx.report(rc, s.page, s.ref);
-            return;
-        }
-        char buf[200];
-        std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s, %.1f pt%s), needs %.1f:1", ratio,
-                      hex(fg).c_str(), hex(bg).c_str(), tr.size_user, large ? ", large" : "", need);
-        std::string text = to_utf8(tr.text);
-        if (text.size() > 40) text = text.substr(0, 40) + "...";
-        ctx.report(rc, s.page, s.ref, std::string(buf) + (text.empty() ? "" : ": \"" + text + "\""));
+        tap_.rethrow_contrast();
     }
 };
 

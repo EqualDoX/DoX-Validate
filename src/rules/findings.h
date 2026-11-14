@@ -45,6 +45,7 @@ public:
         return it != by_rule_.end() && it->second.locations.size() >= max_locations_;
     }
     void erase(RuleIndex rule) { by_rule_.erase(rule); }
+    std::size_t max_locations() const { return max_locations_; }
 
     // Records sorted by catalogue order (rule index).
     std::vector<const FindingRecord*> sorted() const;
