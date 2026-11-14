@@ -54,6 +54,13 @@ RuleIndex Catalog::require(std::string_view id) const {
     return i;
 }
 
+std::span<const char* const> Catalog::manual_required_list(int target) const {
+    const char* const* p = catalog_manual(target);
+    std::size_t n = 0;
+    while (p && p[n]) ++n;
+    return {p, n};
+}
+
 std::vector<std::string> Catalog::manual_required(int target) const {
     std::vector<std::string> out;
     const char* const* p = catalog_manual(target);

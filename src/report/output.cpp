@@ -27,10 +27,24 @@ const char* combined_meaning(const std::string& s) {
     return "at least one target could not be fully evaluated";
 }
 
+// The ids of the rules [first, last) as array elements. The catalogue has them rendered ("ID","ID",...): compact
+// output copies the run in one piece, indented output writes one element per line.
+void rule_run(JsonWriter& w, RuleIndex first, RuleIndex last) {
+    if (!w.pretty()) {
+        w.raw(catalog_ids_json(first, last));
+        return;
+    }
+    for (RuleIndex r = first; r < last; ++r) w.raw(catalog_ids_json(r, r + 1));
+}
+
 void rule_list(JsonWriter& w, const std::vector<RuleIndex>& rules) {
-    const Catalog& c = Catalog::get();
     w.begin_array();
-    for (RuleIndex r : rules) w.value(c.rule(r).id);
+    for (std::size_t i = 0; i < rules.size();) {
+        std::size_t j = i + 1;
+        while (j < rules.size() && rules[j] == rules[j - 1] + 1) ++j;   // consecutive rules: one run
+        rule_run(w, rules[i], rules[j - 1] + 1);
+        i = j;
+    }
     w.end_array();
 }
 
@@ -99,6 +113,8 @@ std::string render_json(const Result& r, bool pretty, const ResultBasis& basis) 
     const Catalog& cat = Catalog::get();
     const Summary sum = summarize(r, basis);
     JsonWriter w(pretty);
+    // The list of evaluated rules is most of a typical report (one id per catalogue rule).
+    w.reserve(catalog_ids_json(0, static_cast<RuleIndex>(cat.size())).size() + 16384);
     w.begin_object();
     w.key("schema").value("eqx-validator-output/1");
     w.key("validator").begin_object();
@@ -180,9 +196,19 @@ std::string render_json(const Result& r, bool pretty, const ResultBasis& basis) 
     w.end_array();
 
     w.key("rules_evaluated").begin_array();
-    if (r.processed)
-        for (RuleIndex i = 0; i < cat.size(); ++i)
-            if (r.evaluated[i] && !r.incomplete[i]) w.value(cat.rule(i).id);
+    if (r.processed) {
+        const RuleIndex n = static_cast<RuleIndex>(cat.size());
+        for (RuleIndex i = 0; i < n;) {
+            if (!(r.evaluated[i] && !r.incomplete[i])) {
+                ++i;
+                continue;
+            }
+            RuleIndex j = i + 1;
+            while (j < n && r.evaluated[j] && !r.incomplete[j]) ++j;
+            rule_run(w, i, j);
+            i = j;
+        }
+    }
     w.end_array();
     w.key("rules_incomplete").begin_array();
     for (const auto& [rule, reason] : r.incomplete_reasons) {

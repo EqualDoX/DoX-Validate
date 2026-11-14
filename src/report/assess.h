@@ -2,6 +2,7 @@
 // statement is derived from one PDF/UA part and one WCAG target. Automated checks never yield "pass".
 #pragma once
 
+#include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -20,7 +21,7 @@ struct TargetAssessment {
     std::vector<RuleIndex> failed_rules;
     std::vector<RuleIndex> warning_rules;
     std::vector<RuleIndex> unevaluated_rules;
-    std::vector<std::string> manual_required;
+    std::span<const char* const> manual_required;   // the catalogue's list for the target (generated strings)
 };
 
 struct Assessments {

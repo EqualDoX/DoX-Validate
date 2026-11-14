@@ -1,5 +1,6 @@
 #include "util/json.h"
 
+#include <array>
 #include <cmath>
 #include <cstdio>
 
@@ -104,12 +105,31 @@ JsonWriter& JsonWriter::raw(std::string_view json) {
     return *this;
 }
 
+namespace {
+
+// Bytes that go into a JSON string as they are: printable ASCII except the quote and the backslash.
+constexpr auto kPlain = [] {
+    std::array<bool, 256> t{};
+    for (int c = 0x20; c < 0x7F; ++c) t[c] = c != '"' && c != '\\';
+    return t;
+}();
+
+}  // namespace
+
 void JsonWriter::escape_into(std::string& out, std::string_view s) {
     static const char hex[] = "0123456789abcdef";
     out.push_back('"');
     std::size_t i = 0;
     const std::size_t n = s.size();
     while (i < n) {
+        // a run of plain bytes is copied in one piece
+        std::size_t run = i;
+        while (run < n && kPlain[static_cast<unsigned char>(s[run])]) ++run;
+        if (run > i) {
+            out.append(s.data() + i, run - i);
+            i = run;
+            if (i == n) break;
+        }
         unsigned char c = static_cast<unsigned char>(s[i]);
         if (c < 0x80) {
             switch (c) {

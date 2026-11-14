@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -59,6 +60,8 @@ public:
     // Index of a canonical id; aborts (programming error) when unknown.
     RuleIndex require(std::string_view id) const;
     std::vector<std::string> manual_required(int target) const;
+    // The same list without copies: the generated strings themselves.
+    std::span<const char* const> manual_required_list(int target) const;
 
 private:
     Catalog();

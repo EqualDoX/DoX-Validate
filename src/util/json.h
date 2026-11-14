@@ -27,8 +27,12 @@ public:
     JsonWriter& value(std::size_t n) { return value(static_cast<std::int64_t>(n)); }
     JsonWriter& value(double d);
     JsonWriter& null();
-    // Inserts an already serialised JSON value verbatim.
+    // Inserts an already serialised JSON value verbatim. In compact output it may also be several array elements
+    // joined by commas ("a","b","c"): they are written as they are.
     JsonWriter& raw(std::string_view json);
+    // Room for a document of about this size (the report writer knows what it is going to write).
+    void reserve(std::size_t bytes) { out_.reserve(bytes); }
+    bool pretty() const { return pretty_; }
 
     const std::string& str() const { return out_; }
     std::string take() { return std::move(out_); }

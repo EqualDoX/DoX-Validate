@@ -1,6 +1,7 @@
 #include "report/assess.h"
 
 #include <algorithm>
+#include <bit>
 
 namespace eqx {
 
@@ -31,15 +32,22 @@ Assessments assess(const Findings& findings, const std::vector<bool>& evaluated,
             bool failed = std::find(ta.failed_rules.begin(), ta.failed_rules.end(), f->rule) != ta.failed_rules.end();
             if (!failed && (r.concerns & bit)) ta.warning_rules.push_back(f->rule);
         }
-        for (RuleIndex i = 0; i < cat.size(); ++i) {
-            const RuleInfo& r = cat.rule(i);
-            if (!r.required || !(r.targets & bit)) continue;
-            if (!processed || !evaluated[i] || incomplete[i]) ta.unevaluated_rules.push_back(i);
-        }
+    }
+    // Required rules that were not evaluated, per target they count for: one pass over the catalogue, so each
+    // target's list is in catalogue order.
+    for (RuleIndex i = 0; i < cat.size(); ++i) {
+        const RuleInfo& r = cat.rule(i);
+        if (!r.required) continue;
+        if (!(!processed || !evaluated[i] || incomplete[i])) continue;
+        for (std::uint32_t m = r.targets & ((1u << T_COUNT) - 1); m != 0; m &= m - 1)
+            a.single[std::countr_zero(m)].unevaluated_rules.push_back(i);
+    }
+    for (int t = 0; t < T_COUNT; ++t) {
+        TargetAssessment& ta = a.single[t];
         if (!ta.failed_rules.empty()) ta.status = kStatusFail;
         else if (!ta.unevaluated_rules.empty() || !processed) ta.status = kStatusIncomplete;
         else ta.status = kStatusAutomatedPass;
-        ta.manual_required = cat.manual_required(t);
+        ta.manual_required = cat.manual_required_list(t);
     }
     for (int u = 0; u < 2; ++u)
         for (int w = 0; w < 9; ++w) a.combined[u][w] = combine(a.single[u].status, a.single[T_WCAG20_A + w].status);
