@@ -142,6 +142,19 @@ bool CMap::contains_code(std::int32_t code) const {
 }
 
 bool CMap::read_code(std::string_view bytes, std::size_t& pos, std::int32_t& code) const {
+    // The usual CMap (Identity-H/V and most embedded ones) has the one code space <0000> <FFFF>. The general
+    // procedure below then reads a first byte, which matches no range but is a partial match of the two-byte one,
+    // and a second byte, which completes it: the code is the two bytes, the last one read as 0xFF at the end of the
+    // string, and the value can never be -1. Nothing else of the procedure is reached.
+    if (codespaces.size() == 1 && pos < bytes.size()) {
+        const CodeSpace& cs = codespaces[0];
+        if (cs.begin.size() == 2 && cs.begin[0] == '\0' && cs.begin[1] == '\0' && cs.end[0] == '\xFF' && cs.end[1] == '\xFF') {
+            const unsigned b0 = static_cast<unsigned char>(bytes[pos++]);
+            const unsigned b1 = pos < bytes.size() ? static_cast<unsigned char>(bytes[pos++]) : 0xFFu;
+            code = static_cast<std::int32_t>((b0 << 8) | b1);
+            return true;
+        }
+    }
     unsigned char cc[5] = {0, 0, 0, 0, 0};
     long long prev_shortest = shortest_cs;
     for (int i = 0; i <= 4; ++i) {

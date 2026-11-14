@@ -830,11 +830,12 @@ void VeraFont::codes(std::string_view bytes, std::vector<CharCode>& out) const {
 }
 
 double VeraFont::advance(std::uint32_t code) const {
-    auto it = adv_.find(code);
-    if (it != adv_.end()) return it->second;
-    double w = compute_advance(code);
-    adv_.emplace(code, w);
-    return w;
+    CodeEntry& e = entry(code);
+    if (!e.has_advance) {
+        e.advance = compute_advance(code);
+        e.has_advance = true;
+    }
+    return e.advance;
 }
 
 double VeraFont::compute_advance(std::uint32_t code) const {
@@ -869,20 +870,22 @@ double VeraFont::compute_advance(std::uint32_t code) const {
 
 const std::u32string* VeraFont::to_unicode(std::uint32_t code) const {
     if (vkind == VeraKind::None) return nullptr;
-    auto it = u32_.find(code);
-    if (it == u32_.end()) {
+    CodeEntry& e = entry(code);
+    if (!e.has_u32) {
         const GlyphFacts& g = glyph(code);
-        std::optional<std::u32string> r;
-        if (g.has_unicode) r = u16_to_u32(g.unicode);
-        it = u32_.emplace(code, std::move(r)).first;
+        if (g.has_unicode) e.u32 = u16_to_u32(g.unicode);
+        e.has_u32 = true;
     }
-    return it->second ? &*it->second : nullptr;
+    return e.u32 ? &*e.u32 : nullptr;
 }
 
 const GlyphFacts& VeraFont::glyph(std::uint32_t code) const {
-    auto it = glyphs_.find(code);
-    if (it != glyphs_.end()) return it->second;
-    return glyphs_.emplace(code, compute(code)).first->second;
+    CodeEntry& e = entry(code);
+    if (!e.has_glyph) {
+        e.glyph = compute(code);   // an exception leaves the entry without facts: the next request computes again
+        e.has_glyph = true;
+    }
+    return e.glyph;
 }
 
 GlyphFacts VeraFont::compute(std::uint32_t ucode) const {

@@ -158,10 +158,35 @@ public:
 
 private:
     GlyphFacts compute(std::uint32_t code) const;
-    mutable std::unordered_map<std::uint32_t, GlyphFacts> glyphs_;
-    mutable std::unordered_map<std::uint32_t, std::optional<std::u32string>> u32_;
-    mutable std::unordered_map<std::uint32_t, double> adv_;
     double compute_advance(std::uint32_t code) const;
+
+    // What the font knows about one character code, each part computed on its first request (the glyph facts
+    // load the font program, so their order follows the content, as in veraPDF). One record per code instead of one
+    // node in each of three maps.
+    struct CodeEntry {
+        GlyphFacts glyph;
+        std::optional<std::u32string> u32;
+        double advance = 0;
+        bool has_glyph = false, has_u32 = false, has_advance = false;
+    };
+    // The entry of a code. Every glyph asks three times (advance, Unicode, glyph facts): the entries asked for last
+    // are found through a small table indexed by the low bits of the code, without hashing.
+    CodeEntry& entry(std::uint32_t code) const {
+        if (!recent_) recent_.reset(new Recent[kRecent]());
+        Recent& r = recent_[code & (kRecent - 1)];
+        if (r.entry && r.code == code) return *r.entry;
+        CodeEntry& e = codes_[code];   // nodes of the map never move
+        r.code = code;
+        r.entry = &e;
+        return e;
+    }
+    struct Recent {
+        std::uint32_t code = 0;
+        CodeEntry* entry = nullptr;
+    };
+    static constexpr std::uint32_t kRecent = 128;   // no two ASCII codes share a slot
+    mutable std::unordered_map<std::uint32_t, CodeEntry> codes_;
+    mutable std::unique_ptr<Recent[]> recent_;
 };
 
 std::unique_ptr<VeraFont> load_vera_font(Document& doc, std::shared_ptr<DocCache> cache, const Obj& font_dict);
