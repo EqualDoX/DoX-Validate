@@ -221,16 +221,22 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
         res.diagnostics.push_back(std::string("content interpretation failed: ") + e.what());
     }
     res.content_ms = ms_since(tc);
+    std::vector<std::string> module_names;
+    for (const auto& m : modules) module_names.emplace_back(m->name());
     for (std::size_t i = 0; i < modules.size(); ++i) {
-        if (module_failed[i]) continue;
-        auto tm = std::chrono::steady_clock::now();
-        try {
-            modules[i]->run(ctx);
-        } catch (std::exception& e) {
-            module_failed[i] = true;
-            res.diagnostics.push_back(std::string(modules[i]->name()) + ": " + e.what());
+        if (!module_failed[i]) {
+            auto tm = std::chrono::steady_clock::now();
+            try {
+                modules[i]->run(ctx);
+            } catch (std::exception& e) {
+                module_failed[i] = true;
+                res.diagnostics.push_back(module_names[i] + ": " + e.what());
+            }
+            res.module_ms.push_back({module_names[i], ms_since(tm)});
         }
-        res.module_ms.push_back({modules[i]->name(), ms_since(tm)});
+        // A module's tables (and its observers' state) are not read after its run: released here, they do not add to
+        // what the modules still to run build up.
+        modules[i].reset();
     }
     // qpdf's repairs (damaged cross-reference table, broken objects or streams) are reported, so a result based
     // on a reconstructed file is recognisable as such (veraPDF refuses some of these files).
@@ -249,7 +255,7 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
             res.diagnostics.push_back("file structure: " + std::to_string(shown - 10) + " further qpdf warning(s)");
     }
     for (std::size_t i = 0; i < modules.size(); ++i) {
-        const std::string name = modules[i]->name();
+        const std::string& name = module_names[i];
         for (RuleIndex r : owned_rules(name)) {
             res.evaluated[r] = true;
             if (module_failed[i]) {
