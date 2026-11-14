@@ -101,8 +101,8 @@ std::uint32_t ContentTexts::intern(const TextStyle& style) {
         if (same_style(styles_[it->second], style)) return last_style_ = it->second;
     if (styles_.size() >= kStyleMask) throw std::length_error("content model: too many text styles");
     const std::uint32_t index = static_cast<std::uint32_t>(styles_.size());
-    style_index_.emplace(h, index);
     styles_.push_back(style);
+    style_index_.emplace(h, index);
     return last_style_ = index;
 }
 
