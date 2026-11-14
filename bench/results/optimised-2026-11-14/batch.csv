@@ -1,0 +1,13 @@
+block,rep,seq,variant,item,workers,n_files,pages,wall_s,user_s,sys_s,maxrss_kb,tree_rss_kb,exit,timeout,n_file_timeouts,n_ok,n_incomplete,n_failed,foreign_cpu_s,load1,report_bytes,problem,stderr_tail
+batch,0,1,dox,corpus x3,1,471,42003,18.468768,18.269262,0.162435,189244,,2,0,,444,3,24,0.828000,1.8759765625,66328802,,
+batch,0,2,dox-base,corpus x3,1,471,42003,39.985292,38.970396,0.933207,839880,,2,0,,444,3,24,1.706000,1.57763671875,66328482,,
+batch,0,3,vellum-ua1,corpus x3,1,471,42003,124.102062,124.430511,2.706360,591788,,2,0,,447,0,24,5.453000,1.3388671875,82698336,447 of 471 reports,"-byte.pdf' is not a valid PDF: Malformed PDF: startxref is missing, unusable, or does not point at a recognisable xref table or stream (ISO 32000-2 Annex C.4). Pass PdfReaderOptions.AllowReconstruction = true to PdfReader.Open to recover a document like this by scanning the file for object headers. | "
+batch,0,4,outloud-conf,corpus x3,1,471,42003,267.411222,266.392258,0.550839,1360040,,2,0,,450,0,21,13.366000,1.0576171875,71087926,,
+batch,1,5,dox-base,corpus x3,1,471,42003,39.999645,38.964939,0.956218,839892,,2,0,,444,3,24,1.808000,1.1474609375,66328553,,
+batch,1,6,vellum-ua1,corpus x3,1,471,42003,122.029596,122.260180,2.388470,578888,,2,0,,447,0,24,5.761000,1.20751953125,82698336,447 of 471 reports,"-byte.pdf' is not a valid PDF: Malformed PDF: startxref is missing, unusable, or does not point at a recognisable xref table or stream (ISO 32000-2 Annex C.4). Pass PdfReaderOptions.AllowReconstruction = true to PdfReader.Open to recover a document like this by scanning the file for object headers. | "
+batch,1,7,outloud-conf,corpus x3,1,471,42003,269.468745,268.425670,0.580750,1360148,,2,0,,450,0,21,11.433000,1.1181640625,71087915,,
+batch,1,8,dox,corpus x3,1,471,42003,18.492113,18.287108,0.170590,189060,,2,0,,444,3,24,0.832000,1.083984375,66328813,,
+batch,2,9,vellum-ua1,corpus x3,1,471,42003,123.158253,124.276940,1.871033,588328,,2,0,,447,0,24,5.072000,1.119140625,82698336,447 of 471 reports,"-byte.pdf' is not a valid PDF: Malformed PDF: startxref is missing, unusable, or does not point at a recognisable xref table or stream (ISO 32000-2 Annex C.4). Pass PdfReaderOptions.AllowReconstruction = true to PdfReader.Open to recover a document like this by scanning the file for object headers. | "
+batch,2,10,outloud-conf,corpus x3,1,471,42003,266.013964,264.932595,0.610439,1361744,,2,0,,450,0,21,11.906000,1.16259765625,71087954,,
+batch,2,11,dox,corpus x3,1,471,42003,18.428585,18.215741,0.177585,188908,,2,0,,444,3,24,0.806000,1.1259765625,66328802,,
+batch,2,12,dox-base,corpus x3,1,471,42003,39.814148,38.794918,0.937125,840292,,2,0,,444,3,24,1.567000,1.1865234375,66328555,,
