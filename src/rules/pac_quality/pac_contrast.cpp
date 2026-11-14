@@ -731,16 +731,27 @@ bool reduce_gray(const Obj& image, int max_side, int& w_out, int& h_out, std::ve
     SamplePipe pipe((std::size_t(*W) * std::size_t(bpc) + 7) / 8, sub, [&](const unsigned char* row, int y) {
         int yy = y / step;
         if (yy >= h_out) return;
-        const std::size_t base = std::size_t(yy) * std::size_t(w_out);
-        for (int x = 0; x < int(*W); x += sub) {
-            const std::size_t at = base + std::size_t(x / step);
+        // `at` is the reduced pixel of sample x, base + x / step, counted up with x (sub <= step: at most one step on)
+        std::size_t at = std::size_t(yy) * std::size_t(w_out);
+        int into = 0;   // x % step
+        const int width = int(*W);
+        if (bpc == 8) {   // sample_at(row, x, 8) == row[x]
+            for (int x = 0; x < width; x += sub) {
+                sum[at] += lut[row[x]];
+                ++count[at];
+                if ((into += sub) >= step) into -= step, ++at;
+            }
+            return;
+        }
+        for (int x = 0; x < width; x += sub) {
             sum[at] += lut[sample_at(row, x, bpc)];
             ++count[at];
+            if ((into += sub) >= step) into -= step, ++at;
         }
     });
     if (!pipe_samples(image, pipe)) return false;
     for (std::size_t i = 0; i < out.size(); ++i)
-        if (count[i]) out[i] = static_cast<unsigned char>((sum[i] + count[i] / 2) / count[i]);
+        if (count[i]) out[i] = static_cast<unsigned char>(rounded_mean(sum[i], count[i]));
     return true;
 }
 
@@ -885,33 +896,39 @@ bool reduce_samples(const Obj& image, int max_side, ReducedImage& out, std::int6
     SamplePipe pipe((std::size_t(*W) * std::size_t(n) * std::size_t(bpc) + 7) / 8, sub, [&](const unsigned char* row, int y) {
         int yy = y / step;
         if (yy >= out.h) return;
+        // `at` is the reduced pixel of sample x, row start + x / step, counted up with x (sub <= step: at most one step on)
+        std::size_t at = std::size_t(yy) * std::size_t(out.w);
+        int into = 0;   // x % step
+        const int width = int(*W);
         if (single) {
-            for (int x = 0; x < int(*W); x += sub) {
-                const std::size_t at = std::size_t(yy) * std::size_t(out.w) + std::size_t(x / step);
+            for (int x = 0; x < width; x += sub) {
                 const std::array<int, 3>& px = single_lut[sample_at(row, x, bpc)];
                 sum[at * 3] += std::uint32_t(px[0]), sum[at * 3 + 1] += std::uint32_t(px[1]), sum[at * 3 + 2] += std::uint32_t(px[2]);
                 ++count[at];
+                if ((into += sub) >= step) into -= step, ++at;
             }
             return;
         }
         if (table && bpc == 8) {   // the common case: one byte per sample (sample_at(row, i, 8) == row[i])
-            const std::size_t base = std::size_t(yy) * std::size_t(out.w);
-            for (int x = 0; x < int(*W); x += sub) {
-                const std::size_t at = base + std::size_t(x / step);
-                if (n == 1) {
+            if (n == 1) {
+                for (int x = 0; x < width; x += sub) {
                     const unsigned v = lut[0][row[x]];
                     sum[at * 3] += v, sum[at * 3 + 1] += v, sum[at * 3 + 2] += v;
-                } else {
+                    ++count[at];
+                    if ((into += sub) >= step) into -= step, ++at;
+                }
+            } else {
+                for (int x = 0; x < width; x += sub) {
                     const unsigned char* px = row + std::size_t(x) * 3;
                     sum[at * 3] += lut[0][px[0]], sum[at * 3 + 1] += lut[1][px[1]], sum[at * 3 + 2] += lut[2][px[2]];
+                    ++count[at];
+                    if ((into += sub) >= step) into -= step, ++at;
                 }
-                ++count[at];
             }
             return;
         }
         if (table) {
-            for (int x = 0; x < int(*W); x += sub) {
-                const std::size_t at = std::size_t(yy) * std::size_t(out.w) + std::size_t(x / step);
+            for (int x = 0; x < width; x += sub) {
                 if (n == 1) {
                     const unsigned v = lut[0][sample_at(row, x, bpc)];
                     sum[at * 3] += v, sum[at * 3 + 1] += v, sum[at * 3 + 2] += v;
@@ -919,10 +936,11 @@ bool reduce_samples(const Obj& image, int max_side, ReducedImage& out, std::int6
                     for (int k = 0; k < 3; ++k) sum[at * 3 + std::size_t(k)] += lut[std::size_t(k)][sample_at(row, x * n + k, bpc)];
                 }
                 ++count[at];
+                if ((into += sub) >= step) into -= step, ++at;
             }
             return;
         }
-        for (int x = 0; x < int(*W); x += sub) {
+        for (int x = 0; x < width; x += sub) {
             std::uint32_t key = 0;
             for (int k = 0; k < n && k < 32; ++k) {
                 const auto raw = sample_at(row, x * n + k, bpc);
@@ -939,17 +957,17 @@ bool reduce_samples(const Obj& image, int max_side, ReducedImage& out, std::int6
                 px = {int(to8(rgb[0])), int(to8(rgb[1])), int(to8(rgb[2]))};
                 if (slot) *slot = MemoSlot{key, true, px};
             }
-            const std::size_t at = std::size_t(yy) * std::size_t(out.w) + std::size_t(x / step);
             sum[at * 3] += std::uint32_t(px[0]);
             sum[at * 3 + 1] += std::uint32_t(px[1]);
             sum[at * 3 + 2] += std::uint32_t(px[2]);
             ++count[at];
+            if ((into += sub) >= step) into -= step, ++at;
         }
     });
     if (!pipe_samples(image, pipe)) return fail("image data");
     for (std::size_t i = 0; i < count.size(); ++i)
         if (count[i])
-            for (std::size_t k = 0; k < 3; ++k) out.rgb[i * 3 + k] = static_cast<unsigned char>((sum[i * 3 + k] + count[i] / 2) / count[i]);
+            for (std::size_t k = 0; k < 3; ++k) out.rgb[i * 3 + k] = static_cast<unsigned char>(rounded_mean(sum[i * 3 + k], count[i]));
     return true;
 }
 
@@ -1023,13 +1041,18 @@ bool reduce_image(const Obj& image, int max_side, ReducedImage& out, std::string
             out.w = nw, out.h = nh;
         }
         out.alpha.assign(std::size_t(out.w) * std::size_t(out.h), 255);
-        for (int y = 0; y < out.h; ++y)
+        std::vector<int> mask_x(std::size_t(out.w));   // the mask column of every image column: the same for each row
+        for (int x = 0; x < out.w; ++x) mask_x[std::size_t(x)] = std::min(w - 1, int((x + 0.5) * w / out.w));
+        for (int y = 0; y < out.h; ++y) {
+            const int my = std::min(h - 1, int((y + 0.5) * h / out.h));
+            const unsigned char* mask_row = &g[std::size_t(my) * std::size_t(w)];
+            unsigned char* alpha_row = &out.alpha[std::size_t(y) * std::size_t(out.w)];
             for (int x = 0; x < out.w; ++x) {
-                int mx = std::min(w - 1, int((x + 0.5) * w / out.w)), my = std::min(h - 1, int((y + 0.5) * h / out.h));
-                unsigned char v = g[std::size_t(my) * std::size_t(w) + std::size_t(mx)];
+                unsigned char v = mask_row[mask_x[std::size_t(x)]];
                 // an explicit /Mask: sample 1 (after /Decode) is masked out; a /SMask holds the alpha itself
-                out.alpha[std::size_t(y) * std::size_t(out.w) + std::size_t(x)] = stencil ? static_cast<unsigned char>(255 - v) : v;
+                alpha_row[x] = stencil ? static_cast<unsigned char>(255 - v) : v;
             }
+        }
     } else if (auto key = cos::array_items(cos::get(image, "Mask")); key.size() >= std::size_t(2 * n) && !name_is_jpx(image)) {
         // Colour-key masking needs the original samples: re-read sparsely.
         std::vector<unsigned> lo, hi;

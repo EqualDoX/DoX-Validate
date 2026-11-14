@@ -10,6 +10,8 @@
 // reduced while they are decoded.
 #pragma once
 
+#include <array>
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -46,6 +48,20 @@ bool contrast_gave_up(const ContentObserver& observer);
 
 // Pure helpers (unit-tested).
 double wcag_contrast(const float a[3], const float b[3]);
+
+// (sum + count / 2) / count, the rounded mean of `count` samples (count >= 1): what the image reduction stores per
+// reduced pixel and channel. For the sums and counts that occur there (count <= 255, sum below 2^16) one multiplication
+// by ceil(2^32 / count) replaces the division: with s = sum + count / 2 < 2^17 and e = count * ceil(2^32 / count) - 2^32
+// < count, floor(s * ceil(2^32 / count) / 2^32) = floor(s / count) because s * e < 2^32.
+inline unsigned rounded_mean(unsigned sum, unsigned count) {
+    static constexpr auto reciprocal = [] {
+        std::array<std::uint64_t, 256> t{};
+        for (unsigned c = 1; c < 256; ++c) t[c] = ((std::uint64_t(1) << 32) + c - 1) / c;
+        return t;
+    }();
+    if (count >= 256 || sum >= (1u << 16)) return (sum + count / 2) / count;
+    return static_cast<unsigned>(((std::uint64_t(sum) + count / 2) * reciprocal[count]) >> 32);
+}
 
 // Reduced image: rgb (3 bytes per pixel, row 0 = top of the image), optional alpha.
 struct ReducedImage {
