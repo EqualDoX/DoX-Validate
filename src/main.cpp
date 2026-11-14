@@ -119,6 +119,15 @@ constexpr bool kSanitized = true;   // the sanitizers' shadow memory does not fi
 constexpr bool kSanitized = false;
 #endif
 
+// A normal build ends the process as soon as the reports are written (see the end of real_main). Builds that must see
+// every object destroyed and every exit handler run return from main instead: sanitizer builds, and builds compiled
+// with -DDOX_FULL_TEARDOWN (coverage counters, leak checks with other tools).
+#if defined(DOX_FULL_TEARDOWN)
+constexpr bool kFullTeardown = true;
+#else
+constexpr bool kFullTeardown = kSanitized;
+#endif
+
 // Every validation runs on a stack of this size, whatever RLIMIT_STACK says (8 MiB, 16 MiB, unlimited = 2 MiB threads):
 // the recursion limits of the interpreter and the structure walkers (ARCHITECTURE.md section 3) are sized for it.
 constexpr std::size_t kStackBytes = std::size_t(256) << 20;
@@ -280,7 +289,7 @@ static int real_main(int argc, char** argv) {
     else if (legacy_name || !opt.rule_prefix.empty()) basis.mode = ResultBasis::Mode::Any;
     if (jobs == 0) jobs = files.size() > 1 ? std::max(1u, std::thread::hardware_concurrency()) : 1;
     // A one-file run ends with this file's report: nothing has to be torn down before the process exits.
-    opt.process_exits_after = files.size() == 1 && !kSanitized;
+    opt.process_exits_after = files.size() == 1 && !kFullTeardown;
     std::vector<std::unique_ptr<Result>> results(files.size());
     std::atomic<std::size_t> next{0};
     auto worker = [&]() {
@@ -327,9 +336,9 @@ static int real_main(int argc, char** argv) {
     }
     // The reports are written and the exit status is known. What is left is giving memory back piece by piece (the
     // results, and with one file the document's models, see Options::process_exits_after) and the destructors of
-    // static objects; the operating system does that at once. Sanitizer builds return normally, so that their leak
-    // check sees every object released.
-    if (!kSanitized) {
+    // static objects; the operating system does that at once. Builds with kFullTeardown return normally, so that a
+    // leak check sees every object released and exit handlers (coverage counters) run.
+    if (!kFullTeardown) {
         std::fflush(stderr);
         std::_Exit(status);
     }

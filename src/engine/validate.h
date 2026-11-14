@@ -29,7 +29,8 @@ struct Options {
     int max_pages = 0;
     // The process exits as soon as this file is reported (a one-file run): the document, its models and qpdf's
     // objects are then left to the operating system instead of being destroyed one by one, which takes about a
-    // tenth of the run on a large document. Never set when another validation follows, or in sanitizer builds.
+    // tenth of the run on a large document. Never set when another validation follows, or in builds that must see
+    // everything destroyed (sanitizers, -DDOX_FULL_TEARDOWN).
     bool process_exits_after = false;
 };
 
