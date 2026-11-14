@@ -88,6 +88,35 @@ struct GlyphKeyHash {
     }
 };
 
+// Which glyph checks a character code already had in one stream instance with one font (the dedup keys (font, code,
+// stream, class) of the glyph rules): a byte of flags per code, so a repeated glyph costs one array read instead of a
+// hash-set insert per key. A stream instance gets its operators between its first operator and on_stream_end only, so
+// the tables of a stream are dropped when it ends.
+struct SeenCodes {
+    static constexpr std::uint8_t kShown = 1;        // class 0: shown with a rendering mode other than 3
+    static constexpr std::uint8_t kShownTr3 = 2;     // class 1: shown with rendering mode 3
+    static constexpr std::uint8_t kProgram = 4;      // class 4: presence and width compared with the font program
+    static constexpr std::uint8_t kPua = 8;          // the code maps to a Private Use Area value (ISO 32000-2 flavour)
+
+    const VeraFont* font = nullptr;
+    std::vector<std::unique_ptr<std::uint8_t[]>> pages;      // codes below 0x10000: 256 flags per page, by code >> 8
+    std::unordered_map<std::uint32_t, std::uint8_t> wide;    // longer codes
+    std::unordered_set<std::uint64_t> pua;                   // (code, frame) pairs whose PUA check ran (class 16 + frame)
+
+    std::uint8_t& at(std::uint32_t code) {
+        if (code >= 0x10000) return wide[code];
+        const std::size_t p = code >> 8;
+        if (p >= pages.size()) pages.resize(p + 1);
+        if (!pages[p]) pages[p] = std::make_unique<std::uint8_t[]>(256);   // value-initialised: no flag set
+        return pages[p][code & 0xFF];
+    }
+};
+
+struct StreamSeen {
+    int si = -1;
+    std::vector<std::unique_ptr<SeenCodes>> fonts;
+};
+
 class Module final : public RuleModule, public ContentObserver {
 public:
     const char* name() const override { return "fonts"; }
@@ -101,19 +130,23 @@ public:
         if (si < 0) return;
         if (ctx_->reference_dedup && m.streams[static_cast<std::size_t>(si)].repeat) return;
         if (static_cast<std::size_t>(si) >= frames_.size()) frames_.resize(static_cast<std::size_t>(si) + 1);
-        const std::string_view o = op.op;
-        if (o == "BMC" || o == "BDC") {
+        const Op oc = op.code;
+        if (oc == Op::BMC || oc == Op::BDC) {
             // the interpreter creates exactly one frame per BMC/BDC, right after this callback
             frames_[static_cast<std::size_t>(si)].push_back(static_cast<int>(m.frames.size()));
             return;
         }
-        if (o == "EMC") {
+        if (oc == Op::EMC) {
             auto& st = frames_[static_cast<std::size_t>(si)];
             if (!st.empty()) st.pop_back();
             return;
         }
-        if (o != "Tj" && o != "TJ" && o != "'" && o != "\"") return;
-        const auto* font = dynamic_cast<const VeraFont*>(gs.font);
+        if (oc != Op::Tj && oc != Op::TJ && oc != Op::quote && oc != Op::dquote) return;
+        if (gs.font != cast_from_) {   // text operators come in runs of one font: one dynamic_cast per change
+            cast_from_ = gs.font;
+            cast_to_ = dynamic_cast<const VeraFont*>(gs.font);
+        }
+        const VeraFont* font = cast_to_;
         if (!font) return;
         if (font->vkind == VeraKind::None) {
             if (font->kind == FontKind::Type0) type0_without_encoding_ = true;
@@ -126,14 +159,30 @@ public:
         if (a.empty()) return;
         // The " operator's string is its last operand: veraPDF's first-operand reading misses that text
         // (--reference-dedup keeps it), so text shown this way gets no glyph check there.
-        const Operand& first = !ctx_->reference_dedup && o == "\"" ? a.back() : a.front();
+        const Operand& first = !ctx_->reference_dedup && oc == Op::dquote ? a.back() : a.front();
         const StreamInstance& s = m.streams[static_cast<std::size_t>(si)];
         const auto& fst = frames_[static_cast<std::size_t>(si)];
         int frame = fst.empty() ? -1 : fst.back();
+        SeenCodes* seen = nullptr;   // looked up at the first glyph: an operator without codes makes no table
+        // The classes a code of this operator belongs to (see glyph); without --reference-dedup they are the same for
+        // every code, so a code that had them all (and is no PUA candidate in real content) is passed over right here.
+        const bool same_classes = !ctx_->reference_dedup;
+        const std::uint8_t classes = gs.tr == 3 ? SeenCodes::kShownTr3 : (SeenCodes::kShown | SeenCodes::kProgram);
+        const std::uint8_t pua_bit = s.semantic ? SeenCodes::kPua : 0;
         auto show = [&](const std::string& bytes) {
             codes_.clear();
             font->vera_codes(bytes, codes_);
-            for (const CharCode& c : codes_) glyph(m, s, si, frame, font, c.code, gs.tr, raw_ok);
+            if (codes_.empty()) return;
+            if (!seen) seen = &seen_codes(si, font);
+            const std::uint8_t* low = seen->pages.empty() ? nullptr : seen->pages[0].get();   // flags of the codes below 256
+            for (const CharCode& c : codes_) {
+                if (same_classes) {
+                    const std::uint8_t fl = low && c.code < 256 ? low[c.code] : seen->at(c.code);
+                    if ((fl & classes) == classes && !(fl & pua_bit)) continue;
+                }
+                glyph(m, s, si, frame, font, c.code, gs.tr, raw_ok, *seen);
+                low = seen->pages.empty() ? nullptr : seen->pages[0].get();   // glyph() may have made the page
+            }
         };
         if (first.type == Operand::String) show(first.s);
         else if (first.type == Operand::Array)
@@ -143,6 +192,13 @@ public:
 
     void on_stream_end(const ContentModel&, int si) override {
         if (si >= 0 && static_cast<std::size_t>(si) < frames_.size()) frames_[static_cast<std::size_t>(si)].clear();
+        // no operator of this stream instance follows: its dedup tables are not needed any more
+        for (std::size_t k = active_.size(); k-- > 0;)
+            if (active_[k].si == si) {
+                active_.erase(active_.begin() + static_cast<std::ptrdiff_t>(k));
+                break;
+            }
+        seen_last_ = nullptr;
     }
 
     void run(ValidationContext& ctx) override {
@@ -245,13 +301,46 @@ private:
 
     void register_use(const VeraFont* f, int tr, int si) {
         f->ensure_program();   // veraPDF creates (and caches) font programs at the first text-showing operator
-        auto it = use_index_.find(f);
-        if (it == use_index_.end()) {
-            use_index_.emplace(f, uses_.size());
-            uses_.push_back(Use{f, tr, tr != 3, si});
-        } else if (tr != 3) {
-            uses_[it->second].any_rendered = true;
+        if (f != use_last_font_) {
+            auto it = use_index_.find(f);
+            if (it == use_index_.end()) {
+                it = use_index_.emplace(f, uses_.size()).first;
+                uses_.push_back(Use{f, tr, tr != 3, si});
+            }
+            use_last_font_ = f;
+            use_last_ = it->second;
         }
+        if (tr != 3) uses_[use_last_].any_rendered = true;
+    }
+
+    // The dedup table of (stream instance, font). Streams nest, so the stream is nearly always the innermost one.
+    SeenCodes& seen_codes(int si, const VeraFont* f) {
+        if (seen_last_ && seen_last_si_ == si && seen_last_->font == f) return *seen_last_;
+        StreamSeen* st = nullptr;
+        for (std::size_t k = active_.size(); k-- > 0;)
+            if (active_[k].si == si) {
+                st = &active_[k];
+                break;
+            }
+        if (!st) {
+            active_.emplace_back();
+            st = &active_.back();
+            st->si = si;
+        }
+        SeenCodes* sc = nullptr;
+        for (const auto& t : st->fonts)
+            if (t->font == f) {
+                sc = t.get();
+                break;
+            }
+        if (!sc) {
+            st->fonts.push_back(std::make_unique<SeenCodes>());
+            sc = st->fonts.back().get();
+            sc->font = f;
+        }
+        seen_last_ = sc;
+        seen_last_si_ = si;
+        return *sc;
     }
 
     void report_glyph(RuleIndex a, RuleIndex b, const StreamInstance& s, const VeraFont* f, std::uint32_t code,
@@ -261,34 +350,49 @@ private:
         if (b != kNoRule) ctx_->report(b, s.page, s.ref, d);
     }
 
-    // Dedup key classes (GlyphKey::extra): 0 / 1 rendering mode not 3 / 3, 4 program facts, 16 + frame PUA.
+    // Dedup key classes per (font, code, stream): 0 / 1 rendering mode not 3 / 3, 4 program facts, 16 + frame PUA
+    // (SeenCodes: kShown / kShownTr3, kProgram, the `pua` set). `seen` is the table of (si, f).
     void glyph(const ContentModel& m, const StreamInstance& s, int si, int frame, const VeraFont* f,
-               std::uint32_t code, int tr, bool raw_ok) {
-        const Rules& r = rules();
+               std::uint32_t code, int tr, bool raw_ok, SeenCodes& seen) {
         const bool tr3 = tr == 3;
         const bool real = s.semantic;
-        const GlyphFacts& g = f->glyph(code);
+        const GlyphFacts* gp = nullptr;
         // --reference-dedup: GFGlyph computes presence and widths only when its raw font instance was marked
         // successfully parsed when the glyph object was created (glyph ids: font, code, rendering mode, marked
         // content, stream); a reused glyph object keeps that state.
         bool facts = true;
-        if (ctx_->reference_dedup)
+        if (ctx_->reference_dedup) {
+            gp = &f->glyph(code);
             facts = glyph_objects_.emplace(GlyphKey{f, code, frame >= 0 ? -1 : si, frame >= 0 ? frame * 8 + tr : tr},
                                            raw_ok).first->second;
-        if (!tr3 && facts && seen_.insert(GlyphKey{f, code, si, 4}).second) {
+        }
+        std::uint8_t& fl = seen.at(code);
+        const std::uint8_t shown = tr3 ? SeenCodes::kShownTr3 : SeenCodes::kShown;
+        const bool program = !tr3 && facts && !(fl & SeenCodes::kProgram);
+        const bool first_shown = !(fl & shown);
+        // Nothing left for this code: each of its classes was evaluated in this stream, and it is no PUA candidate
+        // (kPua is known once any class was evaluated: the glyph facts are read before a flag is set).
+        if (!program && !first_shown && !(real && (fl & SeenCodes::kPua))) return;
+        const Rules& r = rules();
+        const GlyphFacts& g = gp ? *gp : f->glyph(code);
+        if (g.has_unicode20 && g.unicode_pua20) fl |= SeenCodes::kPua;
+        if (program) {
+            fl |= SeenCodes::kProgram;
             if (g.present && !*g.present) report_glyph(r.glyph1, r.glyph2, s, f, code, "glyph missing:");
             // The rule is |a - b| <= 1: a NaN width (a broken unitsPerEm) does not satisfy it.
             if (g.width_program && g.width_dictionary && !(std::fabs(*g.width_program - *g.width_dictionary) <= 1))
                 report_glyph(r.width1, r.width2, s, f, code, "width mismatch:");
         }
-        if (seen_.insert(GlyphKey{f, code, si, tr3 ? 1 : 0}).second) {
+        if (first_shown) {
+            fl |= shown;
             if (!g.has_unicode) report_glyph(r.unicode1, kNoRule, s, f, code, "no Unicode mapping:");
             else if (g.unicode_invalid) report_glyph(r.badunicode1, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
             if (!g.has_unicode20) report_glyph(r.unicode2, kNoRule, s, f, code, "no Unicode mapping:");
             else if (g.unicode_invalid20) report_glyph(r.badunicode2, kNoRule, s, f, code, "Unicode 0/FFFE/FEFF:");
             if (g.name == GlyphFacts::Name::Notdef) report_glyph(r.notdef1, r.notdef2, s, f, code, ".notdef glyph:");
         }
-        if (real && g.has_unicode20 && g.unicode_pua20 && seen_.insert(GlyphKey{f, code, si, 16 + frame}).second) {
+        if (real && g.has_unicode20 && g.unicode_pua20 &&
+            seen.pua.insert((static_cast<std::uint64_t>(code) << 32) | static_cast<std::uint32_t>(frame)).second) {
             if (!actual_or_alt(m, s, frame)) report_glyph(r.pua, kNoRule, s, f, code, "PUA without ActualText/Alt:");
         }
     }
@@ -454,7 +558,13 @@ private:
     std::vector<std::vector<int>> frames_;
     std::vector<Use> uses_;
     std::unordered_map<const VeraFont*, std::size_t> use_index_;
-    std::unordered_set<GlyphKey, GlyphKeyHash> seen_;
+    const VeraFont* use_last_font_ = nullptr;   // the font of the last register_use and its index in uses_
+    std::size_t use_last_ = 0;
+    const Font* cast_from_ = nullptr;           // the last GState font and what it casts to
+    const VeraFont* cast_to_ = nullptr;
+    std::vector<StreamSeen> active_;            // dedup tables of the stream instances being interpreted (a stack)
+    SeenCodes* seen_last_ = nullptr;            // the table used last, of stream seen_last_si_
+    int seen_last_si_ = -1;
     // --reference-dedup: veraPDF's raw font objects. PDResources builds one org.verapdf.pd.font.PDFont per
     // resource dictionary instance and name; FontFactory caches the validation font object per (font
     // dictionary, rendering mode) and only its constructor marks the raw font it was built from as successfully
