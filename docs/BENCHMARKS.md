@@ -82,7 +82,7 @@ checked and excluded. No numbers are reported for them.
 
 | tool | vendor | reason for exclusion |
 |---|---|---|
-| PAC 2024 / PAC 2026 | axes4 / PDF/UA Foundation | Windows-only GUI (.NET); no command-line or batch interface. axes4 points automation users to its commercial axesSense / PAC engine API. Running it would need Wine plus GUI automation; there is no official Wine support. |
+| PAC 2024 / PAC 2026 | axes4 / PDF/UA Foundation | Windows-only GUI (.NET); no command-line or batch interface. See [PAC (PDF Accessibility Checker)](#pac-pdf-accessibility-checker) below. |
 | axesCheck | axes4 | Web upload form only, no API. Run time would mostly measure the network. |
 | axesSense / PAC engine API | axes4 | Commercial REST service, available on request (no public trial). Cloud-based, so not a local performance comparison. |
 | callas pdfToolbox CLI/Server | callas software | Linux CLI exists but is commercial; only a time-limited trial licence is available. Its EULA was not checked for benchmark-publication terms, and its PDF/UA profile coverage was not verified. Not run. |
@@ -99,6 +99,69 @@ checked and excluded. No numbers are reported for them.
 | pdf-a11y (PyPI), PDF4WCAG | — | Remediation tools or front ends that use veraPDF for validation. |
 | Apache PDFBox Preflight, qpdf `--check`, pdfcpu `validate` | open source | Not accessibility validators (PDF/A-1b or syntax checks only). |
 | Ace by DAISY, Tingtun/EIII checker | — | EPUB only, or web service only. |
+
+### PAC (PDF Accessibility Checker)
+
+PAC is the most direct counterpart to dox-validate's PAC-equivalent checks. It was investigated in detail (2026-11-14).
+No PAC numbers are reported, for the reasons below.
+
+**Version and interface.** The current release is **PAC 2026.1 (26.1.0.0)**, free of charge from
+pac.pdf-accessibility.org, for Windows only (it requires .NET Framework 4.8).
+
+- PAC is an interactive GUI that checks one document at a time. It ignores file arguments on the command line.
+  Documents are opened only through its "Open document" dialog, and the results are shown in the window or exported
+  as a PDF report by further clicks.
+- It has no batch mode and no machine-readable output.
+- axes4 offers automated checking with the PAC engine as a separate commercial product: a REST API with JSON results
+  (axesPAC / axesSense). That would measure a hosted service rather than a local validator.
+
+**Licence.** axes4's General Terms, which replace the end-user licence agreement of PAC 2024, have these relevant
+clauses:
+
+- They prohibit reverse engineering, decompiling and modification, as well as offering PAC as a commercial hosting
+  service.
+- They contain no clause on GUI automation, benchmarking, publishing results, or running PAC on other operating
+  systems.
+
+Nothing was reverse-engineered or modified for this investigation.
+
+**Environment.** No Windows machine was available for this benchmark. PAC 2026.1 does start on the benchmark host
+(Arch Linux) under Wine 11.20 Staging, with the official installer and .NET Framework 4.8 in a dedicated prefix.
+axes4 provides PAC for Windows only.
+
+**Feasibility check under Wine.** PAC was driven through its own GUI, with Windows UI Automation and simulated input,
+on a hidden display. The check showed that a benchmark run this way would not be reliable or comparable:
+
+- **Input.** Submitting files through the "Open document" dialog was unreliable under Wine. Typed paths changed their
+  letter case, the file-name field kept the previous entry, and the resulting error dialogs stopped unattended runs.
+- **Completion.** PAC gives no signal when a check is finished. The end can only be inferred from the GUI or from
+  the process's CPU activity. Either way, PAC's own rendering of thumbnails and result views is included.
+- **Run time.** Every timing would include Wine's translation layer. It would describe PAC under Wine on Linux, not
+  PAC as distributed and used on Windows.
+- **Memory.** Under Wine the PAC process already held about 1.5 GB resident before checking the first document. Its
+  peak memory therefore cannot be compared with that of a command-line validator.
+- **Parallelism.** The GUI processes one document at a time, so parallel throughput cannot be measured.
+- **PDF 2.0.** PAC 2026 does not support PDF 2.0; it checks such files as PDF/UA-1. The corpus's PDF 2.0 files would
+  need to be left out.
+
+**Scope.** Each PAC check covers the following:
+
+- its PDF/UA tab: PDF/UA-1 via the Matterhorn Protocol;
+- its WCAG tab;
+- its Quality tab;
+- in PAC 2026, AI-assisted checks.
+
+A full dox-validate run includes checks that mirror PAC's PDF/UA, WCAG and Quality checks. It also checks PDF/UA-2
+and WTPDF. Neither tool runs the other.
+
+**What a valid comparison would need:**
+
+- a Windows 10/11 x64 machine of a comparable hardware class, or a VM with a fixed CPU allocation;
+- PAC 2026.1, the same corpus without the PDF 2.0 files, and one warm PAC instance checking the documents
+  sequentially;
+- explicit completion detection on the result view through UI Automation, and five interleaved repetitions;
+- peak memory taken from the PAC process's peak working set, relative to its idle working set, and reported
+  separately from dox-validate's per-process peak resident memory.
 
 ## Environment
 

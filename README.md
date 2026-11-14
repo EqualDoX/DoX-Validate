@@ -231,6 +231,9 @@ How to read these numbers:
   long-running process, the per-document validation times of the two tools differ by about 3.9×.
 - **cpdf is comparable on small files.** Its PDF/UA-1 verifier, which covers only part of PDF/UA-1, is about as fast
   as dox-validate there.
+- **PAC was not benchmarked.** PAC is a Windows-only GUI with no command-line or batch interface, and no Windows
+  machine was available. A run under Wine would not measure PAC as distributed. The details, and what a valid
+  comparison would need, are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md#pac-pdf-accessibility-checker).
 - **Speed is not validation quality.** Correctness is tested separately, against expectations that do not come from
   any tool ([tests/corpus/CORRECTNESS.md](tests/corpus/CORRECTNESS.md)).
 - **Measured commit.** The benchmark ran on commit `f37a695`. The published 0.2.0 gives the same exit codes and
