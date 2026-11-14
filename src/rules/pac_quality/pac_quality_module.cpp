@@ -458,7 +458,12 @@ public:
             // record is full; no detail of this rule starts with "PAC:").
             for (const pacc::ContrastMeasure& f : pacc::contrast_findings(*contrast_)) {
                 if (ctx.findings.saturated(rc)) ctx.report(rc, f.page, f.obj);
-                else ctx.report(rc, f.page, f.obj, f.detail(ctx.content));
+                else ctx.report(rc, f.page, f.obj, f.detail(pacc::contrast_text(*contrast_, f)));
+            }
+            for (std::uint64_t n = pacc::contrast_findings_counted(*contrast_); n > 0; --n) {
+                if (!ctx.findings.saturated(rc) && ctx.findings.max_locations() != 0)
+                    throw std::logic_error("text contrast: a finding without its detail meets a record that is not full");
+                ctx.report(rc, -1, ObjRef{});
             }
         }
         static const RuleIndex ru = R("EQX-UA1-7.21.7-1");
@@ -1255,44 +1260,12 @@ private:
         // the lines above them are inside the band), RW-04 / art_form_inside / art_form_wm: text of a form in an artifact is
         // not flagged, art_form_own: an artifact inside the form is. Band: see in_margin_band.
         if (contrast_) {
+            // (the engine keeps only the pieces in the page body, pacc::artifact_in_body)
             for (const pacc::ArtifactTextPiece& a : pacc::artifact_text_pieces(*contrast_)) {
-                if (a.page < 0 || a.page >= int(pages.size()) || in_margin_band(pages[a.page], a.box)) continue;
-                // outside the crop box there is no page body (a real-world sample: a spread cropped to one
-                // page, 99 artifact pieces on the invisible half, PAC: none)
-                if (!a.box.intersects(pages[a.page].crop_box)) continue;
+                if (!pacc::artifact_in_body(pages, a.page, a.box)) continue;
                 ctx_->report(kArtifact, a.page, a.obj, "artifact text \"" + a.text + "\" in the page body");
             }
         }
-    }
-
-    // True when the box lies entirely inside the top or the bottom 14.8 % of the page as displayed (/Rotate).
-    // Evidence (boxes of -0.2 .. 0.8 em, 11 pt text; PAC runs of the a_*, b_*, d_* probes): A4 top: box bottom 124.2 pt not
-    // flagged, 126.2 pt flagged; A4 bottom: box top 120.8 pt not flagged, 124.8 pt flagged; landscape (595 pt) bottom: box top
-    // 88.8 pt flagged. All fit one share of the page height between 14.75 % and 14.82 %.
-    static bool in_margin_band(const Page& pg, const Rect& b) {
-        const Rect& c = pg.crop_box;
-        double from_top_min, from_top_max, extent;   // distances from the displayed top edge
-        int rot = ((pg.rotate % 360) + 360) % 360;
-        if (rot == 90) {
-            extent = c.width();
-            from_top_min = b.llx - c.llx;
-            from_top_max = b.urx - c.llx;
-        } else if (rot == 180) {
-            extent = c.height();
-            from_top_min = b.lly - c.lly;
-            from_top_max = b.ury - c.lly;
-        } else if (rot == 270) {
-            extent = c.width();
-            from_top_min = c.urx - b.urx;
-            from_top_max = c.urx - b.llx;
-        } else {
-            extent = c.height();
-            from_top_min = c.ury - b.ury;
-            from_top_max = c.ury - b.lly;
-        }
-        if (extent <= 0) return false;
-        const double band = 0.148 * extent;
-        return from_top_max <= band || from_top_min >= extent - band;   // entirely inside a band
     }
 
     // --- language of alternative, actual and expansion texts (PDF/UA tab) ---------------------------

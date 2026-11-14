@@ -34,14 +34,48 @@ struct ContrastMeasure {
     double ratio = 0;                   // the contrast measured
     double size_user = 0;               // the text size in pt
     double need = 0;                    // the contrast asked for (3.0 for large text, else 4.5)
-    int text = -1;                      // the text run (ContentModel::texts)
+    // The text of the run as the detail shows it (contrast_text).
+    static constexpr std::uint32_t kNoText = 0xffffffffu;
+    std::uint32_t text = kNoText;
     unsigned char fg[3] = {0, 0, 0}, bg[3] = {0, 0, 0};
     bool rendered = false;              // the background was measured on the rendering
     bool large = false;
-    std::string detail(const ContentModel& cm) const;
+    std::string detail(const std::string& run_text) const;
 };
 
-// Text in an /Artifact sequence (PAC's text pieces, see pac_contrast.cpp).
+// True when the box lies entirely inside the top or the bottom 14.8 % of the page as displayed (/Rotate).
+// Evidence (boxes of -0.2 .. 0.8 em, 11 pt text; PAC runs of the a_*, b_*, d_* probes): A4 top: box bottom 124.2 pt not
+// flagged, 126.2 pt flagged; A4 bottom: box top 120.8 pt not flagged, 124.8 pt flagged; landscape (595 pt) bottom: box top
+// 88.8 pt flagged. All fit one share of the page height between 14.75 % and 14.82 %.
+inline bool in_margin_band(const Page& pg, const Rect& b) {
+    const Rect& c = pg.crop_box;
+    double from_top_min, from_top_max, extent;   // distances from the displayed top edge
+    int rot = ((pg.rotate % 360) + 360) % 360;
+    if (rot == 90) {
+        extent = c.width();
+        from_top_min = b.llx - c.llx;
+        from_top_max = b.urx - c.llx;
+    } else if (rot == 180) {
+        extent = c.height();
+        from_top_min = b.lly - c.lly;
+        from_top_max = b.ury - c.lly;
+    } else if (rot == 270) {
+        extent = c.width();
+        from_top_min = c.urx - b.urx;
+        from_top_max = c.urx - b.llx;
+    } else {
+        extent = c.height();
+        from_top_min = c.ury - b.ury;
+        from_top_max = c.ury - b.lly;
+    }
+    if (extent <= 0) return false;
+    const double band = 0.148 * extent;
+    return from_top_max <= band || from_top_min >= extent - band;   // entirely inside a band
+}
+
+// Text in an /Artifact sequence (PAC's text pieces, see pac_contrast.cpp) that lies in the page body: on a page of the
+// document, not entirely inside a margin band, inside the crop box (artifact_in_body). Only those are kept: the
+// pieces of running headers and footers, most of all artifact text, are never reported.
 struct ArtifactTextPiece {
     int page = -1;
     ObjRef obj;
@@ -55,6 +89,13 @@ class ContrastEngine;
 std::unique_ptr<ContentObserver> make_contrast_observer(ValidationContext& ctx);
 // The findings gathered during interpretation (the observer made by make_contrast_observer).
 const std::vector<ContrastMeasure>& contrast_findings(const ContentObserver& observer);
+// The text for the detail of one of them; std::logic_error when it was not kept (ContrastMeasure::text).
+const std::string& contrast_text(const ContentObserver& observer, const ContrastMeasure& m);
+// Findings after those of contrast_findings that are only counted: the record of the rule is full when they are
+// reported (after the others), so nothing of them but their number is kept.
+std::uint64_t contrast_findings_counted(const ContentObserver& observer);
+// Whether an artifact text piece with this box on this page (0-based) is in the page body.
+bool artifact_in_body(const std::vector<Page>& pages, int page, const Rect& box);
 const std::vector<ArtifactTextPiece>& artifact_text_pieces(const ContentObserver& observer);
 // Operators naming a resource that does not exist.
 const std::vector<ContrastFinding>& missing_resources(const ContentObserver& observer);

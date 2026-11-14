@@ -1781,6 +1781,8 @@ public:
     void on_glyph(const ContentModel& cm, const GlyphEvent& ev) override;
 
     std::vector<ContrastMeasure> findings;
+    std::vector<std::string> finding_texts;   // ContrastMeasure::text
+    std::uint64_t findings_counted = 0;       // contrast_findings_counted
     std::vector<ArtifactTextPiece> artifact_pieces;
     std::vector<ContrastFinding> missing_res;   // PAC closes such a document
     bool gave_up = false;   // a page exceeded the geometry or pixel budget and was not judged
@@ -1803,6 +1805,13 @@ private:
     const Font* code_text_font_ = nullptr;                          // the font used last and its pages
     const std::unique_ptr<CodeText[]>* code_text_pages_ = nullptr;
     std::size_t code_text_npages_ = 0;
+
+    // A finding: the measure goes into `findings` with the text of its run. The findings are reported in that order,
+    // each at (page, obj, detail): once max_locations different ones are in `findings`, the record of the rule is
+    // full when any later one is reported, whatever it held before, and a later one is only counted.
+    void add_finding(ContrastMeasure& m, const RunText& text);
+    std::unordered_map<std::string, std::uint32_t> finding_keys_;   // location as the record keys it -> finding_texts
+    bool findings_full_ = false;
 
     StreamState* state_for(const ContentModel& cm, int si);
     void begin_text_op(int si, std::uint32_t op_index, const RawOp& op, const GState& gs);
@@ -2308,7 +2317,8 @@ void ContrastEngine::close_piece(const ContentModel& cm) {
         // (art_form_inside, a real-world Canva export).
         // ... an MCID counts when an element owns it: an MCID nobody claims leaves it an artifact (ct_artifact_with_mcid).
         // (artifact_text_frame; on_glyph collected the piece's text for such a frame.)
-        if (artifact_text_frame(cm, glyph_frame_)) artifact_pieces.push_back({s.page, s.ref, piece_box_, piece_text_});
+        if (artifact_text_frame(cm, glyph_frame_) && artifact_in_body(ctx_.doc.pages(), s.page, piece_box_))
+            artifact_pieces.push_back({s.page, s.ref, piece_box_, piece_text_});
     }
     if (piece_ink_) {
         const std::uint32_t n = std::uint32_t(glyph_boxes_.size() / 4) - piece_first_glyph_;
@@ -3168,11 +3178,10 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
         m.ratio = ratio;
         m.size_user = tr.size_user;
         m.need = need;
-        m.text = it.text;
         m.large = large;
         for (int k = 0; k < 3; ++k) m.fg[k] = to8(fg[k]), m.bg[k] = to8(f.bg[k]);
         for (std::size_t k = range.first; k < range.second; ++k)
-            if (pieces_[k].box.intersects(page_box)) findings.push_back(m);
+            if (pieces_[k].box.intersects(page_box)) add_finding(m, tr.text);
     }
     if (last_needed < 0) return;
 
@@ -3897,12 +3906,11 @@ void ContrastEngine::check_text(const ContentModel& cm, const ContentItem& it, c
         m.ratio = worst;
         m.size_user = tr.size_user;
         m.need = need;
-        m.text = it.text;
         m.rendered = true;
         m.large = large;
         std::copy(worst_fg, worst_fg + 3, m.fg);
         std::copy(worst_bg, worst_bg + 3, m.bg);
-        findings.push_back(m);
+        add_finding(m, tr.text);
     }
 }
 
@@ -3954,13 +3962,45 @@ const std::vector<ContrastMeasure>& contrast_findings(const ContentObserver& obs
     return static_cast<const ContrastEngine&>(observer).findings;
 }
 
-std::string ContrastMeasure::detail(const ContentModel& cm) const {
+std::string ContrastMeasure::detail(const std::string& run) const {
     char buf[200];
     std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s%s, %.1f pt%s), needs %.1f:1", ratio, hex8(fg).c_str(), rendered ? "rendered " : "",
                   hex8(bg).c_str(), size_user, large ? ", large" : "", need);
-    std::string run = to_utf8(cm.texts[std::size_t(text)].text);
-    if (run.size() > 40) run = run.substr(0, 40) + "...";
     return std::string(buf) + (run.empty() ? "" : ": \"" + run + "\"");
+}
+
+void ContrastEngine::add_finding(ContrastMeasure& m, const RunText& text) {
+    if (findings_full_) {
+        ++findings_counted;
+        return;
+    }
+    std::string run = to_utf8(text);
+    if (run.size() > 40) run = run.substr(0, 40) + "...";
+    // the key of the location in the rule's record (Findings::add): page number, object, detail
+    std::string key = std::to_string(page_number(m.page)) + '|' + m.obj.str() + '|' + m.detail(run);
+    const auto [pos, fresh] = finding_keys_.emplace(std::move(key), std::uint32_t(finding_texts.size()));
+    if (fresh) finding_texts.push_back(std::move(run));
+    m.text = pos->second;
+    findings.push_back(m);
+    if (finding_keys_.size() >= ctx_.findings.max_locations()) {
+        findings_full_ = true;
+        finding_keys_ = {};
+    }
+}
+
+std::uint64_t contrast_findings_counted(const ContentObserver& observer) { return static_cast<const ContrastEngine&>(observer).findings_counted; }
+
+const std::string& contrast_text(const ContentObserver& observer, const ContrastMeasure& m) {
+    const ContrastEngine& e = static_cast<const ContrastEngine&>(observer);
+    if (m.text >= e.finding_texts.size()) throw std::logic_error("text contrast: the text of a finding that needs its detail was not kept");
+    return e.finding_texts[m.text];
+}
+
+bool artifact_in_body(const std::vector<Page>& pages, int page, const Rect& box) {
+    if (page < 0 || page >= int(pages.size()) || in_margin_band(pages[std::size_t(page)], box)) return false;
+    // outside the crop box there is no page body (a real-world sample: a spread cropped to one
+    // page, 99 artifact pieces on the invisible half, PAC: none)
+    return box.intersects(pages[std::size_t(page)].crop_box);
 }
 
 bool contrast_gave_up(const ContentObserver& observer) { return static_cast<const ContrastEngine&>(observer).gave_up; }
