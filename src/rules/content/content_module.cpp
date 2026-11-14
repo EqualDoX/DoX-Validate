@@ -28,6 +28,7 @@
 #include <unordered_set>
 
 #include "rules/module.h"
+#include "rules/pac_quality/wcag_color.h"
 #include "util/text.h"
 
 namespace eqx {
@@ -122,9 +123,10 @@ struct SyntaxObserver final : ContentObserver {
 };
 
 // --- WCAG 2.x contrast -------------------------------------------------------------------------------
-double channel(double c) { return c <= 0.03928 ? c / 12.92 : std::pow((c + 0.055) / 1.055, 2.4); }
+// The channel value is wcag::srgb_channel(c) = c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4), which keeps
+// the results of recent components: a document shows the same few colours on every page.
 double luminance(const float rgb[3]) {
-    return 0.2126 * channel(rgb[0]) + 0.7152 * channel(rgb[1]) + 0.0722 * channel(rgb[2]);
+    return 0.2126 * wcag::srgb_channel(rgb[0]) + 0.7152 * wcag::srgb_channel(rgb[1]) + 0.0722 * wcag::srgb_channel(rgb[2]);
 }
 double contrast(const float a[3], const float b[3]) {
     double la = luminance(a), lb = luminance(b);

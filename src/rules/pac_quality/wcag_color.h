@@ -47,6 +47,9 @@ std::string text_detail(const TextFacts& f, const TextJudgement& j, const Rect& 
 std::string box_str(const Rect& r);
 std::string hex(const unsigned char* c);
 double contrast8(const unsigned char* a, const unsigned char* b);
+// The linear value of an sRGB component for the relative luminance of WCAG 2.x (c <= 0.03928 ? c / 12.92 :
+// ((c + 0.055) / 1.055) ^ 2.4, computed in double on the float's value), with the results of recent components kept.
+double srgb_channel(float c);
 std::string ratio_str(double r);   // two decimals, cut (never rounded up to a threshold)
 
 // Run after the interpretation (no rendering).

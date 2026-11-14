@@ -956,7 +956,10 @@ bool reduce_samples(const Obj& image, int max_side, ReducedImage& out, std::int6
 }  // namespace
 
 double wcag_contrast(const float a[3], const float b[3]) {
-    auto lum = [](const float* c) { return 0.2126 * channel(c[0]) + 0.7152 * channel(c[1]) + 0.0722 * channel(c[2]); };
+    // wcag::srgb_channel: channel() of the component, with the results of recent components kept
+    auto lum = [](const float* c) {
+        return 0.2126 * wcag::srgb_channel(c[0]) + 0.7152 * wcag::srgb_channel(c[1]) + 0.0722 * wcag::srgb_channel(c[2]);
+    };
     double la = lum(a), lb = lum(b);
     if (la < lb) std::swap(la, lb);
     return (la + 0.05) / (lb + 0.05);

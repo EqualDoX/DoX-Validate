@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <map>
 #include <vector>
 
@@ -14,7 +15,12 @@ namespace {
 
 double channel(double c) { return c <= 0.03928 ? c / 12.92 : std::pow((c + 0.055) / 1.055, 2.4); }
 double luminance8(const unsigned char* p) {
-    return 0.2126 * channel(p[0] / 255.0) + 0.7152 * channel(p[1] / 255.0) + 0.0722 * channel(p[2] / 255.0);
+    static const std::vector<double> table = [] {   // channel of every 8-bit component, computed once
+        std::vector<double> t(256);
+        for (int i = 0; i < 256; ++i) t[std::size_t(i)] = channel(i / 255.0);
+        return t;
+    }();
+    return 0.2126 * table[p[0]] + 0.7152 * table[p[1]] + 0.0722 * table[p[2]];
 }
 unsigned char to8(double v) { return static_cast<unsigned char>(std::lround(std::clamp(v, 0.0, 1.0) * 255)); }
 
@@ -85,6 +91,26 @@ bool letter(char32_t c) {
 }
 
 }  // namespace
+
+double srgb_channel(float c) {
+    // A pure function of the component, and a document shows the same few colours again and again: the last value
+    // per slot is kept (per thread: files are validated in parallel).
+    struct Slot {
+        std::uint32_t bits = 0;
+        double value = 0;
+        bool set = false;
+    };
+    static thread_local Slot slots[256];
+    std::uint32_t bits;
+    std::memcpy(&bits, &c, sizeof bits);
+    Slot& s = slots[(bits * 2654435761u) >> 24];
+    if (!s.set || s.bits != bits) {
+        s.value = channel(c);
+        s.bits = bits;
+        s.set = true;
+    }
+    return s.value;
+}
 
 double contrast8(const unsigned char* a, const unsigned char* b) {
     double la = luminance8(a), lb = luminance8(b);
