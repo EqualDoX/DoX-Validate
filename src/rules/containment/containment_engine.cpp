@@ -24,21 +24,23 @@
 // * Reference non-termination: a cycle of pass-through elements makes getChildrenStandardTypes recurse
 //   without end, a cycle of pass-through /P parents makes getparentStandardType loop; the affected rules are
 //   reported incomplete for that document instead of being guessed.
+//
+// The rule table is compiled by the compiler (kCompiled): type names interned, atoms resolved, rules grouped by the
+// structure type they select. A process starts with the finished tables in its read-only data.
 #include <algorithm>
+#include <array>
 #include <cstdlib>
+#include <deque>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 
 #include "rules/containment/containment.h"
+#include "rules/containment/containment_rules.h"
 
 namespace eqx::containment {
 
 namespace {
-
-const GenRule kRules[] = {
-#include "rules/containment/containment_table.inc"
-};
 
 constexpr int kHead = 12;    // kid tokens kept verbatim (KIDS_EQ sequences are shorter; details)
 constexpr int kCycle = -2;   // parentStandardType does not terminate
@@ -47,7 +49,7 @@ constexpr int kCycle = -2;   // parentStandardType does not terminate
 
 enum : std::uint8_t { TF_HN = 1, TF_INLINE = 2, TF_GROUPING = 4, TF_BOG = 8, TF_BGI = 16, TF_PT = 32 };
 
-bool is_hn_name(std::string_view t) {
+constexpr bool is_hn_name(std::string_view t) {
     // TaggedPDFConstants.HN_REGEXP ^H[1-9][0-9]*$
     if (t.size() < 2 || t[0] != 'H' || t[1] < '1' || t[1] > '9') return false;
     for (std::size_t i = 2; i < t.size(); ++i)
@@ -55,13 +57,15 @@ bool is_hn_name(std::string_view t) {
     return true;
 }
 
-bool in_list(std::string_view t, std::initializer_list<std::string_view> l) {
-    return std::find(l.begin(), l.end(), t) != l.end();
+constexpr bool in_list(std::string_view t, std::initializer_list<std::string_view> l) {
+    for (std::string_view x : l)
+        if (x == t) return true;
+    return false;
 }
 
 // TaggedPDFHelper inlineStructureTypes / groupingStructureTypes / blockOrGroupingStructureTypes /
 // blockOrGroupingOrInlineStructureTypes; PDStructElem.isPassThroughTag.
-std::uint8_t flags_of(std::string_view t) {
+constexpr std::uint8_t flags_of(std::string_view t) {
     std::uint8_t f = 0;
     if (is_hn_name(t)) f |= TF_HN;
     if (in_list(t, {"Span", "Em", "Strong", "Sub", "Ruby", "RB", "RP", "RT", "Warichu", "WT", "WP"})) f |= TF_INLINE;
@@ -74,85 +78,102 @@ std::uint8_t flags_of(std::string_view t) {
     return f;
 }
 
-class Types {
-public:
-    int id(std::string_view s) {
-        auto it = map_.find(std::string(s));
-        if (it != map_.end()) return it->second;
-        int i = static_cast<int>(names_.size());
-        names_.emplace_back(s);
-        flags_.push_back(flags_of(s));
-        map_.emplace(std::string(s), i);
-        return i;
+// The type names of the rule table, interned while the table is compiled: the type ids 0 .. n-1 of every document.
+constexpr int kMaxBaseTypes = 96;
+struct BaseTypes {
+    std::array<std::string_view, kMaxBaseTypes> names{};
+    int n = 0;
+    constexpr int id(std::string_view s) {
+        for (int i = 0; i < n; ++i)
+            if (names[i] == s) return i;
+        if (n == kMaxBaseTypes) throw "containment table: more type names than kMaxBaseTypes";
+        names[n] = s;
+        return n++;
     }
-    int find(std::string_view s) const {
-        auto it = map_.find(std::string(s));
-        return it == map_.end() ? -1 : it->second;
-    }
-    std::uint8_t flags(int i) const { return i >= 0 && i < static_cast<int>(flags_.size()) ? flags_[i] : 0; }
-    const std::string& name(int i) const { return names_[i]; }
-    int size() const { return static_cast<int>(names_.size()); }
-
-private:
-    std::unordered_map<std::string, int> map_;
-    std::vector<std::string> names_;
-    std::vector<std::uint8_t> flags_;
 };
 
 // ---- compiled rules ------------------------------------------------------------------------------------
+
+// Type ids of the sets and sequences of the atoms (CAtom::first, CAtom::count).
+struct IdPool {
+    std::array<std::int16_t, 256> ids{};
+    int n = 0;
+    constexpr bool add(int id) {
+        if (n == static_cast<int>(ids.size()) || id > 0x7fff) return false;
+        ids[n++] = static_cast<std::int16_t>(id);
+        return true;
+    }
+};
 
 struct CAtom {
     AK kind = AK::GROUPING_IS;
     std::uint8_t pred = PRED_NONE;
     std::uint8_t cmp = CMP_EQ;
-    int n = 0;
-    int tok = -1;
-    std::vector<int> set;   // distinct ids
-    std::vector<int> seq;
+    std::uint8_t count = 0;    // ids of the set (distinct) or of the sequence
+    std::uint16_t first = 0;   // their position in the pool
+    std::int16_t tok = -1;
+    std::int32_t n = 0;
 };
 
 struct CRule {
-    std::size_t gen = 0;
-    int flavour = 0;          // 0 = Pdf17, 1 = Pdf20
-    enum Sel { TOK, HN, STAR, ROOT } sel = TOK;
-    int sel_tok = -1;
-    std::vector<CAtom> atoms;
-    bool kids = false;        // uses kidsStandardTypes / hasContentItems / isGrouping
-    bool parent = false;      // uses parentStandardType
-    std::string error;        // non-empty: rule not supported by this evaluator
+    enum Sel : std::uint8_t { TOK, HN, STAR, ROOT };
+    std::uint32_t gen = 0;
+    std::uint8_t flavour = 0;     // 0 = Pdf17, 1 = Pdf20
+    std::uint8_t sel = TOK;
+    std::uint8_t natoms = 0;
+    bool kids = false;            // uses kidsStandardTypes / hasContentItems / isGrouping
+    bool parent = false;          // uses parentStandardType
+    bool unsupported = false;     // rule not supported by this evaluator
+    bool only_parent_ne = false;  // one PARENT_NE atom: the test passes unless parentStandardType is atoms[0].tok
+    std::int16_t sel_tok = -1;
+    CAtom atoms[3];
 };
 
-std::vector<std::string> split(std::string_view s, char sep) {
-    std::vector<std::string> out;
+template <class Interner>
+constexpr std::int16_t tok_id(Interner& T, std::string_view s, CRule& r) {
+    const int i = T.id(s);
+    if (i > 0x7fff) {
+        r.unsupported = true;
+        return -1;
+    }
+    return static_cast<std::int16_t>(i);
+}
+
+// Interns the parts of `arg` between `sep` characters (''.split(sep) is ['']) and appends their ids to the pool.
+// `distinct`: a set, each id once.
+template <class Interner>
+constexpr void add_ids(Interner& T, IdPool& pool, std::string_view arg, char sep, bool distinct, bool empty_is_error,
+                       CAtom& a, CRule& r) {
+    a.first = static_cast<std::uint16_t>(pool.n);
     std::size_t start = 0;
     for (;;) {
-        std::size_t p = s.find(sep, start);
-        out.emplace_back(s.substr(start, p == std::string_view::npos ? std::string_view::npos : p - start));
+        const std::size_t p = arg.find(sep, start);
+        const std::string_view part = arg.substr(start, p == std::string_view::npos ? std::string_view::npos : p - start);
+        if (empty_is_error && part.empty()) r.unsupported = true;   // empty token in a kid sequence
+        const int id = T.id(part);
+        bool known = false;
+        for (int k = 0; distinct && k < a.count; ++k) known = known || pool.ids[a.first + k] == id;
+        if (!known) {
+            if (a.count == 0xff || !pool.add(id)) r.unsupported = true;   // more ids than the tables hold
+            else ++a.count;
+        }
         if (p == std::string_view::npos) break;
         start = p + 1;
     }
-    return out;
 }
 
-std::vector<int> id_set(Types& T, std::string_view arg) {
-    std::vector<int> v;
-    for (auto& s : split(arg, '|')) {
-        int i = T.id(s);
-        if (std::find(v.begin(), v.end(), i) == v.end()) v.push_back(i);
-    }
-    return v;
-}
-
-CRule compile_rule(const GenRule& g, std::size_t gen, Types& T) {
+// Run by the compiler for the generated table, and at run time for a single rule (test_passes).
+template <class Interner>
+constexpr CRule compile_rule(const GenRule& g, std::size_t gen, Interner& T, IdPool& pool) {
     CRule r;
-    r.gen = gen;
+    r.gen = static_cast<std::uint32_t>(gen);
     r.flavour = g.flavour == Flavor::Pdf17 ? 0 : 1;
-    std::string_view obj = g.object;
+    const std::string_view obj = g.object;
     if (obj == "*") r.sel = CRule::STAR;
     else if (obj == "#root") r.sel = CRule::ROOT;
     else if (obj == "Hn") r.sel = CRule::HN;
-    else r.sel_tok = T.id(obj);
-    if (g.natoms == 0 || g.natoms > 3) r.error = "invalid atom count";
+    else r.sel_tok = tok_id(T, obj, r);
+    if (g.natoms == 0 || g.natoms > 3) r.unsupported = true;   // invalid atom count
     for (int i = 0; i < g.natoms && i < 3; ++i) {
         const GenAtom& ga = g.atoms[i];
         CAtom a;
@@ -160,7 +181,7 @@ CRule compile_rule(const GenRule& g, std::size_t gen, Types& T) {
         a.pred = ga.pred;
         a.cmp = ga.cmp;
         a.n = ga.n;
-        std::string_view arg = ga.arg ? ga.arg : "";
+        const std::string_view arg = ga.arg ? std::string_view(ga.arg) : std::string_view();
         switch (ga.kind) {
             case AK::GROUPING_IS:
             case AK::NO_CONTENT_ITEMS:
@@ -168,32 +189,28 @@ CRule compile_rule(const GenRule& g, std::size_t gen, Types& T) {
                 break;
             case AK::PARENT_EQ:
             case AK::PARENT_NE:
-                a.tok = T.id(arg);
+                a.tok = tok_id(T, arg, r);
                 r.parent = true;
                 break;
             case AK::PARENT_NOT_HN:
                 r.parent = true;
                 break;
             case AK::PARENT_IN:
-                a.set = id_set(T, arg);
+                add_ids(T, pool, arg, '|', true, false, a, r);
                 r.parent = true;
                 break;
             case AK::KID_COUNT:
                 r.kids = true;
-                if (ga.pred == PRED_EQ) a.tok = T.id(arg);
-                else if (ga.pred == PRED_NOT_IN) a.set = id_set(T, arg);
-                else if (ga.pred != PRED_HN) r.error = "invalid filter predicate";
-                if (arg.empty() && ga.pred != PRED_HN) r.error = "empty filter literal";
-                if (ga.cmp > CMP_GT) r.error = "invalid comparison";
+                if (ga.pred == PRED_EQ) a.tok = tok_id(T, arg, r);
+                else if (ga.pred == PRED_NOT_IN) add_ids(T, pool, arg, '|', true, false, a, r);
+                else if (ga.pred != PRED_HN) r.unsupported = true;             // invalid filter predicate
+                if (arg.empty() && ga.pred != PRED_HN) r.unsupported = true;   // empty filter literal
+                if (ga.cmp > CMP_GT) r.unsupported = true;                     // invalid comparison
                 break;
             case AK::KIDS_EQ:
                 r.kids = true;
-                if (!arg.empty())
-                    for (auto& s : split(arg, '&')) {
-                        if (s.empty()) r.error = "empty token in kid sequence";
-                        a.seq.push_back(T.id(s));
-                    }
-                if (a.seq.size() >= static_cast<std::size_t>(kHead)) r.error = "kid sequence too long";
+                if (!arg.empty()) add_ids(T, pool, arg, '&', false, true, a, r);
+                if (a.count >= kHead) r.unsupported = true;                    // kid sequence too long
                 break;
             case AK::KIDS_NOT_CONTAINS:
                 // Only '&X&' is supported: tokens never contain '&', so the substring occurs exactly when a
@@ -201,64 +218,142 @@ CRule compile_rule(const GenRule& g, std::size_t gen, Types& T) {
                 r.kids = true;
                 if (arg.size() < 3 || arg.front() != '&' || arg.back() != '&' ||
                     arg.substr(1, arg.size() - 2).find('&') != std::string_view::npos)
-                    r.error = "unsupported indexOf literal";
+                    r.unsupported = true;                                      // unsupported indexOf literal
                 else
-                    a.tok = T.id(arg.substr(1, arg.size() - 2));
+                    a.tok = tok_id(T, arg.substr(1, arg.size() - 2), r);
                 break;
             case AK::KIDS_NOT_AFTER_FIRST:
                 r.kids = true;
-                a.tok = T.id(arg);
+                a.tok = tok_id(T, arg, r);
                 break;
             case AK::KIDS_ALL_IN:
                 r.kids = true;
-                a.set = id_set(T, arg);
+                add_ids(T, pool, arg, '|', true, false, a, r);
                 break;
             default:
-                r.error = "unknown atom kind";
+                r.unsupported = true;                                          // unknown atom kind
         }
-        r.atoms.push_back(std::move(a));
+        r.atoms[r.natoms++] = a;
     }
+    r.only_parent_ne = !r.unsupported && r.natoms == 1 && r.atoms[0].kind == AK::PARENT_NE;
     return r;
 }
 
-struct Compiled {
-    Types types;              // base interner (copied per document)
-    std::vector<CRule> rules;
-    int tok_root = -1, tok_mathml = -1;
-    // per flavour
-    std::vector<std::vector<int>> by_tok[2];
-    std::vector<int> hn[2], star[2], root[2];
+enum : std::uint8_t { NEED_KIDS = 1, NEED_PARENT = 2 };
+
+// A run of rule indices in Compiled::order, and the properties its rules read.
+struct Group {
+    std::uint16_t first = 0, last = 0;
+    std::uint8_t needs = 0;
 };
 
-const Compiled& compiled() {
-    static const Compiled c = [] {
-        Compiled c;
-        for (const char* t :
-             {"Document", "Part", "Div", "Caption", "Sect", "NonStruct", "H", "P", "L", "LI", "Lbl", "LBody", "Table",
-              "TR", "TH", "TD", "Span", "Link", "Figure", "Formula", "Form", "Art", "BlockQuote", "TOC", "TOCI",
-              "Index", "Private", "Quote", "Note", "Reference", "BibEntry", "Code", "H1", "H2", "H3", "H4", "H5", "H6",
-              "THead", "TBody", "TFoot", "Annot", "Ruby", "Warichu", "RB", "RT", "RP", "WT", "WP",
-              "DocumentFragment", "Aside", "Title", "FENote", "Sub", "Em", "Strong", "Artifact"})
-            c.types.id(t);
-        c.tok_root = c.types.id("StructTreeRoot");
-        c.tok_mathml = c.types.id("MathML");
-        std::size_t n = sizeof(kRules) / sizeof(kRules[0]);
-        for (std::size_t i = 0; i < n; ++i) c.rules.push_back(compile_rule(kRules[i], i, c.types));
-        for (int f = 0; f < 2; ++f) c.by_tok[f].resize(c.types.size());
-        for (std::size_t i = 0; i < c.rules.size(); ++i) {
-            const CRule& r = c.rules[i];
-            int f = r.flavour;
-            switch (r.sel) {
-                case CRule::TOK: c.by_tok[f][r.sel_tok].push_back(static_cast<int>(i)); break;
-                case CRule::HN: c.hn[f].push_back(static_cast<int>(i)); break;
-                case CRule::STAR: c.star[f].push_back(static_cast<int>(i)); break;
-                case CRule::ROOT: c.root[f].push_back(static_cast<int>(i)); break;
-            }
+struct Compiled {
+    std::array<CRule, kGenRuleCount> rules{};
+    IdPool pool;
+    BaseTypes types;
+    std::array<std::uint8_t, kMaxBaseTypes> flags{};
+    int tok_root = -1, tok_mathml = -1;
+    // Rule indices grouped by selector, each group in table order. Per flavour: the rules of one standard type, the
+    // Hn rules, the rules of every element, the StructTreeRoot rules.
+    std::array<std::uint16_t, kGenRuleCount> order{};
+    std::array<std::array<Group, kMaxBaseTypes>, 2> by_tok{};
+    std::array<Group, 2> hn{}, star{}, root{};
+};
+
+consteval Compiled compile_table() {
+    Compiled c;
+    for (std::string_view t :
+         {"Document", "Part", "Div", "Caption", "Sect", "NonStruct", "H", "P", "L", "LI", "Lbl", "LBody", "Table",
+          "TR", "TH", "TD", "Span", "Link", "Figure", "Formula", "Form", "Art", "BlockQuote", "TOC", "TOCI",
+          "Index", "Private", "Quote", "Note", "Reference", "BibEntry", "Code", "H1", "H2", "H3", "H4", "H5", "H6",
+          "THead", "TBody", "TFoot", "Annot", "Ruby", "Warichu", "RB", "RT", "RP", "WT", "WP",
+          "DocumentFragment", "Aside", "Title", "FENote", "Sub", "Em", "Strong", "Artifact"})
+        c.types.id(t);
+    c.tok_root = c.types.id("StructTreeRoot");
+    c.tok_mathml = c.types.id("MathML");
+    for (std::size_t i = 0; i < kGenRuleCount; ++i) c.rules[i] = compile_rule(kGenRules[i], i, c.types, c.pool);
+    for (int t = 0; t < c.types.n; ++t) c.flags[t] = flags_of(c.types.names[t]);
+    const auto group_of = [&c](const CRule& r) -> Group& {
+        switch (r.sel) {
+            case CRule::TOK: return c.by_tok[r.flavour][r.sel_tok];
+            case CRule::HN: return c.hn[r.flavour];
+            case CRule::STAR: return c.star[r.flavour];
+            default: return c.root[r.flavour];
         }
-        return c;
-    }();
+    };
+    // Group sizes, then group positions, then the rules in table order.
+    for (const CRule& r : c.rules) ++group_of(r).last;
+    std::uint16_t pos = 0;
+    const auto place = [&pos](Group& g) {
+        const std::uint16_t size = g.last;
+        g.first = g.last = pos;
+        pos = static_cast<std::uint16_t>(pos + size);
+    };
+    for (int f = 0; f < 2; ++f) {
+        for (int t = 0; t < c.types.n; ++t) place(c.by_tok[f][t]);
+        place(c.hn[f]);
+        place(c.star[f]);
+        place(c.root[f]);
+    }
+    for (std::size_t i = 0; i < kGenRuleCount; ++i) {
+        const CRule& r = c.rules[i];
+        Group& g = group_of(r);
+        c.order[g.last++] = static_cast<std::uint16_t>(i);
+        g.needs |= (r.kids ? NEED_KIDS : 0) | (r.parent ? NEED_PARENT : 0);
+    }
     return c;
 }
+
+static_assert(kGenRuleCount <= 0xffff);
+constexpr Compiled kCompiled = compile_table();
+
+// Hash index of the base type names (open addressing; a slot holds a type id, -1 = free).
+constexpr std::uint32_t name_hash(std::string_view s) {
+    std::uint32_t h = 2166136261u;
+    for (char ch : s) h = (h ^ static_cast<unsigned char>(ch)) * 16777619u;
+    return h;
+}
+constexpr std::uint32_t kSlotMask = 255;
+constexpr std::array<std::int8_t, kSlotMask + 1> kBaseSlots = []() consteval {
+    std::array<std::int8_t, kSlotMask + 1> slots{};
+    for (auto& s : slots) s = -1;
+    for (int i = 0; i < kCompiled.types.n; ++i) {
+        std::uint32_t h = name_hash(kCompiled.types.names[i]) & kSlotMask;
+        while (slots[h] >= 0) h = (h + 1) & kSlotMask;
+        slots[h] = static_cast<std::int8_t>(i);
+    }
+    return slots;
+}();
+
+// Type names of one document: the base types (ids as compiled) and, after them, every other name the document uses.
+class Types {
+public:
+    int id(std::string_view s) {
+        for (std::uint32_t h = name_hash(s) & kSlotMask; kBaseSlots[h] >= 0; h = (h + 1) & kSlotMask)
+            if (kCompiled.types.names[kBaseSlots[h]] == s) return kBaseSlots[h];
+        auto it = extra_.find(s);
+        if (it != extra_.end()) return it->second;
+        const int i = kCompiled.types.n + static_cast<int>(names_.size());
+        names_.emplace_back(s);
+        flags_.push_back(flags_of(s));
+        extra_.emplace(std::string_view(names_.back()), i);
+        return i;
+    }
+    std::uint8_t flags(int i) const {
+        if (i < 0) return 0;
+        if (i < kCompiled.types.n) return kCompiled.flags[i];
+        i -= kCompiled.types.n;
+        return i < static_cast<int>(flags_.size()) ? flags_[i] : 0;
+    }
+    std::string_view name(int i) const {
+        return i < kCompiled.types.n ? kCompiled.types.names[i] : std::string_view(names_[i - kCompiled.types.n]);
+    }
+
+private:
+    std::deque<std::string> names_;   // stable addresses: extra_ refers to them
+    std::vector<std::uint8_t> flags_;
+    std::unordered_map<std::string_view, int> extra_;
+};
 
 // ---- kid statistics ------------------------------------------------------------------------------------
 
@@ -333,15 +428,19 @@ bool is_grouping(int own, const Summary& k, const Types& T) {
     return k.inl == 0;
 }
 
-// One atom with JavaScript semantics. `parent` = parentStandardType id (-1 = null).
-bool eval_atom(const CAtom& a, const Summary& k, int parent, bool grouping, const Types& T, bool pass_through_kids) {
+// One atom with JavaScript semantics. `parent` = parentStandardType id (-1 = null); `ids` = the pool of the rule's
+// sets and sequences.
+bool eval_atom(const CAtom& a, const std::int16_t* ids, const Summary& k, int parent, bool grouping, const Types& T,
+               bool pass_through_kids) {
+    const std::int16_t* set = ids + a.first;
+    const std::int16_t* set_end = set + a.count;
     switch (a.kind) {
         case AK::GROUPING_IS: return grouping == (a.n != 0);
         case AK::NO_CONTENT_ITEMS: return !k.content;
         case AK::PARENT_EQ: return parent >= 0 && parent == a.tok;
         case AK::PARENT_NE: return !(parent >= 0 && parent == a.tok);
         case AK::PARENT_NOT_HN: return !(parent >= 0 && (T.flags(parent) & TF_HN));
-        case AK::PARENT_IN: return parent >= 0 && std::find(a.set.begin(), a.set.end(), parent) != a.set.end();
+        case AK::PARENT_IN: return parent >= 0 && std::find(set, set_end, parent) != set_end;
         case AK::KID_COUNT: {
             int c = 0;
             if (k.len == 0) {
@@ -353,19 +452,19 @@ bool eval_atom(const CAtom& a, const Summary& k, int parent, bool grouping, cons
                 c = k.hn;
             } else {
                 c = k.len;
-                for (int t : a.set) c -= k.count(t);
+                for (const std::int16_t* t = set; t != set_end; ++t) c -= k.count(*t);
             }
             if (pass_through_kids && a.pred == PRED_EQ && (T.flags(a.tok) & TF_PT)) {
-                const std::string& n = T.name(a.tok);
+                const std::string_view n = T.name(a.tok);
                 if ((n == "Part" && k.has_part) || (n == "Div" && k.has_div)) ++c;
             }
             return compare(c, a.cmp, a.n);
         }
         case AK::KIDS_EQ:
-            if (a.seq.empty()) return k.len == 0;
-            if (k.len != static_cast<int>(a.seq.size())) return false;
-            for (std::size_t i = 0; i < a.seq.size(); ++i)
-                if (k.head[i] != a.seq[i]) return false;
+            if (a.count == 0) return k.len == 0;
+            if (k.len != static_cast<int>(a.count)) return false;
+            for (int i = 0; i < a.count && i < kHead; ++i)
+                if (k.head[i] != set[i]) return false;
             return true;
         case AK::KIDS_NOT_CONTAINS: {
             int c = k.count(a.tok);
@@ -378,30 +477,22 @@ bool eval_atom(const CAtom& a, const Summary& k, int parent, bool grouping, cons
         case AK::KIDS_ALL_IN: {
             if (k.len == 0) return false;
             int c = 0;
-            for (int t : a.set) c += k.count(t);
+            for (const std::int16_t* t = set; t != set_end; ++t) c += k.count(*t);
             return c == k.len;
         }
     }
     return false;
 }
 
-bool eval_rule(const CRule& r, const Summary& k, int parent, int own, const Types& T, bool pass_through_kids = false) {
+bool eval_rule(const CRule& r, const std::int16_t* ids, const Summary& k, int parent, int own, const Types& T,
+               bool pass_through_kids = false) {
     bool grouping = is_grouping(own, k, T);
-    for (const CAtom& a : r.atoms)
-        if (eval_atom(a, k, parent, grouping, T, pass_through_kids)) return true;
+    for (int i = 0; i < r.natoms; ++i)
+        if (eval_atom(r.atoms[i], ids, k, parent, grouping, T, pass_through_kids)) return true;
     return false;
 }
 
 // ---- document evaluation ---------------------------------------------------------------------------------
-
-// One node of the evaluation: a structure element of the core tree (index = element index) or the
-// StructTreeRoot (index = number of elements).
-struct Node {
-    Obj dict;
-    ObjRef ref;
-    bool own_content = false;            // MCID / MCR / OBJR directly in /K (TaggedPDFHelper.isContentItem)
-    const std::vector<int>* kids = nullptr;   // every struct child in /K order, shared/revisited ones included
-};
 
 struct StdInfo {
     int tok = -1;             // token in kid lists / object type (-1 = null standard type)
@@ -410,10 +501,20 @@ struct StdInfo {
     bool root_type = false;   // /Type /StructTreeRoot
 };
 
+// SType::ns_uri() == kNsMathML, without building the URI of a type that has no namespace dictionary.
+bool in_mathml_namespace(const SType& t) {
+    if (!t.ns.isDictionary()) return false;   // ns_uri() is kNsPdf then
+    const std::optional<std::string> uri = t.ns_uri();
+    return uri && *uri == kNsMathML;
+}
+
+// A node of the evaluation is a structure element of the core tree (its element index) or the StructTreeRoot
+// (index = number of elements). One flavour is evaluated after the other; the per-flavour state is reused.
 class Engine {
 public:
     Engine(const StructTree& st, const Sink& sink, bool reference_dedup)
-        : st_(st), sink_(sink), reference_dedup_(reference_dedup), C_(compiled()), T_(C_.types) {}
+        : st_(st), sink_(sink), reference_dedup_(reference_dedup), C_(kCompiled), elems_(st.elems()),
+          root_(static_cast<int>(st.elems().size())), root_dict_(st.root()) {}
 
     void run() {
         build_nodes();
@@ -425,50 +526,38 @@ private:
     const Sink& sink_;
     bool reference_dedup_;
     const Compiled& C_;
+    const std::vector<StructElem>& elems_;
+    const int root_;
+    const Obj root_dict_;
     Types T_;
-    std::vector<Node> nodes_;
+    std::vector<char> own_content_;      // per node: MCID / MCR / OBJR directly in /K (TaggedPDFHelper.isContentItem)
     std::vector<int> root_kids_;
-    int root_ = 0;
-    std::vector<StdInfo> std_[2];
-    std::unordered_map<std::uint64_t, StdInfo> std_memo_[2];   // /P targets
-    std::unordered_map<std::uint64_t, int> parent_memo_[2];
-    std::vector<int> pst_state_[2];                  // 0 new, 1 in progress, 2 done
-    std::vector<int> pst_index_[2];
-    std::vector<Summary> psums_[2];
+    // state of the flavour being evaluated
+    std::vector<StdInfo> std_;                             // per node
+    std::unordered_map<std::uint64_t, StdInfo> std_memo_;   // /P targets that are no element of the tree
+    std::unordered_map<std::uint64_t, int> parent_memo_;
+    std::vector<int> pst_state_;                            // 0 new, 1 in progress, 2 done
+    std::vector<int> pst_index_;
+    std::vector<Summary> psums_;
     std::unordered_set<std::size_t> incomplete_;
 
     // -- tree (core StructTree: struct_kids = veraPDF getStructChildren, shared kids listed in every parent) --
+    // Every struct child of a node in /K order, shared/revisited ones included.
+    const std::vector<int>& kids_of(int n) const { return n == root_ ? root_kids_ : elems_[n].struct_kids; }
+    const Obj& dict_of(int n) const { return n == root_ ? root_dict_ : elems_[n].dict; }
+
     void build_nodes() {
-        const auto& elems = st_.elems();
-        nodes_.resize(elems.size() + 1);
-        for (std::size_t i = 0; i < elems.size(); ++i) {
-            const StructElem& e = elems[i];
-            Node& n = nodes_[i];
-            n.dict = e.dict;
-            n.ref = e.ref;
-            n.kids = &e.struct_kids;
-            for (const StructKid& k : e.kids)
-                if (k.kind != StructKid::Kind::Elem) n.own_content = true;
-        }
-        root_ = static_cast<int>(elems.size());
-        Node& r = nodes_[root_];
-        r.dict = st_.root();
-        r.ref = st_.root_ref();
+        own_content_.assign(elems_.size() + 1, 0);
+        for (std::size_t i = 0; i < elems_.size(); ++i)
+            for (const StructKid& k : elems_[i].kids)
+                if (k.kind != StructKid::Kind::Elem) {
+                    own_content_[i] = 1;
+                    break;
+                }
         for (const StructKid& k : st_.root_kids()) {
-            if (k.kind != StructKid::Kind::Elem) r.own_content = true;
+            if (k.kind != StructKid::Kind::Elem) own_content_[root_] = 1;
             else if (k.elem >= 0) root_kids_.push_back(k.elem);
         }
-        r.kids = &root_kids_;
-    }
-
-    // Elements whose rules are evaluated. Default: every element of the tree (each indirect element once,
-    // every direct element). Reference mode: exactly the elements veraPDF validates (its direct-element id
-    // "0 0 obj <S>" makes it skip all but one direct element per /S name, a veraPDF defect).
-    std::vector<int> evaluated() const {
-        if (reference_dedup_) return st_.verapdf_order();
-        std::vector<int> v(st_.elems().size());
-        for (std::size_t i = 0; i < v.size(); ++i) v[i] = static_cast<int>(i);
-        return v;
     }
 
     // -- standard types --
@@ -482,7 +571,7 @@ private:
             }
         } else if (auto ty = st_.stype_of(d)) {
             if (auto dt = st_.default_type20(*ty)) {
-                s.math = dt->ns_uri() == std::optional<std::string>(kNsMathML);
+                s.math = in_mathml_namespace(*dt);
                 s.name_pt = (flags_of(dt->type) & TF_PT) != 0;
                 s.tok = s.math ? C_.tok_mathml : T_.id(dt->type);
             }
@@ -490,30 +579,45 @@ private:
         return s;
     }
 
+    // An element of the tree has its standard type in std_ (each indirect element is in the tree once).
     StdInfo std_of_obj(const Obj& d, int f) {
         ObjRef r = ref_of(d);
         if (!r.valid()) return compute_std(d, f);
-        auto it = std_memo_[f].find(r.key());
-        if (it != std_memo_[f].end()) return it->second;
+        if (const int i = st_.find(r); i >= 0) return std_[i];
+        auto it = std_memo_.find(r.key());
+        if (it != std_memo_.end()) return it->second;
         StdInfo s = compute_std(d, f);
-        std_memo_[f].emplace(r.key(), s);
+        std_memo_.emplace(r.key(), s);
         return s;
     }
 
     // GFPDStructElem.getparentStandardType, starting at the element's /P value. -1 = null, kCycle = the
     // reference loops forever (pass-through /P cycle).
     int resolve_parent(Obj cur, int f) {
-        std::vector<std::uint64_t> path;
+        // The objects on the way: a short chain is searched as it is, a long one through a set.
+        constexpr std::size_t kLinear = 16;
+        std::uint64_t first[kLinear];
+        std::size_t n_first = 0;
+        std::vector<std::uint64_t> more;
         std::unordered_set<std::uint64_t> seen;
         int res = -1;
         for (;;) {
             if (cur.isNull()) { res = -1; break; }
             ObjRef r = ref_of(cur);
             if (r.valid()) {
-                auto it = parent_memo_[f].find(r.key());
-                if (it != parent_memo_[f].end()) { res = it->second; break; }
-                if (!seen.insert(r.key()).second) { res = kCycle; break; }
-                path.push_back(r.key());
+                const std::uint64_t key = r.key();
+                auto it = parent_memo_.find(key);
+                if (it != parent_memo_.end()) { res = it->second; break; }
+                bool again = false;
+                if (n_first < kLinear) {
+                    again = std::find(first, first + n_first, key) != first + n_first;
+                    if (!again) first[n_first++] = key;
+                } else {
+                    if (seen.empty()) seen.insert(first, first + n_first);
+                    again = !seen.insert(key).second;
+                    if (!again) more.push_back(key);
+                }
+                if (again) { res = kCycle; break; }
             }
             StdInfo s = std_of_obj(cur, f);
             if (!s.name_pt) {
@@ -522,7 +626,8 @@ private:
             }
             cur = cos::get(cur, "P");
         }
-        for (auto k : path) parent_memo_[f][k] = res;
+        for (std::size_t i = 0; i < n_first; ++i) parent_memo_[first[i]] = res;
+        for (auto k : more) parent_memo_[k] = res;
         return res;
     }
 
@@ -530,16 +635,20 @@ private:
     bool tok_pt(int tok) const { return tok >= 0 && (T_.flags(tok) & TF_PT); }
 
     void note_pass_through(Summary& s, int tok) const {
-        const std::string& n = T_.name(tok);
+        const std::string_view n = T_.name(tok);
         if (n == "Part") s.has_part = true;
         else if (n == "Div") s.has_div = true;
     }
 
     // Summary of a pass-through node (memoised, iterative; cycles flagged).
-    const Summary& pt_summary(int n, int f) {
-        auto& state = pst_state_[f];
-        auto& index = pst_index_[f];
-        auto& sums = psums_[f];
+    const Summary& pt_summary(int n) {
+        if (pst_state_.empty()) {   // first pass-through node of this flavour
+            pst_state_.assign(elems_.size() + 1, 0);
+            pst_index_.assign(elems_.size() + 1, -1);
+        }
+        auto& state = pst_state_;
+        auto& index = pst_index_;
+        auto& sums = psums_;
         if (state[n] == 2) return sums[index[n]];
         struct Frame {
             int node;
@@ -550,17 +659,17 @@ private:
         auto open = [&](int node) {
             state[node] = 1;
             Frame fr{node, 0, Summary{}};
-            fr.sum.content = nodes_[node].own_content;
+            fr.sum.content = own_content_[node] != 0;
             stack.push_back(std::move(fr));
         };
         open(n);
         while (!stack.empty()) {
             std::size_t top = stack.size() - 1;
             int node = stack[top].node;
-            const auto& kids = *nodes_[node].kids;
+            const auto& kids = kids_of(node);
             if (stack[top].i < kids.size()) {
                 int k = kids[stack[top].i++];
-                int tk = std_[f][k].tok;
+                int tk = std_[k].tok;
                 if (tk < 0) continue;
                 if (!tok_pt(tk)) {
                     stack[top].sum.add(tk, T_.flags(tk));
@@ -586,15 +695,15 @@ private:
     }
 
     // Summary of any node's kid list (flattening its pass-through children).
-    Summary node_summary(int n, int f) {
+    Summary node_summary(int n) {
         Summary s;
-        s.content = nodes_[n].own_content;
-        for (int k : *nodes_[n].kids) {
-            int tk = std_[f][k].tok;
+        s.content = own_content_[n] != 0;
+        for (int k : kids_of(n)) {
+            int tk = std_[k].tok;
             if (tk < 0) continue;
             if (tok_pt(tk)) {
                 note_pass_through(s, tk);
-                s.append(pt_summary(k, f));
+                s.append(pt_summary(k));
             } else {
                 s.add(tk, T_.flags(tk));
             }
@@ -616,11 +725,11 @@ private:
     std::string label(int n, int f, bool is_root) {
         if (is_root) return "StructTreeRoot";
         std::string s;
-        if (auto S = cos::name(nodes_[n].dict, "S")) s = *S;
+        if (auto S = cos::name(dict_of(n), "S")) s = *S;
         else s = "(no /S name)";
-        int tok = std_[f][n].tok;
+        int tok = std_[n].tok;
         s += " [standard type ";
-        s += tok >= 0 ? T_.name(tok) : std::string("null");
+        s += tok >= 0 ? T_.name(tok) : std::string_view("null");
         s += f == 0 ? ", PDF 1.7 semantics]" : ", PDF 2.0 semantics]";
         return s;
     }
@@ -630,7 +739,7 @@ private:
     }
 
     void check(const CRule& r, int n, int f, bool is_root, const Summary* kids, int parent) {
-        if (!r.error.empty()) {
+        if (r.unsupported) {
             incomplete(r, "rule test not supported by the containment evaluator");
             return;
         }
@@ -644,27 +753,61 @@ private:
                           "not terminate");
             return;
         }
-        int own = is_root ? -1 : std_[f][n].tok;
+        int own = is_root ? -1 : std_[n].tok;
         static const Summary empty;
         static const bool clause = [] {
             const char* v = std::getenv("EQX_TS32005_CLAUSE");
             return v && *v == '1';
         }();
-        if (eval_rule(r, kids ? *kids : empty, parent, own, T_, clause && !reference_dedup_)) return;
+        if (eval_rule(r, C_.pool.ids.data(), kids ? *kids : empty, parent, own, T_, clause && !reference_dedup_)) return;
         std::string detail = label(n, f, is_root);
         if (r.kids) {
             detail += ": kids [" + kid_text(*kids) + "]";
             if (kids->content) detail += " + content items";
         }
-        if (r.parent) detail += ": parent standard type " + (parent >= 0 ? T_.name(parent) : std::string("null"));
-        sink_.violation(r.gen, is_root ? st_.root_ref() : nodes_[n].ref, std::move(detail));
+        if (r.parent) {
+            detail += ": parent standard type ";
+            detail += parent >= 0 ? T_.name(parent) : std::string_view("null");
+        }
+        sink_.violation(r.gen, is_root ? st_.root_ref() : elems_[n].ref, std::move(detail));
+    }
+
+    // The rules of one group on a node, in table order.
+    void check_group(const Group& g, int n, int f, const Summary& kids, int parent) {
+        for (std::uint16_t i = g.first; i < g.last; ++i) {
+            const CRule& r = C_.rules[C_.order[i]];
+            // Nine rules in ten test nothing but "the parent is not X": such a rule passes unless the parent is X
+            // (a /P chain that does not terminate goes through check(), which reports the rule incomplete).
+            if (r.only_parent_ne && parent != kCycle && parent != r.atoms[0].tok) continue;
+            check(r, n, f, false, &kids, parent);
+        }
+    }
+
+    // Element n: the rules of every element, of its standard type, and the Hn rules; kidsStandardTypes and
+    // parentStandardType are computed only when one of these rules reads them.
+    void evaluate_element(int n, int f) {
+        const int tok = std_[n].tok;
+        const Group& star = C_.star[f];
+        const Group* typed = tok >= 0 && tok < C_.types.n ? &C_.by_tok[f][tok] : nullptr;
+        const Group* hn = tok >= 0 && (T_.flags(tok) & TF_HN) ? &C_.hn[f] : nullptr;
+        const std::uint8_t needs = star.needs | (typed ? typed->needs : 0) | (hn ? hn->needs : 0);
+        Summary kids;
+        if (needs & NEED_KIDS) kids = node_summary(n);
+        const int parent = (needs & NEED_PARENT) ? resolve_parent(cos::get(elems_[n].dict, "P"), f) : -1;
+        check_group(star, n, f, kids, parent);
+        if (typed) check_group(*typed, n, f, kids, parent);
+        if (hn) check_group(*hn, n, f, kids, parent);
     }
 
     void evaluate_flavour(int f) {
-        std_[f].resize(nodes_.size());
-        const auto& elems = st_.elems();
-        for (std::size_t i = 0; i < elems.size(); ++i) {
-            const StructElem& e = elems[i];
+        std_.assign(elems_.size() + 1, StdInfo{});
+        std_memo_.clear();
+        parent_memo_.clear();
+        pst_state_.clear();
+        pst_index_.clear();
+        psums_.clear();
+        for (std::size_t i = 0; i < elems_.size(); ++i) {
+            const StructElem& e = elems_[i];
             StdInfo s;
             s.root_type = cos::name_is(e.dict, "Type", "StructTreeRoot");
             if (f == 0) {
@@ -673,63 +816,35 @@ private:
                     s.name_pt = (T_.flags(s.tok) & TF_PT) != 0;
                 }
             } else if (e.std20) {
-                s.math = e.std20->ns_uri() == std::optional<std::string>(kNsMathML);
+                s.math = in_mathml_namespace(*e.std20);
                 s.name_pt = (flags_of(e.std20->type) & TF_PT) != 0;
                 s.tok = s.math ? C_.tok_mathml : T_.id(e.std20->type);
             }
-            std_[f][i] = s;
-            if (e.ref.valid()) std_memo_[f].emplace(e.ref.key(), s);
+            std_[i] = s;
         }
-        std_[f][root_] = StdInfo{};
-        pst_state_[f].assign(nodes_.size(), 0);
-        pst_index_[f].assign(nodes_.size(), -1);
 
-        std::vector<int> cand;
-        for (int n : evaluated()) {
-            int tok = std_[f][n].tok;
-            cand.clear();
-            cand.insert(cand.end(), C_.star[f].begin(), C_.star[f].end());
-            if (tok >= 0 && tok < static_cast<int>(C_.by_tok[f].size()))
-                cand.insert(cand.end(), C_.by_tok[f][tok].begin(), C_.by_tok[f][tok].end());
-            if (tok >= 0 && (T_.flags(tok) & TF_HN)) cand.insert(cand.end(), C_.hn[f].begin(), C_.hn[f].end());
-            bool need_kids = false, need_parent = false;
-            for (int ri : cand) {
-                need_kids |= C_.rules[ri].kids;
-                need_parent |= C_.rules[ri].parent;
-            }
-            Summary kids;
-            if (need_kids) kids = node_summary(n, f);
-            int parent = need_parent ? resolve_parent(cos::get(nodes_[n].dict, "P"), f) : -1;
-            for (int ri : cand) check(C_.rules[ri], n, f, false, &kids, parent);
+        // Elements whose rules are evaluated. Default: every element of the tree (each indirect element once,
+        // every direct element). Reference mode: exactly the elements veraPDF validates (its direct-element id
+        // "0 0 obj <S>" makes it skip all but one direct element per /S name, a veraPDF defect).
+        if (reference_dedup_) {
+            for (int n : st_.verapdf_order()) evaluate_element(n, f);
+        } else {
+            for (int n = 0; n < root_; ++n) evaluate_element(n, f);
         }
-        if (!C_.root[f].empty()) {
-            Summary kids = node_summary(root_, f);
-            for (int ri : C_.root[f]) check(C_.rules[ri], root_, f, true, &kids, -1);
+        const Group& root = C_.root[f];
+        if (root.first != root.last) {
+            Summary kids = node_summary(root_);
+            for (std::uint16_t i = root.first; i < root.last; ++i) check(C_.rules[C_.order[i]], root_, f, true, &kids, -1);
         }
     }
 };
 
 }  // namespace
 
-const GenRule* generated_rules(std::size_t* n) {
-    *n = sizeof(kRules) / sizeof(kRules[0]);
-    return kRules;
-}
-
-int find_generated(std::string_view id) {
-    static const std::unordered_map<std::string_view, int> index = [] {
-        std::unordered_map<std::string_view, int> m;
-        std::size_t n = sizeof(kRules) / sizeof(kRules[0]);
-        for (std::size_t i = 0; i < n; ++i) m.emplace(kRules[i].id, static_cast<int>(i));
-        return m;
-    }();
-    auto it = index.find(id);
-    return it == index.end() ? -1 : it->second;
-}
-
 bool test_passes(const GenRule& rule, const ObjectView& v) {
-    Types T = compiled().types;
-    CRule r = compile_rule(rule, 0, T);
+    Types T;
+    IdPool pool;
+    CRule r = compile_rule(rule, 0, T, pool);
     Summary k;
     k.content = v.has_content_items;
     for (const auto& s : v.kids) {
@@ -738,7 +853,7 @@ bool test_passes(const GenRule& rule, const ObjectView& v) {
     }
     int parent = v.parent_standard_type ? T.id(*v.parent_standard_type) : -1;
     int own = v.standard_type ? T.id(*v.standard_type) : -1;
-    return eval_rule(r, k, parent, own, T);
+    return eval_rule(r, pool.ids.data(), k, parent, own, T);
 }
 
 void evaluate(const StructTree& st, const Sink& sink, bool reference_dedup) {
