@@ -1182,10 +1182,26 @@ public:
     double py(double y) const { return (y - page_.lly) * scale_; }
     double ux(double px) const { return px / scale_ + page_.llx; }
     double uy(double py) const { return py / scale_ + page_.lly; }
-    unsigned char* at(int x, int y) { return &rgb_[(std::size_t(y) * std::size_t(w_) + std::size_t(x)) * 3]; }
-    const unsigned char* at(int x, int y) const { return &rgb_[(std::size_t(y) * std::size_t(w_) + std::size_t(x)) * 3]; }
-    unsigned char& unknown(int x, int y) { return unknown_[std::size_t(y) * std::size_t(w_) + std::size_t(x)]; }
-    unsigned char unknown(int x, int y) const { return unknown_[std::size_t(y) * std::size_t(w_) + std::size_t(x)]; }
+    // Only the wanted pixels (the extent [lo, hi) of each row, see want) have storage: all painting is clamped to them
+    // by span(), so every other pixel keeps the initial state for good: white, known. Reading one gives exactly that.
+    // The storage is laid out by allocate(), after the last want() and before the first pixel is touched.
+    void allocate() {
+        base_.assign(std::size_t(h_), 0);
+        std::size_t n = 0;
+        if (!lo_.empty())
+            for (int y = std::max(0, want_y0_); y < std::min(h_, want_y1_); ++y) {
+                if (lo_[std::size_t(y)] >= hi_[std::size_t(y)]) continue;
+                base_[std::size_t(y)] = std::ptrdiff_t(n) - lo_[std::size_t(y)];
+                n += std::size_t(hi_[std::size_t(y)] - lo_[std::size_t(y)]);
+            }
+        rgb_.assign(n * 3, 255);
+        unknown_.assign(n, 0);
+    }
+    // Writable pixel: painting reaches wanted pixels only (anything else would go to a scratch pixel nobody reads).
+    unsigned char* at(int x, int y) { return stored(x, y) ? &rgb_[index(x, y) * 3] : scratch_; }
+    const unsigned char* at(int x, int y) const { return stored(x, y) ? &rgb_[index(x, y) * 3] : kWhite; }
+    unsigned char& unknown(int x, int y) { return stored(x, y) ? unknown_[index(x, y)] : scratch_[3]; }
+    unsigned char unknown(int x, int y) const { return stored(x, y) ? unknown_[index(x, y)] : 0; }
     // Pixels that matter: the horizontal extent of the judged text boxes per row. Painting elsewhere is skipped.
     void want(int x0, int y0, int x1, int y1) {
         if (lo_.empty()) {
@@ -1213,11 +1229,18 @@ public:
     }
 
 private:
+    bool stored(int x, int y) const {
+        return !unknown_.empty() && x >= lo_[std::size_t(y)] && x < hi_[std::size_t(y)];   // not empty: allocate() ran, lo_ is set
+    }
+    std::size_t index(int x, int y) const { return std::size_t(base_[std::size_t(y)] + x); }
+    static constexpr unsigned char kWhite[3] = {255, 255, 255};
     Rect page_;
     double scale_ = 1;
     int w_ = 1, h_ = 1;
-    std::vector<unsigned char> rgb_;
-    std::vector<unsigned char> unknown_;
+    std::vector<unsigned char> rgb_;        // 3 bytes per wanted pixel, row after row
+    std::vector<unsigned char> unknown_;    // 1 byte per wanted pixel
+    std::vector<std::ptrdiff_t> base_;      // per row: index of pixel x is base_[y] + x (rows with wanted pixels)
+    unsigned char scratch_[4] = {255, 255, 255, 0};
     std::vector<int> lo_, hi_;
     int want_x0_ = 1 << 30, want_y0_ = 1 << 30, want_x1_ = 0, want_y1_ = 0;
 };
@@ -3009,6 +3032,7 @@ void ContrastEngine::flush_page(const ContentModel& cm) {
         for (int y = y0; y <= y1; ++y)
             for (int x = x0; x <= x1; ++x) touched[std::size_t(y * M + x)] = 1;
     }
+    canvas.allocate();   // the wanted pixels are complete
     for (std::size_t n = 0; n < items.size(); ++n) {
         const ContentItem& it = cm.items[items[n]];
         if (it.kind == ContentItem::Kind::Text) continue;
