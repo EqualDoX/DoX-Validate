@@ -1800,6 +1800,7 @@ private:
     void check_text(const ContentModel& cm, const ContentItem& it, const Canvas& canvas);
     bool background(const Canvas& canvas, const Window& w, unsigned char* out) const;
     std::pair<std::size_t, std::size_t> piece_range(int stream, std::uint32_t op) const;
+    mutable std::size_t piece_hint_ = 0;   // where the last piece_range ended (a guess for the next, checked there)
     const ReducedImage* image_of(const Obj& xo);
     Obj inline_image_stream(const RawOp& op, const StreamState& st);
     bool oc_is_off(const Obj& oc);
@@ -1854,6 +1855,7 @@ private:
     template <class CellRange, class PaintedBox>
     void wcag_figures(const ContentModel& cm, const std::vector<int>& parts, const std::vector<std::vector<int>>& cells, int n,
                       const CellRange& cell_range, const PaintedBox& painted_box);
+    std::unordered_map<const Font*, int> bold_states_;   // wcag::bold_state of a font shown in a mode other than 2 and 6
     std::vector<int> frame_fig_;           // per frame: -2 not looked up, -1 not inside a Figure, else its index in frame_fig_ref_
     std::vector<ObjRef> frame_fig_ref_;    // one entry per frame inside a Figure
     bool wcag_inc_all_ = false, wcag_inc_review_ = false;
@@ -2784,7 +2786,15 @@ void ContrastEngine::wcag_text(const ContentModel& cm, const ContentItem& it, co
     f.ratio = wcag_contrast(fgc, bg);
     if (f.ratio >= 4.5) return;
     f.size = tr.size_user;
-    f.bold = wcag::bold_state(tr.font, tr.tr);
+    // wcag::bold_state(tr.font, tr.tr): -1 without a font and for fill-and-stroke modes, else a fact of the font
+    // dictionary, read once per font
+    if (!tr.font || tr.tr == 2 || tr.tr == 6) {
+        f.bold = -1;
+    } else {
+        auto known = bold_states_.find(tr.font);
+        if (known == bold_states_.end()) known = bold_states_.emplace(tr.font, wcag::bold_state(tr.font, tr.tr)).first;
+        f.bold = known->second;
+    }
     f.rendered = rendered;
     const Color& tc = uses_stroke(tr.tr) ? tr.stroke : tr.fill;
     f.device_colour = !exact_bg || !(tc.family == ColorFamily::Gray || tc.family == ColorFamily::RGB);
@@ -3847,11 +3857,16 @@ bool ContrastEngine::background(const Canvas& canvas, const Window& w, unsigned 
 }
 
 std::pair<std::size_t, std::size_t> ContrastEngine::piece_range(int stream, std::uint32_t op) const {
-    auto it = std::lower_bound(pieces_.begin(), pieces_.end(), std::make_pair(stream, op), [](const TextPiece& p, const std::pair<int, std::uint32_t>& k) {
-        return std::make_pair(p.stream, p.op) < k;
-    });
-    std::size_t lo = std::size_t(it - pieces_.begin()), hi = lo;
+    const std::pair<int, std::uint32_t> key(stream, op);
+    const auto below = [](const TextPiece& p, const std::pair<int, std::uint32_t>& k) { return std::make_pair(p.stream, p.op) < k; };
+    // The lower bound of the key in the sorted pieces: the position with every piece before it below the key and the
+    // piece at it not below. The runs ask in paint order, so that is mostly where the range before ended: tried first.
+    std::size_t lo = piece_hint_;
+    if (lo > pieces_.size() || (lo > 0 && !below(pieces_[lo - 1], key)) || (lo < pieces_.size() && below(pieces_[lo], key)))
+        lo = std::size_t(std::lower_bound(pieces_.begin(), pieces_.end(), key, below) - pieces_.begin());
+    std::size_t hi = lo;
     while (hi < pieces_.size() && pieces_[hi].stream == stream && pieces_[hi].op == op) ++hi;
+    piece_hint_ = hi;
     return {lo, hi};
 }
 
