@@ -252,7 +252,11 @@ inline bool is_whitespace_only(const RunText& t) {
 
 // Content items and text runs are read as views: `cm.items[i]` and `cm.texts[i]` build them from the compact
 // records the model keeps. Bind the result to a const reference or copy it; the view itself has no address in the
-// model. Its boxes, colours and text refer to the model, so they stay valid for as long as the model does.
+// model. Its boxes, colours and text refer to the model, so they stay valid for as long as the model keeps the item.
+//
+// With ContentModel::release_consumed set, the model keeps the items and runs of one page at a time: they are given
+// back when the page's content stream has ended and every observer has been told (ContentObserver::on_stream_end).
+// Indices and size() are those of the whole document all the same; reading a released item or run throws.
 struct ContentItem {
     enum class Kind : std::uint8_t { Text, LineArt, Shading, InlineImage, ImageXObject };
     Kind kind;
@@ -333,6 +337,8 @@ struct PaintRecord {
 };
 inline const PaintRecord kNoPaint{};   // what an item that is not line art reads as its painting attributes
 
+[[noreturn]] void throw_released(const char* what, std::size_t index);   // std::logic_error
+
 }  // namespace content_detail
 
 class ContentItems {
@@ -344,6 +350,7 @@ public:
     bool empty() const { return recs_.empty(); }
 
     [[gnu::always_inline]] inline ContentItem operator[](std::size_t i) const {   // inlined: only the fields that are read get built
+        if (i < live_begin_) [[unlikely]] content_detail::throw_released("content item", i);
         const content_detail::ItemRecord& r = recs_[i];
         const ContentItem::Kind kind = static_cast<ContentItem::Kind>(r.kind);
         const PaintRecord& p = kind == ContentItem::Kind::LineArt ? paints_[r.aux] : content_detail::kNoPaint;
@@ -422,8 +429,24 @@ public:
         recs_[static_cast<std::size_t>(item)].aux = static_cast<std::uint32_t>(xobjects_.size() - 1);
         return item;
     }
-    content_detail::ItemRecord& record(std::size_t i) { return recs_[i]; }
-    const content_detail::ItemRecord& record(std::size_t i) const { return recs_[i]; }
+    content_detail::ItemRecord& record(std::size_t i) {
+        if (i < live_begin_) [[unlikely]] content_detail::throw_released("content item", i);
+        return recs_[i];
+    }
+    const content_detail::ItemRecord& record(std::size_t i) const {
+        if (i < live_begin_) [[unlikely]] content_detail::throw_released("content item", i);
+        return recs_[i];
+    }
+    // Gives the items below `n` back (n <= size()). The first item that can still be read is live_begin().
+    void release_before(std::size_t n) {
+        if (n <= live_begin_) return;
+        live_begin_ = n;
+        recs_.release_before(n);
+        // the last paint record stays: the next path may share it
+        if (!paints_.empty()) paints_.release_before(paints_.size() - 1);
+        xobjects_.release_before(xobjects_.size());
+    }
+    std::size_t live_begin() const { return live_begin_; }
 
 private:
     // Consecutive paths mostly share their fill: a paint record equal to the last one is not stored again.
@@ -441,6 +464,7 @@ private:
     ChunkedVector<content_detail::ItemRecord> recs_;   // append-only: chunked, so growing never copies
     ChunkedVector<PaintRecord, 256> paints_;
     ChunkedVector<ObjRef, 256> xobjects_;
+    std::size_t live_begin_ = 0;   // items below it were released
 };
 
 class ContentTexts {
@@ -456,6 +480,7 @@ public:
     bool empty() const { return recs_.empty(); }
 
     [[gnu::always_inline]] inline TextRun operator[](std::size_t i) const {
+        if (i < live_begin_) [[unlikely]] content_detail::throw_released("text run", i);
         const content_detail::TextRecord& r = recs_[i];
         const content_detail::TextStyle& s = styles_[r.style_shift & kStyleMask];
         const content_detail::ItemRecord& it = items_->record(r.item);
@@ -522,6 +547,10 @@ public:
         append_any(s, n);
     }
     void end_run(std::uint32_t glyphs, std::uint32_t unmapped) noexcept;
+    // Gives the runs below `n` and their text back; n is size() and no run is open (the interpreter calls it between
+    // two pages). The first run that can still be read is live_begin().
+    void release_before(std::size_t n);
+    std::size_t live_begin() const { return live_begin_; }
 
 private:
     static constexpr std::uint32_t kStyleMask = (std::uint32_t(1) << 30) - 1;
@@ -535,6 +564,7 @@ private:
     std::unordered_multimap<std::uint64_t, std::uint32_t> style_index_;   // hash of a style -> its index
     std::uint32_t last_style_ = 0;
     ContentItems* items_ = nullptr;
+    std::size_t live_begin_ = 0;   // runs below it were released
     // Text arena: blocks of bytes. The open run is the tail of the last block.
     std::vector<unsigned char*> blocks_;
     unsigned char* open_text_ = nullptr;           // the text of the open run
@@ -596,11 +626,21 @@ public:
     ContentTexts texts;
     std::vector<SignatureGraphic> signature_graphics;
     bool budget_exceeded = false;   // operator budget hit, or a repeated stream elided: interpretation incomplete
+    // Set before the interpretation by a caller whose readers of `items` and `texts` all take what they need of a
+    // page when its content stream ends (on_stream_end): the interpreter then gives the items and runs of the page
+    // back once every observer has been told. Items exist for page content only (a page's stream and the forms it
+    // paints), so what is given back is everything read so far.
+    bool release_consumed = false;
+    void release_items() {
+        items.release_before(items.size());
+        texts.release_before(texts.size());
+    }
     bool form_depth_exceeded = false;  // no longer set: forms nest without a limit (kept for the engine's check)
 
     // --- veraPDF content-item semantics ---------------------------------------------------------
     // Structure parent of an item's grouped content (frame's struct_elem, else the stream's).
-    Obj item_struct_parent(const ContentItem& it) const;
+    Obj item_struct_parent(const ContentItem& it) const { return item_struct_parent(it.stream, it.frame); }
+    Obj item_struct_parent(int stream, int frame) const;
     // parentsTags of a frame (stream-level inherited tags + tags of the frame chain).
     std::vector<std::string> parents_tags(int stream, int frame) const;   // walks the invoking streams
     bool parents_tags_contain(int stream, int frame, std::string_view tag) const;

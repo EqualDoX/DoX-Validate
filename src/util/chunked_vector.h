@@ -4,6 +4,8 @@
 //
 // A chunk is raw storage: an element is constructed when it is appended, so a chunk that is only partly used costs
 // neither construction time nor resident memory for the unused part.
+//
+// release_before(n) gives the chunks that hold only elements below n back; the indices of the other elements stay.
 #pragma once
 
 #include <cstddef>
@@ -27,17 +29,20 @@ public:
     ChunkedVector() = default;
     ChunkedVector(const ChunkedVector&) = delete;
     ChunkedVector& operator=(const ChunkedVector&) = delete;
-    ChunkedVector(ChunkedVector&& o) noexcept : chunks_(std::move(o.chunks_)), size_(o.size_) {
+    ChunkedVector(ChunkedVector&& o) noexcept : chunks_(std::move(o.chunks_)), size_(o.size_), released_(o.released_) {
         o.chunks_.clear();
         o.size_ = 0;
+        o.released_ = 0;
     }
     ChunkedVector& operator=(ChunkedVector&& o) noexcept {
         if (this != &o) {
             clear();
             chunks_ = std::move(o.chunks_);
             size_ = o.size_;
+            released_ = o.released_;
             o.chunks_.clear();
             o.size_ = 0;
+            o.released_ = 0;
         }
         return *this;
     }
@@ -71,11 +76,28 @@ public:
 
     void clear() {
         if (!std::is_trivially_destructible_v<T>)
-            for (std::size_t i = 0; i < size_; ++i) (*this)[i].~T();
-        for (T* c : chunks_) ::operator delete(c, std::align_val_t(alignof(T)));
+            for (std::size_t i = released_ * ChunkSize; i < size_; ++i) (*this)[i].~T();
+        for (T* c : chunks_)
+            if (c) ::operator delete(c, std::align_val_t(alignof(T)));
         chunks_.clear();
         size_ = 0;
+        released_ = 0;
     }
+
+    // Destroys the elements of every chunk that lies wholly below index `n` (n <= size()) and frees those chunks.
+    // The elements below released_end() are gone and must not be accessed; size() and every other index are unchanged.
+    void release_before(std::size_t n) {
+        const std::size_t whole = (n < size_ ? n : size_) / ChunkSize;
+        for (; released_ < whole; ++released_) {
+            T* c = chunks_[released_];
+            if (!std::is_trivially_destructible_v<T>)
+                for (std::size_t i = 0; i < ChunkSize; ++i) c[i].~T();
+            ::operator delete(c, std::align_val_t(alignof(T)));
+            chunks_[released_] = nullptr;
+        }
+    }
+    // The first index whose element is still stored.
+    std::size_t released_end() const { return released_ * ChunkSize; }
 
     template <bool Const>
     class Iter {
@@ -116,6 +138,7 @@ public:
 private:
     std::vector<T*> chunks_;
     std::size_t size_ = 0;
+    std::size_t released_ = 0;   // chunks [0, released_) are freed
 };
 
 }  // namespace eqx

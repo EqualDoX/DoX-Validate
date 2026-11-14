@@ -93,6 +93,31 @@ ContentTexts::~ContentTexts() {
     for (unsigned char* b : blocks_) delete[] b;
 }
 
+void content_detail::throw_released(const char* what, std::size_t index) {
+    throw std::logic_error(std::string(what) + " " + std::to_string(index) + " is read after its page was released");
+}
+
+void ContentTexts::release_before(std::size_t n) {
+    if (open_ || n != recs_.size() || n <= live_begin_) return;
+    live_begin_ = n;
+    recs_.release_before(n);
+    // Every run is released, so no block holds text that is still read: all but the last block go, and the last
+    // one (the block new text is written to) is filled from its start again, unless it was made for one long run.
+    if (!blocks_.empty()) {
+        for (std::size_t b = 0; b + 1 < blocks_.size(); ++b) delete[] blocks_[b];
+        unsigned char* last = blocks_.back();
+        blocks_.clear();
+        if (static_cast<std::size_t>(cap_ - last) > kTextBlock) {
+            delete[] last;
+            end_ = cap_ = nullptr;
+        } else {
+            blocks_.push_back(last);   // room for it is there: the vector held it
+            end_ = last;
+        }
+    }
+    large_.clear();
+}
+
 std::uint32_t ContentTexts::intern(const TextStyle& style) {
     if (!styles_.empty() && same_style(styles_[last_style_], style)) return last_style_;
     const std::uint64_t h = style_hash(style);
@@ -198,12 +223,12 @@ void ContentTexts::make_room(std::size_t n, unsigned shift) {
 
 // --- ContentModel helpers ---------------------------------------------------------------------------
 
-Obj ContentModel::item_struct_parent(const ContentItem& it) const {
-    if (it.frame >= 0) {
-        const Obj& se = frames[it.frame].struct_elem;
+Obj ContentModel::item_struct_parent(int stream, int frame) const {
+    if (frame >= 0) {
+        const Obj& se = frames[frame].struct_elem;
         if (se.isDictionary()) return se;
     }
-    return streams[it.stream].parent_struct_elem;
+    return streams[stream].parent_struct_elem;
 }
 
 std::vector<std::string> ContentModel::parents_tags(int stream, int frame) const {
@@ -888,6 +913,8 @@ void Interpreter::finish(Exec& x) {
         }
     }
     for (ContentObserver* ob : end_obs_) ob->on_stream_end(m_, si);
+    // A page's content has ended and every observer was told: what it left in the model is not read again.
+    if (m_.release_consumed && s.kind == StreamInstance::Kind::Page) m_.release_items();
     if (x.active_key) active_.erase(ref_of(s.stream).key());
 }
 

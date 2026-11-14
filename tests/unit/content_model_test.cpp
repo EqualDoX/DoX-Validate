@@ -320,3 +320,91 @@ EQX_TEST(content_model_chunked_vector) {
     }
     EXPECT_EQ(Counted::alive, 0);
 }
+
+EQX_TEST(content_model_release_keeps_indices_and_fails_loudly) {
+    ContentModel cm;
+    Lcg rng;
+    std::vector<std::u32string> expect;
+    const auto add_page = [&](int runs) {
+        for (int i = 0; i < runs; ++i) {
+            std::u32string t;
+            const std::size_t len = (expect.size() % 211 == 0) ? 100000 + rng.next() % 50000 : rng.next() % 30;
+            for (std::size_t k = 0; k < len; ++k) t.push_back(char32_t(0x20 + rng.next() % (expect.size() % 7 == 0 ? 0x3000 : 0x5f)));
+            const int item = cm.items.add(ContentItem::Kind::Text, 0, -1, static_cast<std::uint32_t>(expect.size()), nullptr);
+            cm.texts.begin_run(item, style_of(10));
+            if (!t.empty()) cm.texts.append(t.data(), t.size());
+            cm.texts.end_run(static_cast<std::uint32_t>(t.size()), 0);
+            Color c;
+            c.rgb[0] = 0.25f;
+            cm.items.add_line_art(0, -1, 1, nullptr, 1, c, 1.0f, false);
+            expect.push_back(std::move(t));
+        }
+    };
+    const auto throws = [](auto&& f) {
+        try {
+            f();
+        } catch (const std::logic_error&) {
+            return true;
+        }
+        return false;
+    };
+    std::size_t released_items = 0, released_runs = 0;
+    for (int page = 0; page < 12; ++page) {
+        const std::size_t first_run = cm.texts.size(), first_item = cm.items.size();
+        add_page(700 + page * 130);
+        // the page reads back, with the indices of the whole document
+        bool same = true;
+        for (std::size_t r = first_run; r < cm.texts.size(); ++r) {
+            const TextRun& run = cm.texts[r];
+            same = same && run.text.str() == expect[r] && run.glyphs == expect[r].size() &&
+                   run.item == static_cast<int>(first_item + 2 * (r - first_run)) && cm.items[static_cast<std::size_t>(run.item)].text == static_cast<int>(r);
+            const ContentItem& path = cm.items[static_cast<std::size_t>(run.item) + 1];
+            same = same && path.kind == ContentItem::Kind::LineArt && path.fill.rgb[0] == 0.25f && path.paint == 1;
+        }
+        EXPECT(same);
+        if (page % 3 == 2) continue;   // some pages stay until the next release
+        cm.release_items();
+        released_items = cm.items.size();
+        released_runs = cm.texts.size();
+        EXPECT_EQ(cm.items.live_begin(), released_items);
+        EXPECT_EQ(cm.texts.live_begin(), released_runs);
+        EXPECT(throws([&] { (void)cm.items[released_items - 1]; }));
+        EXPECT(throws([&] { (void)cm.items[0]; }));
+        EXPECT(throws([&] { (void)cm.texts[released_runs - 1]; }));
+        EXPECT(throws([&] { (void)cm.texts[0]; }));
+        EXPECT(throws([&] { (void)cm.items.record(first_item); }));
+    }
+    EXPECT_EQ(cm.texts.size(), expect.size());
+    EXPECT_EQ(cm.items.size(), 2 * expect.size());
+    // range-for from the start reaches released items: it fails instead of reading something else
+    EXPECT(throws([&] {
+        for (const ContentItem& it : cm.items) (void)it;
+    }));
+}
+
+EQX_TEST(content_model_chunked_vector_release) {
+    {
+        ChunkedVector<Counted, 16> v;
+        for (int i = 0; i < 100; ++i) v.emplace_back(i);
+        v.release_before(15);                 // no whole chunk below 15
+        EXPECT_EQ(Counted::alive, 100);
+        EXPECT_EQ(v.released_end(), std::size_t(0));
+        v.release_before(40);                 // chunks 0 and 1
+        EXPECT_EQ(Counted::alive, 68);
+        EXPECT_EQ(v.released_end(), std::size_t(32));
+        EXPECT_EQ(v[32].v, 32);
+        EXPECT_EQ(v.back().v, 99);
+        v.release_before(20);                 // nothing more
+        EXPECT_EQ(Counted::alive, 68);
+        for (int i = 100; i < 200; ++i) v.emplace_back(i);
+        EXPECT_EQ(v[199].v, 199);
+        v.release_before(1000);               // more than there is: whole chunks only, the last partly used one stays
+        EXPECT_EQ(v.released_end(), std::size_t(192));
+        EXPECT_EQ(Counted::alive, 8);
+        EXPECT_EQ(v.size(), std::size_t(200));
+        ChunkedVector<Counted, 16> w = std::move(v);
+        EXPECT_EQ(w.released_end(), std::size_t(192));
+        EXPECT_EQ(w[195].v, 195);
+    }
+    EXPECT_EQ(Counted::alive, 0);
+}
