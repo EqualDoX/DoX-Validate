@@ -556,7 +556,9 @@ private:
         std::vector<int> stream_parent_order;
         for (const ContentItem& it : cm.items) {
             if (it.stream < 0 || !cm.streams[it.stream].semantic) continue;
-            const TextRun* run = (it.kind == ContentItem::Kind::Text && it.text >= 0) ? &cm.texts[it.text] : nullptr;
+            std::optional<TextRun> run_view;   // cm.texts[i] is a view, built on access
+            if (it.kind == ContentItem::Kind::Text && it.text >= 0) run_view.emplace(cm.texts[it.text]);
+            const TextRun* run = run_view ? &*run_view : nullptr;
             int page = cm.page_of(it.stream);
             int mf = mcid_frame(it.stream, it.frame);
             // Artifact content belongs to no element, unless the sequence has an MCID: Word writes /Artifact <</MCID n>> BDC
@@ -1240,7 +1242,7 @@ private:
             const McFrame& fr = cm.frames[f];
             if (fr.stream < 0 || !cm.streams[fr.stream].semantic) continue;
             struct K {
-                const std::optional<std::string>* value;
+                const OptString* value;
                 const char* key;
                 RuleIndex rule;
             };

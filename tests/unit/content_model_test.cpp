@@ -1,0 +1,307 @@
+// Unit tests of the content model's storage: the views that cm.items[i] and cm.texts[i] build must read back exactly
+// what the interpreter stored, whatever the width of the text, the size of a run or the number of runs.
+#include <cmath>
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "core/content.h"
+#include "unit.h"
+
+using namespace eqx;
+
+namespace {
+
+content_detail::TextStyle style_of(double size, int tr = 0) {
+    content_detail::TextStyle s;
+    s.size = size;
+    s.size_user = size * 2;
+    s.tr = tr;
+    return s;
+}
+
+// Deterministic pseudo-random numbers (the tests must not depend on the platform's generator).
+struct Lcg {
+    std::uint64_t state = 0x2545F4914F6CDD1Dull;
+    std::uint32_t next() {
+        state = state * 6364136223846793005ull + 1442695040888963407ull;
+        return static_cast<std::uint32_t>(state >> 33);
+    }
+};
+
+std::u32string read(const ContentModel& cm, std::size_t run) { return cm.texts[run].text.str(); }
+
+}  // namespace
+
+EQX_TEST(content_model_text_roundtrip_all_widths) {
+    ContentModel cm;
+    const std::vector<std::u32string> texts = {
+        U"plain ASCII",
+        U"",
+        U"Latin-1 äöüÿ",
+        std::u32string{0x20AC, 0x4E2D, 0xFFFD, 0xD800},     // a lone surrogate value stays what it is
+        U"astral \U0001F600\U0010FFFF",
+        std::u32string{0x41, 0x110000, 0xFFFFFFFFu, 0},     // values that are no code points, and U+0000
+        U"x",
+    };
+    for (std::size_t i = 0; i < texts.size(); ++i) {
+        const int item = cm.items.add(ContentItem::Kind::Text, 0, -1, static_cast<std::uint32_t>(i), nullptr);
+        cm.texts.begin_run(item, style_of(10));
+        // one code point at a time, the way the interpreter appends the Unicode value of each glyph
+        for (char32_t c : texts[i]) cm.texts.append(&c, 1);
+    }
+    EXPECT_EQ(cm.texts.size(), texts.size());
+    for (std::size_t i = 0; i < texts.size(); ++i) {
+        const TextRun& run = cm.texts[i];
+        EXPECT(read(cm, i) == texts[i]);
+        EXPECT_EQ(run.text.size(), texts[i].size());
+        EXPECT_EQ(run.text.empty(), texts[i].empty());
+        EXPECT(run.text == std::u32string_view(texts[i]));
+        EXPECT_EQ(to_utf8(run.text), to_utf8(texts[i]));
+        EXPECT_EQ(is_whitespace_only(run.text), is_whitespace_only(std::u32string_view(texts[i])));
+        std::u32string by_iteration;
+        for (char32_t c : run.text) by_iteration.push_back(c);
+        EXPECT(by_iteration == texts[i]);
+        if (!texts[i].empty()) {
+            EXPECT(run.text.front() == texts[i].front());
+            EXPECT(run.text.back() == texts[i].back());
+        }
+        std::u32string appended = U"<";
+        appended += run.text;
+        EXPECT(appended == U"<" + texts[i]);
+        EXPECT_EQ(cm.items[static_cast<std::size_t>(run.item)].text, static_cast<int>(i));
+    }
+}
+
+EQX_TEST(content_model_text_widens_an_open_run) {
+    ContentModel cm;
+    // narrow, then wider, then widest code points in one run: what was stored narrow must survive both widenings
+    std::u32string expect;
+    const int item = cm.items.add(ContentItem::Kind::Text, 0, -1, 0, nullptr);
+    cm.texts.begin_run(item, style_of(12));
+    for (int round = 0; round < 3; ++round) {
+        for (int k = 0; k < 5000; ++k) {
+            const char32_t c = round == 0 ? char32_t('a' + k % 26) : round == 1 ? char32_t(0x400 + k % 200) : char32_t(0x1F300 + k % 500);
+            cm.texts.append(&c, 1);
+            expect.push_back(c);
+        }
+        EXPECT(read(cm, 0) == expect);
+    }
+    // a second run after it starts clean and narrow
+    const int item2 = cm.items.add(ContentItem::Kind::Text, 0, -1, 1, nullptr);
+    cm.texts.begin_run(item2, style_of(12));
+    const std::u32string tail = U"tail";
+    cm.texts.append(tail.data(), tail.size());
+    EXPECT(read(cm, 1) == tail);
+    EXPECT(read(cm, 0) == expect);
+}
+
+EQX_TEST(content_model_text_many_runs_and_long_runs) {
+    ContentModel cm;
+    Lcg rng;
+    std::vector<std::u32string> expect;
+    // Runs of very different lengths, so that runs end exactly at, shortly before and far beyond the end of a block
+    // of the text arena, and a run outgrows the block it started in.
+    for (int i = 0; i < 4000; ++i) {
+        std::size_t len = rng.next() % 40;
+        if (i % 997 == 0) len = 70000 + rng.next() % 200000;
+        if (i % 131 == 0) len = 0;
+        const unsigned width = rng.next() % 10;   // mostly narrow text
+        std::u32string t;
+        for (std::size_t k = 0; k < len; ++k) {
+            const std::uint32_t r = rng.next();
+            t.push_back(width < 7 ? char32_t(0x20 + r % 0x5f) : width < 9 ? char32_t(0x100 + r % 0xff00) : char32_t(0x10000 + r % 0x100000));
+        }
+        const int item = cm.items.add(ContentItem::Kind::Text, i % 7, -1, static_cast<std::uint32_t>(i), nullptr);
+        cm.texts.begin_run(item, style_of(8 + i % 3));
+        // in pieces of varying size
+        for (std::size_t at = 0; at < t.size();) {
+            const std::size_t n = std::min<std::size_t>(t.size() - at, 1 + rng.next() % 9);
+            cm.texts.append(t.data() + at, n);
+            at += n;
+        }
+        expect.push_back(std::move(t));
+    }
+    EXPECT_EQ(cm.texts.size(), expect.size());
+    bool all = true;
+    for (std::size_t i = 0; i < expect.size(); ++i) all = all && read(cm, i) == expect[i];
+    EXPECT(all);
+}
+
+EQX_TEST(content_model_text_styles_keep_every_bit) {
+    ContentModel cm;
+    Font* const font_a = reinterpret_cast<Font*>(std::uintptr_t(0x1000));
+    Font* const font_b = reinterpret_cast<Font*>(std::uintptr_t(0x2000));
+    std::vector<content_detail::TextStyle> styles;
+    content_detail::TextStyle s = style_of(10);
+    s.font = font_a;
+    styles.push_back(s);
+    styles.push_back(s);                    // the same again
+    s.size = -0.0;                          // 0.0 and -0.0 compare equal and must stay apart
+    styles.push_back(s);
+    s.size = 0.0;
+    styles.push_back(s);
+    s.size_user = std::nan("");
+    styles.push_back(s);
+    styles.push_back(s);
+    s.size_user = 3.25;
+    s.font = font_b;
+    styles.push_back(s);
+    s.fill.family = ColorFamily::RGB;
+    s.fill.rgb[1] = 0.5f;
+    styles.push_back(s);
+    s.stroke.family = ColorFamily::CMYK;
+    s.stroke.rgb[2] = 0.25f;
+    s.fill_alpha = 0.75;
+    s.tr = 3;
+    styles.push_back(s);
+    styles.push_back(styles[0]);            // an earlier style again, after others
+    for (std::size_t i = 0; i < styles.size(); ++i) {
+        const int item = cm.items.add(ContentItem::Kind::Text, 0, -1, static_cast<std::uint32_t>(i), nullptr);
+        cm.texts.begin_run(item, styles[i]);
+    }
+    const auto bits = [](double v) {
+        std::uint64_t b;
+        std::memcpy(&b, &v, sizeof b);
+        return b;
+    };
+    for (std::size_t i = 0; i < styles.size(); ++i) {
+        const TextRun& run = cm.texts[i];
+        const content_detail::TextStyle& e = styles[i];
+        EXPECT(run.font == e.font);
+        EXPECT_EQ(bits(run.size), bits(e.size));
+        EXPECT_EQ(bits(run.size_user), bits(e.size_user));
+        EXPECT_EQ(bits(run.fill_alpha), bits(e.fill_alpha));
+        EXPECT_EQ(run.tr, e.tr);
+        EXPECT(run.fill.family == e.fill.family && run.stroke.family == e.stroke.family);
+        for (int k = 0; k < 3; ++k) EXPECT(run.fill.rgb[k] == e.fill.rgb[k] && run.stroke.rgb[k] == e.stroke.rgb[k]);
+    }
+}
+
+EQX_TEST(content_model_item_views) {
+    ContentModel cm;
+    const Rect box{1, 2, 3, 4};
+    const int text = cm.items.add(ContentItem::Kind::Text, 3, 7, 11, nullptr);
+    content_detail::TextRecord& rec = cm.texts.begin_run(text, style_of(9));
+    cm.items.record(static_cast<std::size_t>(text)).glyphs = 5;
+    rec.unmapped = 2;
+    const int path = cm.items.add(ContentItem::Kind::LineArt, 3, -1, 12, &box);
+    Color red;
+    red.family = ColorFamily::RGB;
+    red.rgb[0] = 1;
+    cm.items.set_paint(path, 3, red, 0.5f, true);
+    const int path2 = cm.items.add(ContentItem::Kind::LineArt, 3, -1, 13, nullptr);
+    cm.items.set_paint(path2, 1, red, 0.5f, false);            // the same paint as the path before it
+    const int shading = cm.items.add(ContentItem::Kind::Shading, 4, 2, 14, nullptr);
+    const int image = cm.items.add(ContentItem::Kind::ImageXObject, 4, 2, 15, &box);
+    cm.items.set_xobject(image, ObjRef{42, 1});
+    const int inline_image = cm.items.add(ContentItem::Kind::InlineImage, 5, -1, 16, &box);
+    EXPECT_EQ(cm.items.size(), std::size_t(6));
+
+    const ContentItem& t = cm.items[static_cast<std::size_t>(text)];
+    EXPECT(t.kind == ContentItem::Kind::Text);
+    EXPECT_EQ(t.stream, 3);
+    EXPECT_EQ(t.frame, 7);
+    EXPECT_EQ(t.op_index, 11u);
+    EXPECT(!t.bbox_valid);
+    EXPECT(t.bbox.llx == 0 && t.bbox.lly == 0 && t.bbox.urx == 0 && t.bbox.ury == 0);
+    EXPECT_EQ(t.text, 0);
+    EXPECT(!t.xobject.valid());
+    EXPECT(t.fill.family == ColorFamily::Gray && t.fill.rgb[0] == 0 && t.fill_alpha == 1.0f && t.paint == 0 && !t.exact_rect);
+    const TextRun& run = cm.texts[0];
+    EXPECT_EQ(run.item, text);
+    EXPECT_EQ(run.glyphs, 5u);
+    EXPECT_EQ(run.unmapped, 2u);
+    EXPECT(run.size == 9 && run.size_user == 18);
+
+    const ContentItem& p = cm.items[static_cast<std::size_t>(path)];
+    EXPECT(p.kind == ContentItem::Kind::LineArt);
+    EXPECT(p.bbox_valid && p.bbox.llx == 1 && p.bbox.ury == 4);
+    EXPECT_EQ(p.text, -1);
+    EXPECT(p.fill.family == ColorFamily::RGB && p.fill.rgb[0] == 1 && p.fill_alpha == 0.5f);
+    EXPECT_EQ(int(p.paint), 3);
+    EXPECT(p.exact_rect);
+    const ContentItem& p2 = cm.items[static_cast<std::size_t>(path2)];
+    EXPECT(!p2.bbox_valid && p2.fill.rgb[0] == 1 && p2.fill_alpha == 0.5f && p2.paint == 1 && !p2.exact_rect);
+
+    const ContentItem& s = cm.items[static_cast<std::size_t>(shading)];
+    EXPECT(s.kind == ContentItem::Kind::Shading && s.text == -1 && !s.bbox_valid && s.frame == 2 && s.paint == 0);
+    EXPECT(s.fill.family == ColorFamily::Gray && s.fill_alpha == 1.0f);
+    const ContentItem& im = cm.items[static_cast<std::size_t>(image)];
+    EXPECT(im.kind == ContentItem::Kind::ImageXObject && im.xobject == (ObjRef{42, 1}) && im.text == -1 && im.bbox_valid);
+    const ContentItem& ii = cm.items[static_cast<std::size_t>(inline_image)];
+    EXPECT(ii.kind == ContentItem::Kind::InlineImage && !ii.xobject.valid() && ii.stream == 5);
+
+    // The boxes and colours of a view are the model's: they stay valid and current when the view is gone.
+    const Rect* kept_box = &cm.items[static_cast<std::size_t>(path)].bbox;
+    const float* kept_fill = cm.items[static_cast<std::size_t>(path)].fill.rgb;
+    for (int i = 0; i < 5000; ++i) cm.items.add(ContentItem::Kind::Shading, 0, -1, 100 + i, nullptr);
+    EXPECT(kept_box->urx == 3 && kept_fill[0] == 1);
+
+    std::size_t n = 0;
+    int ops = 0;
+    for (const ContentItem& it : cm.items) {
+        if (n < 6) ops += static_cast<int>(it.op_index);
+        ++n;
+    }
+    EXPECT_EQ(n, cm.items.size());
+    EXPECT_EQ(ops, 11 + 12 + 13 + 14 + 15 + 16);
+}
+
+EQX_TEST(content_model_opt_string) {
+    OptString none;
+    EXPECT(!none && !none.has_value());
+    EXPECT_EQ(none.value_or("x"), std::string("x"));
+    OptString some = std::optional<std::string>("abc");
+    EXPECT(some && *some == "abc" && some->size() == 3 && some.value() == "abc");
+    OptString copy = some;
+    some = std::optional<std::string>();
+    EXPECT(!some);
+    EXPECT(copy && *copy == "abc");
+    const std::optional<std::string> back = copy;
+    EXPECT(back && *back == "abc");
+    const std::optional<std::string> nothing = some;
+    EXPECT(!nothing);
+    McFrame f;
+    f.lang = std::optional<std::string>("de");
+    McFrame g = f;
+    McFrame h = std::move(f);
+    EXPECT(g.lang && *g.lang == "de" && h.lang && *h.lang == "de" && !g.alt);
+}
+
+namespace {
+struct Counted {
+    static int alive;
+    int v;
+    explicit Counted(int x) : v(x) { ++alive; }
+    Counted(const Counted& o) : v(o.v) { ++alive; }
+    ~Counted() { --alive; }
+};
+int Counted::alive = 0;
+}  // namespace
+
+EQX_TEST(content_model_chunked_vector) {
+    {
+        ChunkedVector<Counted, 16> v;
+        EXPECT(v.empty());
+        for (int i = 0; i < 100; ++i) v.emplace_back(i);
+        const Counted* first = &v[0];
+        for (int i = 100; i < 1000; ++i) v.push_back(Counted(i));
+        EXPECT_EQ(v.size(), std::size_t(1000));
+        EXPECT_EQ(Counted::alive, 1000);
+        EXPECT(first == &v[0]);            // growing never moves an element
+        int sum = 0;
+        for (const Counted& c : v) sum += c.v;
+        EXPECT_EQ(sum, 999 * 1000 / 2);
+        EXPECT_EQ(v.back().v, 999);
+        ChunkedVector<Counted, 16> w = std::move(v);
+        EXPECT_EQ(w.size(), std::size_t(1000));
+        EXPECT(v.empty());
+        EXPECT_EQ(Counted::alive, 1000);
+        w.clear();
+        EXPECT_EQ(Counted::alive, 0);
+        w.emplace_back(7);
+        EXPECT_EQ(w[0].v, 7);
+    }
+    EXPECT_EQ(Counted::alive, 0);
+}

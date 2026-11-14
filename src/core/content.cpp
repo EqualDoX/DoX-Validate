@@ -5,9 +5,11 @@
 #include <zlib.h>
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <limits>
 #include <memory>
+#include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -16,6 +18,142 @@
 #include "util/text.h"
 
 namespace eqx {
+
+// --- Text runs --------------------------------------------------------------------------------------
+
+namespace {
+
+using content_detail::TextRecord;
+using content_detail::TextStyle;
+
+constexpr std::size_t kTextBlock = 64 * 1024;
+
+// Two styles are the same only when every value has the same bits (0.0 and -0.0 print differently).
+std::uint32_t float_bits(float v) { return std::bit_cast<std::uint32_t>(v); }
+std::uint64_t double_bits(double v) { return std::bit_cast<std::uint64_t>(v); }
+
+bool same_color(const Color& a, const Color& b) {
+    return a.family == b.family && float_bits(a.rgb[0]) == float_bits(b.rgb[0]) &&
+           float_bits(a.rgb[1]) == float_bits(b.rgb[1]) && float_bits(a.rgb[2]) == float_bits(b.rgb[2]);
+}
+
+bool same_style(const TextStyle& a, const TextStyle& b) {
+    return a.font == b.font && a.tr == b.tr && double_bits(a.size) == double_bits(b.size) &&
+           double_bits(a.size_user) == double_bits(b.size_user) && double_bits(a.fill_alpha) == double_bits(b.fill_alpha) &&
+           same_color(a.fill, b.fill) && same_color(a.stroke, b.stroke);
+}
+
+std::uint64_t style_hash(const TextStyle& s) {
+    std::uint64_t h = 0x9E3779B97F4A7C15ull;
+    const auto mix = [&](std::uint64_t v) {
+        h ^= v;
+        h *= 0xFF51AFD7ED558CCDull;
+        h ^= h >> 32;
+    };
+    mix(reinterpret_cast<std::uintptr_t>(s.font));
+    mix(double_bits(s.size));
+    mix(double_bits(s.size_user));
+    mix(double_bits(s.fill_alpha));
+    mix((std::uint64_t(float_bits(s.fill.rgb[0])) << 32) | float_bits(s.fill.rgb[1]));
+    mix((std::uint64_t(float_bits(s.fill.rgb[2])) << 32) | float_bits(s.stroke.rgb[0]));
+    mix((std::uint64_t(float_bits(s.stroke.rgb[1])) << 32) | float_bits(s.stroke.rgb[2]));
+    mix((std::uint64_t(static_cast<std::uint8_t>(s.fill.family)) << 40) |
+        (std::uint64_t(static_cast<std::uint8_t>(s.stroke.family)) << 32) | static_cast<std::uint32_t>(s.tr));
+    return h;
+}
+
+char32_t load_code(const unsigned char* p, unsigned shift) {
+    if (shift == 0) return *p;
+    if (shift == 1) {
+        std::uint16_t v;
+        std::memcpy(&v, p, 2);
+        return v;
+    }
+    std::uint32_t v;
+    std::memcpy(&v, p, 4);
+    return v;
+}
+
+void store_code(unsigned char* p, unsigned shift, char32_t c) {
+    if (shift == 0) {
+        *p = static_cast<unsigned char>(c);
+    } else if (shift == 1) {
+        const std::uint16_t v = static_cast<std::uint16_t>(c);
+        std::memcpy(p, &v, 2);
+    } else {
+        const std::uint32_t v = c;
+        std::memcpy(p, &v, 4);
+    }
+}
+
+}  // namespace
+
+ContentTexts::~ContentTexts() {
+    for (unsigned char* b : blocks_) delete[] b;
+}
+
+std::uint32_t ContentTexts::intern(const TextStyle& style) {
+    if (!styles_.empty() && same_style(styles_[last_style_], style)) return last_style_;
+    const std::uint64_t h = style_hash(style);
+    const auto range = style_index_.equal_range(h);
+    for (auto it = range.first; it != range.second; ++it)
+        if (same_style(styles_[it->second], style)) return last_style_ = it->second;
+    if (styles_.size() >= kStyleMask) throw std::length_error("content model: too many text styles");
+    const std::uint32_t index = static_cast<std::uint32_t>(styles_.size());
+    style_index_.emplace(h, index);
+    styles_.push_back(style);
+    return last_style_ = index;
+}
+
+TextRecord& ContentTexts::begin_run(int item, const TextStyle& style) {
+    const std::uint32_t style_index = intern(style);
+    TextRecord& r = recs_.emplace_back();
+    r.text = end_;
+    r.style_shift = style_index;
+    r.item = static_cast<std::uint32_t>(item);
+    items_->record(static_cast<std::size_t>(item)).aux = static_cast<std::uint32_t>(recs_.size() - 1);
+    open_ = &r;
+    open_shift_ = 0;
+    open_alone_ = false;
+    return r;
+}
+
+// The open run needs room for `n` more code points of width `shift` (log2 bytes): widens what it holds when the new
+// code points are wider, in place when the block has the room, else in a new block.
+void ContentTexts::make_room(std::size_t n, unsigned shift) {
+    TextRecord& r = *open_;
+    const unsigned new_shift = std::max(shift, open_shift_);
+    const std::size_t have = r.len;
+    if (n > 0xffffffffu - have) throw std::length_error("content model: text of one operator too long");
+    const std::size_t need = (have + n) << new_shift;
+    unsigned char* from = const_cast<unsigned char*>(r.text);
+    unsigned char* to = from;
+    if (from == nullptr || static_cast<std::size_t>(cap_ - from) < need) {
+        const std::size_t size = std::max(kTextBlock, need + need / 2);
+        blocks_.reserve(blocks_.size() + 1);
+        to = new unsigned char[size];
+        cap_ = to + size;
+    }
+    if (new_shift == open_shift_) {
+        if (to != from && have) std::memcpy(to, from, have << new_shift);
+    } else {
+        // Backwards, so that widening in place never overwrites a code point not yet read.
+        for (std::size_t i = have; i-- > 0;) store_code(to + (i << new_shift), new_shift, load_code(from + (i << open_shift_), open_shift_));
+    }
+    if (to != from) {
+        if (open_alone_) {
+            delete[] blocks_.back();
+            blocks_.back() = to;
+        } else {
+            blocks_.push_back(to);
+        }
+        open_alone_ = true;
+    }
+    r.text = to;
+    r.style_shift = (r.style_shift & kStyleMask) | (new_shift << 30);
+    open_shift_ = new_shift;
+    end_ = to + (have << new_shift);
+}
 
 // --- ContentModel helpers ---------------------------------------------------------------------------
 
@@ -195,6 +333,7 @@ private:
     std::vector<CharCode> codes_;
     std::vector<double> comps_;
     bool hard_stop_ = false;
+    const Obj null_ = Obj::newNull();
 };
 
 bool Interpreter::stream_bytes(StreamInstance& s, std::string& out) {
@@ -507,21 +646,15 @@ void Interpreter::do_xobject(int si, std::uint32_t op_index, int frame, const st
     StreamInstance& parent = m_.streams[si];
     if (subtype == "Image") {
         if (parent.semantic) {
-            ContentItem it;
-            it.kind = ContentItem::Kind::ImageXObject;
-            it.stream = si;
-            it.frame = frame;
-            it.op_index = op_index;
-            it.xobject = ref_of(xo);
             double xs[4], ys[4];
             gs.ctm.apply(0, 0, xs[0], ys[0]);
             gs.ctm.apply(1, 0, xs[1], ys[1]);
             gs.ctm.apply(0, 1, xs[2], ys[2]);
             gs.ctm.apply(1, 1, xs[3], ys[3]);
-            it.bbox = {*std::min_element(xs, xs + 4), *std::min_element(ys, ys + 4), *std::max_element(xs, xs + 4),
-                       *std::max_element(ys, ys + 4)};
-            it.bbox_valid = true;
-            m_.items.push_back(it);
+            const Rect bbox{*std::min_element(xs, xs + 4), *std::min_element(ys, ys + 4), *std::max_element(xs, xs + 4),
+                            *std::max_element(ys, ys + 4)};
+            const ObjRef image = ref_of(xo);
+            m_.items.set_xobject(m_.items.add(ContentItem::Kind::ImageXObject, si, frame, op_index, &bbox), image);
         } else if (parent.signature_appearance) {
             m_.signature_graphics.push_back({si, frame, "image"});
         }
@@ -624,7 +757,7 @@ void Interpreter::finish(Exec& x) {
     // top-level BMC/BDC that is never closed belongs to the trailing unmarked sequence.
     if (s.semantic && !x.fstack.empty()) {
         for (std::size_t i = x.first_item; i < m_.items.size(); ++i) {
-            ContentItem& it = m_.items[i];
+            content_detail::ItemRecord& it = m_.items.record(i);
             if (it.stream != si || it.frame < 0) continue;
             int root = it.frame;
             while (m_.frames[root].parent >= 0) root = m_.frames[root].parent;
@@ -680,21 +813,12 @@ bool Interpreter::step(Exec& x) {
 
     auto add_item = [&](ContentItem::Kind kind, std::uint32_t opi, const Rect* bbox) -> int {
         if (!semantic) return -1;
-        ContentItem it;
-        it.kind = kind;
-        it.stream = si;
-        it.frame = fstack.empty() ? -1 : fstack.back();
-        it.op_index = opi;
-        if (bbox) {
-            it.bbox = *bbox;
-            it.bbox_valid = true;
-        }
-        m_.items.push_back(it);
-        return static_cast<int>(m_.items.size()) - 1;
+        return m_.items.add(kind, si, fstack.empty() ? -1 : fstack.back(), opi, bbox);
     };
 
-    auto show_string = [&](const std::string& bytes, std::uint32_t opi, std::uint32_t& gidx, TextRun* run,
-                           Rect& tb, bool& tb_valid) {
+    // `run` and `item` are the records of the operator's text run and item (null outside semantic streams).
+    auto show_string = [&](const std::string& bytes, std::uint32_t opi, std::uint32_t& gidx, TextRecord* run,
+                           content_detail::ItemRecord* item, Rect& tb, bool& tb_valid) {
         if (!gs.font) return;
         codes.clear();
         gs.font->codes(bytes, codes);
@@ -726,8 +850,8 @@ bool Interpreter::step(Exec& x) {
             ev.advance_user = std::abs(w0 * tfs * gs.th) * dir_norm;
             for (ContentObserver* o : obs_) o->on_glyph(m_, ev);
             if (run) {
-                ++run->glyphs;
-                if (const std::u32string* u = gs.font->to_unicode(c.code)) run->text.append(*u);
+                ++item->glyphs;
+                if (const std::u32string* u = gs.font->to_unicode(c.code)) m_.texts.append(u->data(), u->size());
                 else ++run->unmapped;
                 // Glyph box in text space: advance wide (0.5 em when zero), baseline-relative [-0.2, 0.8] em.
                 const double wq = (w0 != 0 ? w0 : 0.5) * tfs * gs.th;
@@ -768,30 +892,26 @@ bool Interpreter::step(Exec& x) {
         }
     };
 
-    auto begin_text_op = [&](std::uint32_t opi) -> std::pair<int, int> {
-        if (!semantic) return {-1, -1};
+    // The item and the text run of a text-showing operator; the run's record, null outside semantic streams.
+    auto begin_text_op = [&](std::uint32_t opi) -> std::pair<TextRecord*, content_detail::ItemRecord*> {
+        if (!semantic) return {nullptr, nullptr};
         int item = add_item(ContentItem::Kind::Text, opi, nullptr);
-        TextRun tr;
-        tr.item = item;
-        tr.font = gs.font;
-        tr.size = gs.font_size;
-        tr.tr = gs.tr;
-        tr.fill = gs.fill;
-        tr.stroke = gs.stroke;
-        tr.fill_alpha = gs.fill_alpha;
+        TextStyle style;
+        style.font = gs.font;
+        style.size = gs.font_size;
+        style.tr = gs.tr;
+        style.fill = gs.fill;
+        style.stroke = gs.stroke;
+        style.fill_alpha = gs.fill_alpha;
         Matrix trm = Matrix{gs.font_size * gs.th, 0, 0, gs.font_size, 0, gs.ts} * tm * gs.ctm;
-        tr.size_user = std::hypot(trm.c, trm.d);
-        m_.texts.push_back(std::move(tr));
-        int t = static_cast<int>(m_.texts.size()) - 1;
-        m_.items[item].text = t;
-        return {item, t};
+        style.size_user = std::hypot(trm.c, trm.d);
+        TextRecord& run = m_.texts.begin_run(item, style);
+        return {&run, &m_.items.record(static_cast<std::size_t>(item))};
     };
-    auto end_text_op = [&](std::pair<int, int> it, const Rect& tb, bool tb_valid) {
-        if (it.first < 0) return;
-        m_.texts[it.second].bbox = tb;
-        if (tb_valid) {
-            m_.items[it.first].bbox = tb;
-            m_.items[it.first].bbox_valid = true;
+    auto end_text_op = [&](content_detail::ItemRecord* item, const Rect& tb, bool tb_valid) {
+        if (item && tb_valid) {
+            item->bbox = tb;      // also the box of the text run
+            item->flags |= 1;
         }
     };
 
@@ -899,8 +1019,7 @@ bool Interpreter::step(Exec& x) {
             }
             if (gs.font && gs.font->kind == FontKind::Type3)
                 type3_used_.try_emplace(gs.font, Type3Use{res.page, gs});
-            auto it = begin_text_op(opi);
-            TextRun* run = it.second >= 0 ? &m_.texts[it.second] : nullptr;
+            const auto [run, item] = begin_text_op(opi);
             Rect tb;
             bool tb_valid = false;
             std::uint32_t gidx = 0;
@@ -908,7 +1027,7 @@ bool Interpreter::step(Exec& x) {
                 if (!a.empty() && a.back().type == Operand::Array) {
                     for (const Operand& e : a.back().items) {
                         if (e.type == Operand::String) {
-                            show_string(e.s, opi, gidx, run, tb, tb_valid);
+                            show_string(e.s, opi, gidx, run, item, tb, tb_valid);
                         } else if (e.is_number()) {
                             double adj = -e.num() / 1000.0 * gs.font_size;
                             if (gs.font && gs.font->vertical()) tm = Matrix{1, 0, 0, 1, 0, adj} * tm;
@@ -917,9 +1036,9 @@ bool Interpreter::step(Exec& x) {
                     }
                 }
             } else if (!a.empty() && a.back().type == Operand::String) {
-                show_string(a.back().s, opi, gidx, run, tb, tb_valid);
+                show_string(a.back().s, opi, gidx, run, item, tb, tb_valid);
             }
-            end_text_op(it, tb, tb_valid);
+            end_text_op(item, tb, tb_valid);
         } else if (oc == Op::m) {
             path_other = true;
             if (nums_ok(2)) add_pt(num(a.size() - 2), num(a.size() - 1));
@@ -961,13 +1080,11 @@ bool Interpreter::step(Exec& x) {
             Rect r{px0, py0, px1, py1};
             int idx = add_item(ContentItem::Kind::LineArt, opi, have_path ? &r : nullptr);
             if (idx >= 0) {
-                ContentItem& it = m_.items[idx];
                 bool fills = oc != Op::S && oc != Op::s;
                 bool strokes = oc == Op::S || oc == Op::s || oc == Op::B || oc == Op::B_star || oc == Op::b || oc == Op::b_star;
-                it.paint = static_cast<std::uint8_t>((fills ? 1 : 0) | (strokes ? 2 : 0));
-                it.fill = gs.fill;
-                it.fill_alpha = static_cast<float>(gs.fill_alpha);
-                it.exact_rect = have_path && path_rects == 1 && !path_other && gs.ctm.b == 0 && gs.ctm.c == 0;
+                m_.items.set_paint(idx, static_cast<std::uint8_t>((fills ? 1 : 0) | (strokes ? 2 : 0)), gs.fill,
+                                   static_cast<float>(gs.fill_alpha),
+                                   have_path && path_rects == 1 && !path_other && gs.ctm.b == 0 && gs.ctm.c == 0);
             } else if (sp->signature_appearance && path_curve) {
                 m_.signature_graphics.push_back({si, fstack.empty() ? -1 : fstack.back(), "drawn path"});
             }
@@ -1005,7 +1122,6 @@ bool Interpreter::step(Exec& x) {
             McFrame f;
             f.stream = si;
             f.parent = fstack.empty() ? -1 : fstack.back();
-            f.depth = static_cast<int>(fstack.size());
             f.bdc = oc == Op::BDC;
             f.begin_op = opi;
             if (f.bdc) {
@@ -1017,36 +1133,24 @@ bool Interpreter::step(Exec& x) {
                         return std::nullopt;
                     };
                     if (p.type == Operand::Dict) {
-                        f.has_props = true;
                         if (const Operand* v = p.get("MCID"); v && v->type == Operand::Int) f.mcid = v->i;
                         f.lang = pick_str(p.get("Lang"));
                         f.actual_text = pick_str(p.get("ActualText"));
                         f.alt = pick_str(p.get("Alt"));
                         f.e = pick_str(p.get("E"));
-                        if (const Operand* v = p.get("Type"); v && v->type == Operand::Name) f.type = v->s;
-                        if (const Operand* v = p.get("Subtype"); v && v->type == Operand::Name) f.subtype = v->s;
-                        if (const Operand* v = p.get("BBox"); v && v->type == Operand::Array && v->items.size() == 4) {
-                            bool ok = true;
-                            for (auto& x : v->items) ok = ok && x.is_number();
-                            if (ok)
-                                f.artifact_bbox = Rect{std::min(v->items[0].num(), v->items[2].num()),
-                                                       std::min(v->items[1].num(), v->items[3].num()),
-                                                       std::max(v->items[0].num(), v->items[2].num()),
-                                                       std::max(v->items[1].num(), v->items[3].num())};
-                        }
                     } else if (p.type == Operand::Name) {
                         Obj pd = res.lookup("Properties", p.s);
                         if (pd.isDictionary()) {
-                            f.has_props = true;
-                            f.props = pd;
                             f.mcid = cos::integer(pd, "MCID");
                             f.lang = cos::bytes(pd, "Lang");
                             f.actual_text = cos::bytes(pd, "ActualText");
                             f.alt = cos::bytes(pd, "Alt");
                             f.e = cos::bytes(pd, "E");
-                            f.type = cos::name(pd, "Type");
-                            f.subtype = cos::name(pd, "Subtype");
-                            f.artifact_bbox = cos::rect(cos::get(pd, "BBox"));
+                            // /Type, /Subtype and /BBox of the property list are not kept (no rule reads them), but
+                            // they are still read: resolving them is where qpdf reports damage in these objects.
+                            (void)cos::name(pd, "Type");
+                            (void)cos::name(pd, "Subtype");
+                            (void)cos::rect(cos::get(pd, "BBox"));
                         }
                     }
                 }
@@ -1056,10 +1160,11 @@ bool Interpreter::step(Exec& x) {
             } else if (!a.empty() && a.back().type == Operand::Name) {
                 f.tag = a.back().s;
             }
-            if (!f.own_struct_elem.isDictionary()) f.own_struct_elem = Obj::newNull();
+            // One null object for all frames: Obj::newNull() allocates an object per call.
+            if (!f.own_struct_elem.isDictionary()) f.own_struct_elem = null_;
             f.struct_elem = f.own_struct_elem.isDictionary() ? f.own_struct_elem
                             : f.parent >= 0                  ? m_.frames[f.parent].struct_elem
-                                                             : Obj::newNull();
+                                                             : null_;
             m_.frames.push_back(std::move(f));
             fstack.push_back(static_cast<int>(m_.frames.size()) - 1);
         } else if (oc == Op::EMC) {

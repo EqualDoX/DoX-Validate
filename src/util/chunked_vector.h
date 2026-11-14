@@ -1,11 +1,16 @@
 // Append-only sequence stored in fixed-size chunks. Growing never moves the elements, so there is no reallocation
 // peak (old and new array alive at once) and no slack beyond one chunk; references stay valid on push_back.
 // Random access by index, forward iteration in index order.
+//
+// A chunk is raw storage: an element is constructed when it is appended, so a chunk that is only partly used costs
+// neither construction time nor resident memory for the unused part.
 #pragma once
 
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <new>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -19,6 +24,25 @@ public:
     using value_type = T;
     using size_type = std::size_t;
 
+    ChunkedVector() = default;
+    ChunkedVector(const ChunkedVector&) = delete;
+    ChunkedVector& operator=(const ChunkedVector&) = delete;
+    ChunkedVector(ChunkedVector&& o) noexcept : chunks_(std::move(o.chunks_)), size_(o.size_) {
+        o.chunks_.clear();
+        o.size_ = 0;
+    }
+    ChunkedVector& operator=(ChunkedVector&& o) noexcept {
+        if (this != &o) {
+            clear();
+            chunks_ = std::move(o.chunks_);
+            size_ = o.size_;
+            o.chunks_.clear();
+            o.size_ = 0;
+        }
+        return *this;
+    }
+    ~ChunkedVector() { clear(); }
+
     std::size_t size() const { return size_; }
     bool empty() const { return size_ == 0; }
 
@@ -27,14 +51,25 @@ public:
     T& back() { return (*this)[size_ - 1]; }
     const T& back() const { return (*this)[size_ - 1]; }
 
+    template <class... A>
+    T& emplace_back(A&&... args) {
+        const std::size_t at = size_ % ChunkSize;
+        if (at == 0 && size_ / ChunkSize == chunks_.size())
+            chunks_.push_back(static_cast<T*>(::operator new(ChunkSize * sizeof(T), std::align_val_t(alignof(T)))));
+        T* p = ::new (static_cast<void*>(chunks_[size_ / ChunkSize] + at)) T(std::forward<A>(args)...);
+        ++size_;
+        return *p;
+    }
+
     template <class U>
     void push_back(U&& value) {
-        if (size_ % ChunkSize == 0) chunks_.push_back(std::make_unique<T[]>(ChunkSize));
-        chunks_.back()[size_ % ChunkSize] = std::forward<U>(value);
-        ++size_;
+        emplace_back(std::forward<U>(value));
     }
 
     void clear() {
+        if (!std::is_trivially_destructible_v<T>)
+            for (std::size_t i = 0; i < size_; ++i) (*this)[i].~T();
+        for (T* c : chunks_) ::operator delete(c, std::align_val_t(alignof(T)));
         chunks_.clear();
         size_ = 0;
     }
@@ -76,7 +111,7 @@ public:
     Iter<true> end() const { return {this, size_}; }
 
 private:
-    std::vector<std::unique_ptr<T[]>> chunks_;
+    std::vector<T*> chunks_;
     std::size_t size_ = 0;
 };
 
