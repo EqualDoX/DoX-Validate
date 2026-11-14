@@ -226,6 +226,9 @@ struct UnmappedCodes final : ContentObserver {
     int last_kind = 0;
     void on_glyph(const ContentModel&, const GlyphEvent& g) override {
         if (g.font == last_font && last_kind == 0) return;   // no font, or the font of the glyph before, which is not applicable
+        judge(g);   // apart, so that the test above needs no stack frame: it is all most glyphs get
+    }
+    [[gnu::noinline]] void judge(const GlyphEvent& g) {
         if (!g.font || !g.real_content || hits.size() >= 10000) return;
         if (g.font != last_font) {
             auto [it, fresh] = kind.emplace(g.font, 0);

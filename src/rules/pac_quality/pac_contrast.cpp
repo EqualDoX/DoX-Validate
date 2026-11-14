@@ -1793,6 +1793,9 @@ private:
     StreamState* state_for(const ContentModel& cm, int si);
     void begin_text_op(int si, std::uint32_t op_index, const RawOp& op, const GState& gs);
     void close_piece(const ContentModel& cm);
+    bool artifact_text_frame(const ContentModel& cm, int frame) const;
+    int text_frame_ = -2;                 // the frame text_frame_artifact_ was computed for (-2: none yet)
+    bool text_frame_artifact_ = false;
     void end_text_op(const ContentModel& cm);
     void begin_page(const ContentModel& cm, int si);
     void end_path(StreamState& st);
@@ -1863,6 +1866,8 @@ private:
     std::vector<CharCode> code_scratch_;
     std::vector<TextPiece> pieces_;        // of the current page, for the contrast judgement
     std::vector<float> glyph_boxes_;       // x0, y0, x1, y1 per non-blank glyph of the page
+    static constexpr std::size_t kMaxSizeHint = std::size_t(1) << 20;   // 4 MB of boxes; a sixteenth as many pieces
+    std::size_t boxes_hint_ = 0, pieces_hint_ = 0;   // sizes of the two on the page before (capped), reserved for the next
     double tm_a_ = 1, tm_b_ = 0;           // first row of the text matrix
     double text_dir_x_ = 1, text_dir_y_ = 0;   // unit vector of the writing direction in user space
     std::uint32_t piece_first_glyph_ = 0;
@@ -2120,6 +2125,9 @@ void ContrastEngine::begin_text_op(int si, std::uint32_t op_index, const RawOp& 
     piece_at_ = 0;
     piece_valid_ = piece_letter_ = piece_ink_ = false;
     piece_text_.clear();
+    // the first text of a page: room for as many glyph boxes and pieces as the page before had
+    if (glyph_boxes_.capacity() == 0 && boxes_hint_ > 0) glyph_boxes_.reserve(boxes_hint_);
+    if (pieces_.capacity() == 0 && pieces_hint_ > 0) pieces_.reserve(pieces_hint_);
     // TJ: a number ends a piece (n_tj_kern_small, n_tj_kern_zero: strings in a row stay one piece; a real-world sample)
     if (op.code == Op::TJ && gs.font && !op.operands->empty() && op.operands->back().type == Operand::Array) {
         std::uint32_t glyphs = 0;
@@ -2231,12 +2239,19 @@ void ContrastEngine::on_glyph(const ContentModel& cm, const GlyphEvent& ev) {
         piece_ink_ = true;
         blank = false;
         if (ct.flags & CodeText::kLetter) piece_letter_ = true;
-        if (ct.flags & CodeText::kOneChar) {
-            if (piece_text_.size() < 60) piece_text_.append(ct.utf8, ct.len);
-        } else {   // several characters: one by one, each only while the text is short
-            for (char32_t c : *ev.font->to_unicode(ev.code.code)) {
-                if (is_unicode_space(c) || c == 0) continue;
-                if (piece_text_.size() < 60) append_utf8(piece_text_, c);
+        // The text of the piece is read by close_piece for artifact text only: collected in such a frame, else left empty.
+        if (ev.frame != text_frame_) {
+            text_frame_ = ev.frame;
+            text_frame_artifact_ = artifact_text_frame(cm, ev.frame);
+        }
+        if (text_frame_artifact_) {
+            if (ct.flags & CodeText::kOneChar) {
+                if (piece_text_.size() < 60) piece_text_.append(ct.utf8, ct.len);
+            } else {   // several characters: one by one, each only while the text is short
+                for (char32_t c : *ev.font->to_unicode(ev.code.code)) {
+                    if (is_unicode_space(c) || c == 0) continue;
+                    if (piece_text_.size() < 60) append_utf8(piece_text_, c);
+                }
             }
         }
     }
@@ -2248,25 +2263,34 @@ void ContrastEngine::on_glyph(const ContentModel& cm, const GlyphEvent& ev) {
     }
 }
 
+// Whether close_piece takes a piece whose glyphs are in `frame` (of the text operator's stream) for artifact text: an
+// /Artifact sequence around it, none of them with an MCID an element owns, and the stream not inside an artifact
+// already. The frames around a text operator do not change while it is shown.
+bool ContrastEngine::artifact_text_frame(const ContentModel& cm, int frame) const {
+    if (frame < 0) return false;
+    bool artifact = false, mcid = false;
+    for (int f = frame; f >= 0; f = cm.frames[std::size_t(f)].parent) {
+        if (cm.frames[std::size_t(f)].tag != "Artifact") continue;
+        artifact = true;
+        if (cm.frames[std::size_t(f)].mcid && cm.frames[std::size_t(f)].own_struct_elem.isDictionary()) mcid = true;
+    }
+    if (cm.streams[std::size_t(text_stream_)].inherited_artifact) artifact = false;
+    return artifact && !mcid;
+}
+
 void ContrastEngine::close_piece(const ContentModel& cm) {
     if (!piece_valid_) return;
     const StreamInstance& s = cm.streams[text_stream_];
     // Artifact text (PAC ArtifactedBodyParagraphs): the /Artifact sequence must hold the text operator in the
     // same stream.
     if (piece_letter_ && glyph_frame_ >= 0) {
-        bool artifact = false, mcid = false;
         // An MCID on the /Artifact sequence itself makes the text tagged; one inside it or around it does not (ai_inner_mcid,
         // ai_outer_mcid, ag_*; a real-world sample: /Artifact BDC /P <</MCID n>> BDC text EMC EMC, 127 pieces).
         // A Form XObject painted inside an /Artifact is not looked into at all, its own /Artifact sequences neither
         // (art_form_inside, a real-world Canva export).
-        for (int f = glyph_frame_; f >= 0; f = cm.frames[std::size_t(f)].parent) {
-            if (cm.frames[std::size_t(f)].tag != "Artifact") continue;
-            artifact = true;
-            // ... when an element owns that MCID: an MCID nobody claims leaves it an artifact (ct_artifact_with_mcid).
-            if (cm.frames[std::size_t(f)].mcid && cm.frames[std::size_t(f)].own_struct_elem.isDictionary()) mcid = true;
-        }
-        if (s.inherited_artifact) artifact = false;
-        if (artifact && !mcid) artifact_pieces.push_back({s.page, s.ref, piece_box_, piece_text_});
+        // ... an MCID counts when an element owns it: an MCID nobody claims leaves it an artifact (ct_artifact_with_mcid).
+        // (artifact_text_frame; on_glyph collected the piece's text for such a frame.)
+        if (artifact_text_frame(cm, glyph_frame_)) artifact_pieces.push_back({s.page, s.ref, piece_box_, piece_text_});
     }
     if (piece_ink_) {
         const std::uint32_t n = std::uint32_t(glyph_boxes_.size() / 4) - piece_first_glyph_;
@@ -2733,6 +2757,10 @@ void ContrastEngine::on_stream_end(const ContentModel& cm, int si) {
         text_rgb_.clear();
         clip_masks_.clear();
         clip_mask_bytes_ = 0;
+        // Freed with the page as before; the next page with text asks for as much at once (begin_text_op) instead of
+        // growing to it by doubling, which copied every box about twice.
+        pieces_hint_ = std::min<std::size_t>(pieces_.size(), kMaxSizeHint / 16);
+        boxes_hint_ = std::min<std::size_t>(glyph_boxes_.size(), kMaxSizeHint);
         pieces_.clear();
         pieces_.shrink_to_fit();
         glyph_boxes_.clear();
