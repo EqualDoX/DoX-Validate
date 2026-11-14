@@ -45,6 +45,7 @@ struct DocCache {
     struct SharedWidths {
         std::shared_ptr<const std::vector<std::optional<double>>> values;
         Obj array;   // a direct array of direct integers with these values, when a font had one: the others refer to it
+        std::vector<std::int64_t> ints;   // its integers
     };
     std::unordered_multimap<std::uint64_t, SharedWidths> widths;   // by a hash of the values
     // The Unicode values of character codes: one string per distinct text, referred to by every font and code with

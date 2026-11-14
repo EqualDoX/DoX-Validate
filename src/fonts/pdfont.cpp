@@ -74,22 +74,27 @@ const std::shared_ptr<const WidthValues>& no_widths() {
 // over the whole object graph of the document module only looks for dictionaries inside arrays). An indirect array,
 // or one with a real number or any other object in it, is left alone.
 std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& font, const Obj& w) {
-    const int count = w.getArrayNItems();
+    // The items in one call (a copy of the array's handles): QPDFObjectHandle::getArrayItem costs about 125 instructions
+    // per item. A null of a sparse array comes back as a null either way.
+    const std::vector<Obj> items = w.getArrayAsVector();
     WidthValues values;
-    values.reserve(static_cast<std::size_t>(count));
+    values.reserve(items.size());
+    std::vector<std::int64_t> ints;   // the items as integers, as long as all of them are direct integers
     bool integers = !w.isIndirect() && font.isDictionary();
+    if (integers) ints.reserve(items.size());
     std::uint64_t hash = 1469598103934665603ull;
     const auto same_bits = [](const std::optional<double>& a, const std::optional<double>& b) {
         if (a.has_value() != b.has_value()) return false;
         if (!a) return true;
         return std::memcmp(&*a, &*b, sizeof(double)) == 0;   // -0.0 and 0.0 are different widths to print
     };
-    for (int i = 0; i < count; ++i) {
-        const Obj x = w.getArrayItem(i);
+    for (const Obj& x : items) {
         std::optional<double> v;   // real_value(x), noting on the way whether x is a direct integer
         if (x.isInteger()) {
-            v = static_cast<double>(x.getIntValue());
+            const std::int64_t iv = x.getIntValue();
+            v = static_cast<double>(iv);
             integers = integers && !x.isIndirect();
+            if (integers) ints.push_back(iv);
         } else {
             integers = false;
             if (x.isReal()) v = x.getNumericValue();
@@ -108,18 +113,17 @@ std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& fon
         if (integers) {
             if (!known_widths.array.isInitialized()) {
                 known_widths.array = w;   // the first array of this kind that others can refer to
-            } else if (!known_widths.array.isSameObjectAs(w)) {
-                // equal as doubles: equal as integers too? (integers beyond 2^53 can differ)
-                bool same = known_widths.array.getArrayNItems() == count;
-                for (int i = 0; same && i < count; ++i)
-                    same = known_widths.array.getArrayItem(i).getIntValue() == w.getArrayItem(i).getIntValue();
-                if (same) Obj(font).replaceKey("/Widths", known_widths.array);
+                known_widths.ints = std::move(ints);
+            } else if (!known_widths.array.isSameObjectAs(w) && known_widths.ints == ints) {
+                // equal as integers, not only as doubles (integers beyond 2^53 can differ)
+                Obj(font).replaceKey("/Widths", known_widths.array);
             }
         }
         return known_widths.values;
     }
     auto added = cache.widths.emplace(hash, DocCache::SharedWidths{std::make_shared<const WidthValues>(std::move(values)),
-                                                                     integers ? w : Obj()});
+                                                                     integers ? w : Obj(),
+                                                                     integers ? std::move(ints) : std::vector<std::int64_t>()});
     return added->second.values;
 }
 
