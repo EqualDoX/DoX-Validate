@@ -531,6 +531,7 @@ private:
     const Obj root_dict_;
     Types T_;
     std::vector<char> own_content_;      // per node: MCID / MCR / OBJR directly in /K (TaggedPDFHelper.isContentItem)
+    std::vector<char> root_type_;        // per element: /Type /StructTreeRoot
     std::vector<int> root_kids_;
     // state of the flavour being evaluated
     std::vector<StdInfo> std_;                             // per node
@@ -548,12 +549,16 @@ private:
 
     void build_nodes() {
         own_content_.assign(elems_.size() + 1, 0);
-        for (std::size_t i = 0; i < elems_.size(); ++i)
+        root_type_.assign(elems_.size(), 0);
+        for (std::size_t i = 0; i < elems_.size(); ++i) {
             for (const StructKid& k : elems_[i].kids)
                 if (k.kind != StructKid::Kind::Elem) {
                     own_content_[i] = 1;
                     break;
                 }
+            // the same for both flavours: read once, in element order
+            root_type_[i] = cos::name_is(elems_[i].dict, "Type", "StructTreeRoot");
+        }
         for (const StructKid& k : st_.root_kids()) {
             if (k.kind != StructKid::Kind::Elem) own_content_[root_] = 1;
             else if (k.elem >= 0) root_kids_.push_back(k.elem);
@@ -809,7 +814,7 @@ private:
         for (std::size_t i = 0; i < elems_.size(); ++i) {
             const StructElem& e = elems_[i];
             StdInfo s;
-            s.root_type = cos::name_is(e.dict, "Type", "StructTreeRoot");
+            s.root_type = root_type_[i] != 0;
             if (f == 0) {
                 if (e.std17) {
                     s.tok = T_.id(*e.std17);
