@@ -121,6 +121,9 @@ struct StructElem {
     const SType& type;                          // veraPDF getStructureType() (S + NS); type empty when S is not a name
     const std::optional<std::string>& std17;    // standard type, PDF/UA-1 semantics
     const std::optional<SType>& std20;          // standard type, ISO 32000-2 semantics
+    // The number of that record, below StructTree::type_count(): elements with the same type_id have the same S, type,
+    // std17 and std20, so whatever a reader derives from these four alone it can keep per type_id.
+    std::uint32_t type_id;
     StructKids kids;                    // every child in /K order (elements, MCIDs, MCRs, OBJRs)
     std::span<const int> elems;         // tree children: structure elements first reached through this element
     std::span<const int> struct_kids;   // every structure-element child in /K order, also shared/revisited ones
@@ -130,6 +133,11 @@ struct StructElem {
     // together with its subtree. False for elements veraPDF never validates (simulated push order).
     bool verapdf_checked;
     std::uint16_t keys;                 // bits of Key: the keys the dictionary holds
+    // /P is an indirect reference to the object of `parent` (to the StructTreeRoot for parent -1): cos::get(dict, "P")
+    // is that dictionary, known without reading /P.
+    bool p_is_parent;
+    // Every item of /K is one of `kids`: none was passed over (a name, a string, a dictionary of another /Type, ...).
+    bool k_is_kids;
     ObjRef page;                        // own /Pg
     ObjRef inherited_page;              // own /Pg, else nearest ancestor's /Pg
 
@@ -200,6 +208,7 @@ public:
     StructElems elems() const { return StructElems(this); }
     // (A view is made in place, inlined: only the members that are read get built.)
     [[gnu::always_inline]] inline StructElem elem(int i) const;
+    std::size_t type_count() const { return types_.size(); }   // StructElem::type_id is below it
     const std::vector<int>& root_elems() const { return root_elems_; }
     // Element indices are in pre-order (first kid first, each element at its first occurrence).
     // veraPDF's validation order (simulated BaseValidator traversal): only elements it validates.
@@ -277,9 +286,9 @@ private:
         const std::uint64_t* block = nullptr;
         std::uint32_t n_struct = 0;
         std::uint16_t keys = 0;
-        std::uint8_t flags = 0;             // kChecked, kShared
+        std::uint8_t flags = 0;             // kChecked, kShared, kParentByP, kAllKids
     };
-    enum : std::uint8_t { kChecked = 1, kShared = 2 };
+    enum : std::uint8_t { kChecked = 1, kShared = 2, kParentByP = 4, kAllKids = 8 };
     struct TypeFacts {
         std::optional<std::string> S;
         SType type;
@@ -316,10 +325,12 @@ private:
     mutable bool truncated_ = false;
     struct Build;   // what only the traversal needs (structure.cpp)
     // Records one /K item of a node (elem_index -1 = StructTreeRoot) as a kid word in *out. Returns the index of a
-    // newly created element (to be expanded next), -1 for any other kid, -2 when the item is no kid (nothing written).
-    int collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b, std::uint64_t* out);
-    // Gives a node (elem_index -1 = StructTreeRoot) its kids: `n` words, complete.
-    void seal_kids(int elem_index, const std::uint64_t* words, std::size_t n);
+    // newly created element (to be expanded next; the /K value its dictionary holds, if any, in *kids_out), -1 for any other kid,
+    // -2 when the item is no kid (nothing written).
+    int collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b, std::uint64_t* out,
+                    Obj* kids_out);
+    // Gives a node (elem_index -1 = StructTreeRoot) its kids: `n` words. `all_items`: every item of its /K is among them.
+    void seal_kids(int elem_index, const std::uint64_t* words, std::size_t n, bool all_items);
     void simulate_verapdf_visits();
 
     static const Obj kNoObj;   // StructKid::dict / obj of a kid that has none: a default-constructed handle
@@ -387,9 +398,9 @@ inline StructElem StructTree::elem(int i) const {
     const Rec& r = elems_[static_cast<std::size_t>(i)];
     const TypeFacts& t = types_[r.type];
     const ObjRef inherited = pages_[r.inherited_page];
-    return {i,       r.parent, r.depth, r.dict, r.ref, t.S, t.type, t.std17, t.std20,
+    return {i,       r.parent, r.depth, r.dict, r.ref, t.S, t.type, t.std17, t.std20, r.type,
             StructKids(this, r.block, r.n_kids, inherited), elems_of(r), struct_kids_of(r), (r.flags & kChecked) != 0,
-            r.keys,  pages_[r.page], inherited};
+            r.keys,  (r.flags & kParentByP) != 0, (r.flags & kAllKids) != 0, pages_[r.page], inherited};
 }
 
 inline StructKid StructKids::operator[](std::size_t i) const { return tree_->kid_view(words_[i], page_); }

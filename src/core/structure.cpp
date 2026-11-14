@@ -531,42 +531,61 @@ Obj StructTree::struct_elem_for_mcid(const std::optional<std::int64_t>& struct_p
 
 namespace {
 
-// StructElem::keys of a dictionary: which of the keys with a bit it holds (keys as qpdf stores them, with the slash).
-std::uint16_t key_bits(const std::map<std::string, Obj>& entries) {
+// What collect_kid reads from the dictionary of a /K item, found in one pass over its entries (keys as qpdf stores
+// them, with the slash): the values of the keys it asks for (nullptr for a key that is not there) and
+// StructElem::keys, the bits of the keys the dictionary holds.
+struct KidEntries {
+    const Obj *type = nullptr, *s = nullptr, *ns = nullptr, *pg = nullptr, *p = nullptr, *k = nullptr, *mcid = nullptr,
+              *stm = nullptr, *obj = nullptr;
     std::uint16_t bits = 0;
-    for (const auto& item : entries) {
-        const std::string& k = item.first;
-        if (k.empty() || k[0] != '/') continue;
-        switch (k.size()) {
-            case 2:
-                switch (k[1]) {
-                    case 'P': bits |= StructElem::kP; break;
-                    case 'E': bits |= StructElem::kE; break;
-                    case 'A': bits |= StructElem::kA; break;
-                    case 'C': bits |= StructElem::kC; break;
-                    case 'T': bits |= StructElem::kT; break;
-                    default: break;
-                }
-                break;
-            case 3:
-                if (k == "/ID") bits |= StructElem::kID;
-                break;
-            case 4:
-                if (k == "/Alt") bits |= StructElem::kAlt;
-                else if (k == "/Ref") bits |= StructElem::kRef;
-                break;
-            case 5:
-                if (k == "/Lang") bits |= StructElem::kLang;
-                break;
-            case 11:
-                if (k == "/ActualText") bits |= StructElem::kActualText;
-                break;
-            default:
-                break;
+
+    explicit KidEntries(const std::map<std::string, Obj>& entries) {
+        for (const auto& item : entries) {
+            const std::string& key = item.first;
+            const Obj* value = &item.second;
+            if (key.empty() || key[0] != '/') continue;
+            switch (key.size()) {
+                case 2:
+                    switch (key[1]) {
+                        case 'P': bits |= StructElem::kP; p = value; break;
+                        case 'E': bits |= StructElem::kE; break;
+                        case 'A': bits |= StructElem::kA; break;
+                        case 'C': bits |= StructElem::kC; break;
+                        case 'T': bits |= StructElem::kT; break;
+                        case 'S': s = value; break;
+                        case 'K': k = value; break;
+                        default: break;
+                    }
+                    break;
+                case 3:
+                    if (key == "/ID") bits |= StructElem::kID;
+                    else if (key == "/NS") ns = value;
+                    else if (key == "/Pg") pg = value;
+                    break;
+                case 4:
+                    if (key == "/Alt") bits |= StructElem::kAlt;
+                    else if (key == "/Ref") bits |= StructElem::kRef;
+                    else if (key == "/Obj") obj = value;
+                    else if (key == "/Stm") stm = value;
+                    break;
+                case 5:
+                    if (key == "/Lang") bits |= StructElem::kLang;
+                    else if (key == "/Type") type = value;
+                    else if (key == "/MCID") mcid = value;
+                    break;
+                case 11:
+                    if (key == "/ActualText") bits |= StructElem::kActualText;
+                    break;
+                default:
+                    break;
+            }
         }
     }
-    return bits;
-}
+};
+
+// A value for reading, as cos::get gives it: nullptr for a key that is not there and for a null value. The value is
+// looked at here (an indirect one is resolved), so the calls stand where the reads of the keys stood.
+inline const Obj* non_null(const Obj* value) { return value && !value->isNull() ? value : nullptr; }
 
 }  // namespace
 
@@ -602,19 +621,16 @@ struct StructTree::Build {
 };
 
 int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b,
-                            std::uint64_t* out) {
+                            std::uint64_t* out, Obj* kids_out) {
     // TaggedPDFHelper.getChildren: a dictionary whose /Type is absent or /StructElem is a structure
     // element; a dictionary or stream with /Type /MCR or /OBJR is a content item; an integer is an MCID.
     if (item.isDictionary()) {
-        // The entries of the dictionary, taken once (one copy of its map instead of two map searches per key read
-        // below). entry(key) is cos::get(item, key): the value, a null handle for an absent key and for a null value.
+        // The entries of the dictionary, taken once (one copy of its map and one pass over it, instead of a search per
+        // key read below).
         const std::map<std::string, Obj> entries = const_cast<Obj&>(item).getDictAsMap();
-        const auto entry = [&](const char* slash_key) -> Obj {
-            auto found = entries.find(slash_key);
-            if (found == entries.end() || found->second.isNull()) return Obj::newNull();
-            return found->second;
-        };
-        auto type = cos::name(entry("/Type"));
+        const KidEntries in(entries);
+        const Obj* type_value = non_null(in.type);
+        const std::optional<std::string> type = type_value ? cos::name(*type_value) : std::nullopt;
         if (!type || *type == "StructElem") {
             ObjRef r = ref_of(item);
             const int known = r.valid() ? by_ref_.find(r.key()) : -1;
@@ -630,18 +646,19 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
             e.dict = item;
             e.ref = r;
             // The facts of the type, stype_of(item) with its two standard types: once per type name and namespace.
-            const Obj s = entry("/S");
-            if (std::optional<std::string> name = cos::name(s)) {
-                const Obj ns = entry("/NS");
+            const Obj* s = non_null(in.s);
+            if (std::optional<std::string> name = s ? cos::name(*s) : std::nullopt) {
+                const Obj* ns = non_null(in.ns);
+                const bool in_namespace = ns && ns->isDictionary();
                 std::uint32_t* id = nullptr;
-                if (!ns.isDictionary()) id = &b.plain_types.try_emplace(*name, 0).first->second;
-                else if (ns.isIndirect()) id = &b.ns_types[Build::full_key(ref_of(ns))].try_emplace(*name, 0).first->second;
+                if (!in_namespace) id = &b.plain_types.try_emplace(*name, 0).first->second;
+                else if (ns->isIndirect()) id = &b.ns_types[Build::full_key(ref_of(*ns))].try_emplace(*name, 0).first->second;
                 if (id && *id != 0) {
                     e.type = *id;
                 } else {
                     TypeFacts t;
                     t.type.type = *name;
-                    t.type.ns = ns.isDictionary() ? ns : no_namespace();
+                    t.type.ns = in_namespace ? *ns : no_namespace();
                     t.std20 = default_type20(t.type);
                     t.std17 = standard_type17(*name);
                     t.S = std::move(name);
@@ -650,25 +667,35 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
                     types_.push_back(std::move(t));
                 }
             }
-            const std::uint32_t pg = b.page_id(ref_of(entry("/Pg")), pages_);
+            const Obj* own_page = non_null(in.pg);
+            const std::uint32_t pg = b.page_id(own_page ? ref_of(*own_page) : ObjRef{}, pages_);
             e.page = pg;
             e.inherited_page = pages_[pg].valid() ? pg : inherited_page;
-            e.keys = key_bits(entries);
+            e.keys = in.bits;
+            // /P naming the node this element is reached from (the handle is compared, nothing is resolved)
+            if (in.p && in.p->isIndirect()) {
+                const ObjRef from = elem_index >= 0 ? elems_[static_cast<std::size_t>(elem_index)].ref : root_ref_;
+                if (from.valid() && ref_of(*in.p) == from) e.flags |= kParentByP;
+            }
             const int idx = static_cast<int>(elems_.size());
             elems_.push_back(std::move(e));
             if (r.valid()) by_ref_.insert(r.key(), idx);
             *out = kid(StructKid::Kind::Elem, false, idx);
             if (elem_index < 0) root_elems_.push_back(idx);
+            // /K of the new element, for the caller to open it (the handle as it stands: the caller looks at it)
+            if (in.k) *kids_out = *in.k;
             return idx;
         }
         // a content item (as below for a stream, from the entries at hand)
         if (*type == "MCR") {
             McrRec m;
             m.dict = item;
-            if (auto id = cos::integer(entry("/MCID"))) m.mcid = *id;
-            ObjRef pg = ref_of(entry("/Pg"));
+            if (const Obj* id = non_null(in.mcid))
+                if (auto value = cos::integer(*id)) m.mcid = *value;
+            const Obj* own_page = non_null(in.pg);
+            ObjRef pg = own_page ? ref_of(*own_page) : ObjRef{};
             m.page = pg.valid() ? pg : pages_[inherited_page];
-            m.stm = ref_of(entry("/Stm"));
+            if (const Obj* stm = non_null(in.stm)) m.stm = ref_of(*stm);
             *out = kid(StructKid::Kind::MCR, false, static_cast<std::int64_t>(mcrs_.size()));
             mcrs_.push_back(std::move(m));
             return -1;
@@ -676,8 +703,10 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
         if (*type == "OBJR") {
             ObjrRec o;
             o.dict = item;
-            o.obj = entry("/Obj");
-            ObjRef pg = ref_of(entry("/Pg"));
+            const Obj* obj = non_null(in.obj);
+            o.obj = obj ? *obj : Obj::newNull();
+            const Obj* own_page = non_null(in.pg);
+            ObjRef pg = own_page ? ref_of(*own_page) : ObjRef{};
             o.page = pg.valid() ? pg : pages_[inherited_page];
             *out = kid(StructKid::Kind::OBJR, false, static_cast<std::int64_t>(objrs_.size()));
             objrs_.push_back(std::move(o));
@@ -725,7 +754,7 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
     return -2;
 }
 
-void StructTree::seal_kids(int elem_index, const std::uint64_t* words, std::size_t n) {
+void StructTree::seal_kids(int elem_index, const std::uint64_t* words, std::size_t n, bool all_items) {
     if (elem_index < 0) {
         auto* block = static_cast<std::uint64_t*>(arena_.allocate(n * sizeof(std::uint64_t)));
         std::copy(words, words + n, block);
@@ -756,6 +785,7 @@ void StructTree::seal_kids(int elem_index, const std::uint64_t* words, std::size
     e.n_kids = static_cast<std::uint32_t>(n);
     e.n_struct = static_cast<std::uint32_t>(n_struct);
     if (n_shared) e.flags |= kShared;
+    if (all_items) e.flags |= kAllKids;
 }
 
 void StructTree::simulate_verapdf_visits() {
@@ -824,11 +854,13 @@ void StructTree::build(Document& doc) {
         std::size_t first_kid = 0;   // where the node's kid words start in Build::scratch
         std::size_t n_kids = 0;
     };
-    auto items_of = [](const Obj& node) {
-        Obj k = cos::get(node, "K");
+    // The items of a node's /K (`k`: the value as the dictionary holds it, an uninitialised handle when it has none;
+    // a null value is no item, as for cos::get).
+    auto items_of = [](const Obj& k) {
         std::vector<Obj> items;
+        if (!k || k.isNull()) return items;
         if (k.isArray()) items = cos::array_items(k);
-        else if (!k.isNull()) items.push_back(k);
+        else items.push_back(k);
         return items;
     };
     static_assert(sizeof(Rec) == 64, "an element record is 64 bytes");
@@ -838,17 +870,17 @@ void StructTree::build(Document& doc) {
     pages_.push_back(ObjRef{});
     b.page_ids.emplace(Build::full_key(ObjRef{}), 0);
     std::vector<Frame> stack;
-    auto open = [&](int elem, const Obj& node) {
-        Frame f{elem, items_of(node), 0, b.scratch.size(), 0};
+    auto open = [&](int elem, const Obj& k) {
+        Frame f{elem, items_of(k), 0, b.scratch.size(), 0};
         b.scratch.resize(f.first_kid + f.items.size());
         stack.push_back(std::move(f));
     };
     try {
-        open(-1, root_);
+        open(-1, cos::get(root_, "K"));
         while (!stack.empty()) {
             Frame& f = stack.back();
             if (f.next >= f.items.size()) {
-                seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids);
+                seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids, f.n_kids == f.items.size());
                 b.scratch.resize(f.first_kid);
                 stack.pop_back();
                 continue;
@@ -857,14 +889,15 @@ void StructTree::build(Document& doc) {
             int parent = f.elem;
             const std::uint32_t ip = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].inherited_page : 0;
             int depth = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].depth + 1 : 0;
-            int idx = collect_kid(item, parent, ip, depth, b, &b.scratch[f.first_kid + f.n_kids]);
+            Obj k;   // /K of a new element
+            int idx = collect_kid(item, parent, ip, depth, b, &b.scratch[f.first_kid + f.n_kids], &k);
             if (idx >= -1) ++f.n_kids;
-            if (idx >= 0) open(idx, elems_[static_cast<std::size_t>(idx)].dict);   // invalidates f
+            if (idx >= 0) open(idx, k);   // invalidates f
         }
     } catch (...) {
         // The traversal failed (a damaged object). The caller notes it and goes on with the tree as far as it got:
         // every open node keeps the kids collected so far, and no element is marked as skipped by veraPDF.
-        for (const Frame& f : stack) seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids);
+        for (const Frame& f : stack) seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids, false);
         for (std::size_t i = 0; i < elems_.size(); ++i) elems_[i].flags |= kChecked;
         throw;
     }

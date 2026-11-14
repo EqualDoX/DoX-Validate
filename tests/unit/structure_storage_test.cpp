@@ -285,6 +285,16 @@ void expect_same_tree(const StructTree& st, const PlainTree& plain) {
         EXPECT(e.page == w.page);
         EXPECT(e.inherited_page == w.inherited_page);
         if (w.ref.valid()) EXPECT_EQ(st.find(w.ref), plain.by_ref.at(w.ref.key()));
+        // p_is_parent: /P as it stands in the dictionary is a reference to the object the element hangs from
+        const Obj p = cos::get(w.dict, "P");
+        const ObjRef from = w.parent >= 0 ? plain.elems[std::size_t(w.parent)].ref : st.root_ref();
+        EXPECT_EQ(e.p_is_parent, p.isIndirect() && from.valid() && ref_of(p) == from);
+        if (e.p_is_parent) EXPECT(e.has_key(StructElem::kP) && p.isDictionary());
+        EXPECT(e.type_id < st.type_count());
+        // k_is_kids: as many kids as /K has items
+        const Obj k = cos::get(w.dict, "K");
+        const std::size_t items = k.isArray() ? static_cast<std::size_t>(const_cast<Obj&>(k).getArrayNItems()) : k.isNull() ? 0 : 1;
+        EXPECT_EQ(e.k_is_kids, items == w.kids.size());
         // the key bits against the dictionary itself
         const auto entries = const_cast<Obj&>(w.dict).getDictAsMap();
         const std::pair<StructElem::Key, const char*> keys[] = {
@@ -366,6 +376,18 @@ void build_mixed_tree(QPDF& q) {
     unknown.replaceKey("/K", array_of({P("/Name"), P("(string)"), P("1.5"), P("null"), P("<< /Type /Foo /S /P >>"), P("[ 1 2 ]"),
                                        P("6"), P("true")}));
     sect1.replaceKey("/K", array_of({shared, para1, P("21"), para2, chain, loop}));
+    // /P: the node the element hangs from, another node, a direct dictionary, an object that is no dictionary
+    doc.replaceKey("/P", root);
+    sect1.replaceKey("/P", doc);
+    sect2.replaceKey("/P", root);        // hangs from doc
+    shared.replaceKey("/P", sect2);      // first reached through sect1
+    para1.replaceKey("/P", sect1);
+    para2.replaceKey("/P", P("<< /S /Sect >>"));
+    chain.replaceKey("/P", q.makeIndirectObject(P("[ 1 2 ]")));
+    loop.replaceKey("/P", sect1);
+    in_other2.replaceKey("/P", in_other);
+    cyclic.replaceKey("/P", inside_cycle);   // hangs from sect2
+    inside_cycle.replaceKey("/P", cyclic);
     cyclic.replaceKey("/K", array_of({inside_cycle, P("30")}));
     inside_cycle.replaceKey("/K", array_of({cyclic, shared, inside_cycle, P("31")}));   // its parent, a shared one, itself
     in_other.replaceKey("/Pg", page2);
@@ -417,6 +439,16 @@ EQX_TEST(structure_storage_views_match_plain_records) {
     EXPECT_EQ(direct, std::size_t(6));
     EXPECT(unchecked >= 1);
     EXPECT_EQ(plain.root_kids.size(), std::size_t(6));
+    std::size_t by_p = 0, other_p = 0;
+    for (const StructElem& e : st.elems()) {
+        by_p += e.p_is_parent;
+        other_p += e.has_key(StructElem::kP) && !e.p_is_parent;
+    }
+    std::size_t stray = 0;
+    for (const StructElem& e : st.elems()) stray += !e.k_is_kids;
+    EXPECT_EQ(stray, std::size_t(2));     // chain (a stream that is no kid), unknown (a name, a string, ...)
+    EXPECT_EQ(by_p, std::size_t(6));      // doc, sect1, para1, loop, in_other2, inside_cycle
+    EXPECT_EQ(other_p, std::size_t(5));   // sect2, shared, para2, chain, cyclic
 }
 
 EQX_TEST(structure_storage_type_facts_are_shared_per_type) {
@@ -451,6 +483,15 @@ EQX_TEST(structure_storage_type_facts_are_shared_per_type) {
     }
     EXPECT(shared >= 8);
     EXPECT_EQ(direct_ns, std::size_t(3));
+    // type_id numbers the records: the same number, the same record
+    std::unordered_map<std::uint32_t, const SType*> by_id;
+    for (const StructElem& e : st.elems()) {
+        auto [it, added] = by_id.try_emplace(e.type_id, &e.type);
+        EXPECT(it->second == &e.type);
+    }
+    std::unordered_set<const SType*> numbered;
+    for (const auto& [id, type] : by_id) EXPECT(numbered.insert(type).second);
+    EXPECT(by_id.size() <= st.type_count());
     // different types never share
     std::unordered_set<const SType*> records;
     for (const auto& [id, seen] : by_type) EXPECT(records.insert(seen.type).second);
