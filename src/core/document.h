@@ -50,6 +50,9 @@ public:
 
     // First bytes of the file (up to 4 KiB) and the header line ("%PDF-1.7"), as veraPDF reads it.
     const std::string& file_head() const { return head_; }
+    // Last bytes of the file (up to 1 KiB): where startxref and %%EOF have to be. Read while the file was opened, so
+    // a rule that looks at the end of the file need not open it again.
+    const std::string& file_tail() const { return tail_; }
     const std::string& header() const { return header_; }
     // Version from the header ("1.7", "2.0"); empty when no header was found.
     const std::string& header_version() const { return header_version_; }
@@ -85,7 +88,7 @@ private:
     std::vector<std::string> warnings_;
     std::string path_;
     std::uint64_t file_size_ = 0;
-    std::string head_, header_, header_version_;
+    std::string head_, tail_, header_, header_version_;
     Obj trailer_, catalog_, info_, encrypt_;
     bool encrypted_ = false;
     bool recovered_ = false;

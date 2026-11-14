@@ -10,6 +10,7 @@
 #include <random>
 #include <string>
 
+#include "core/document.h"
 #include "core/source_file.h"
 #include "unit.h"
 #include "util/sha256.h"
@@ -172,6 +173,45 @@ EQX_TEST(source_file_contains) {
     EXPECT(source && source->contains(needle));
     EXPECT(source && !source->contains("/Prev"));
     std::filesystem::remove(small);
+}
+
+EQX_TEST(document_keeps_head_and_tail_of_the_file) {
+    // a document of a few kilobytes: one page, and a padding comment so that head and tail differ
+    std::string pdf = "%PDF-1.7\n";
+    std::vector<std::size_t> offsets;
+    const auto object = [&](const std::string& body) {
+        offsets.push_back(pdf.size());
+        pdf += std::to_string(offsets.size()) + " 0 obj\n" + body + "\nendobj\n";
+    };
+    object("<< /Type /Catalog /Pages 2 0 R >>");
+    object("<< /Type /Pages /Kids [3 0 R] /Count 1 >>");
+    object("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>");
+    pdf += "%" + std::string(6000, 'x') + "\n";
+    const std::size_t xref = pdf.size();
+    pdf += "xref\n0 4\n0000000000 65535 f \n";
+    for (std::size_t off : offsets) {
+        char line[32];
+        std::snprintf(line, sizeof line, "%010zu 00000 n \n", off);
+        pdf += line;
+    }
+    pdf += "trailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n" + std::to_string(xref) + "\n%%EOF\n";
+    const std::string path = temp_file("doc.pdf", pdf);
+    OpenStatus status;
+    std::string error;
+    // once through a SourceFile handed in, once opened by the document itself
+    for (int pass = 0; pass < 2; ++pass) {
+        auto doc = Document::open(path, &status, &error, false, pass == 0 ? SourceFile::open(path) : nullptr);
+        EXPECT(doc != nullptr);
+        if (!doc) continue;
+        EXPECT_EQ(doc->file_size(), static_cast<std::uint64_t>(pdf.size()));
+        EXPECT(doc->file_head() == pdf.substr(0, 4096));
+        EXPECT(doc->file_tail() == pdf.substr(pdf.size() - 1024));
+        EXPECT(doc->file_tail().find("startxref") != std::string::npos);
+        EXPECT_EQ(doc->header_version(), std::string("1.7"));
+        EXPECT_EQ(doc->pages().size(), std::size_t(1));
+        EXPECT(doc->warnings().empty());
+    }
+    std::filesystem::remove(path);
 }
 
 EQX_TEST(source_file_refuses_what_is_no_regular_file) {

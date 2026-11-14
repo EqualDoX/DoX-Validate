@@ -19,14 +19,15 @@ namespace {
 
 // The last 1024 bytes hold the startxref keyword (ISO 32000 7.5.5). qpdf looks a little further and reconstructs without one,
 // so a file with more behind its end than that is reported here: veraPDF refuses such a file outright.
-bool startxref_at_end(const std::string& path, std::uint64_t size) {
+std::string read_tail(const std::string& path, std::uint64_t size) {
     std::ifstream in(path, std::ios::binary);
-    if (!in) return false;
+    if (!in) return {};
     const std::uint64_t n = std::min<std::uint64_t>(size, 1024);
     in.seekg(static_cast<std::streamoff>(size - n));
     std::string buf(static_cast<std::size_t>(n), '\0');
     in.read(buf.data(), static_cast<std::streamsize>(n));
-    return buf.find("startxref") != std::string::npos;
+    buf.resize(static_cast<std::size_t>(std::max<std::streamsize>(in.gcount(), 0)));
+    return buf;
 }
 
 std::string read_head(const std::string& path, std::uint64_t* size) {
@@ -221,10 +222,9 @@ std::unique_ptr<Document> Document::open(const std::string& path, OpenStatus* st
     }
     if (!d->recovered_) d->read_hidden_objects(read_model);
     d->retired_.reset();
-    const bool startxref = d->source_ ? d->source_->bytes_at(d->file_size_ - std::min<std::uint64_t>(d->file_size_, 1024), 1024)
-                                                .find("startxref") != std::string::npos
-                                      : startxref_at_end(path, d->file_size_);
-    if (!startxref) note_unread("no startxref in the last 1024 bytes of the file");
+    d->tail_ = d->source_ ? d->source_->bytes_at(d->file_size_ - std::min<std::uint64_t>(d->file_size_, 1024), 1024)
+                          : read_tail(path, d->file_size_);
+    if (d->tail_.find("startxref") == std::string::npos) note_unread("no startxref in the last 1024 bytes of the file");
     *status = OpenStatus::Ok;
     return d;
 }
