@@ -78,9 +78,14 @@ Summary summarize(const Result& r, const ResultBasis& basis) {
     }
     s.rules_incomplete = r.incomplete_reasons.size();
     for (RuleIndex i = 0; i < cat.size(); ++i) {
-        if (r.evaluated[i] && !r.incomplete[i]) ++s.rules_evaluated;
-        if (!r.evaluated[i] && cat.rule(i).required && r.in_selection(i)) ++s.rules_incomplete;   // "not implemented"
-        if (cat.rule(i).required && r.in_selection(i) && (!r.evaluated[i] || r.incomplete[i])) ++s.required_rules_incomplete;
+        const bool evaluated = r.evaluated[i];
+        if (evaluated && !r.incomplete[i]) {   // the usual case: nothing else to count for this rule
+            ++s.rules_evaluated;
+            continue;
+        }
+        if (!cat.rule(i).required || !r.in_selection(i)) continue;
+        if (!evaluated) ++s.rules_incomplete;   // "not implemented"
+        ++s.required_rules_incomplete;          // not evaluated, or incomplete
     }
     s.rules_not_applicable = r.not_applicable.size();
     bool incomplete = false, failed = false;
@@ -114,7 +119,7 @@ std::string render_json(const Result& r, bool pretty, const ResultBasis& basis) 
     const Summary sum = summarize(r, basis);
     JsonWriter w(pretty);
     // The list of evaluated rules is most of a typical report (one id per catalogue rule).
-    w.reserve(catalog_ids_json(0, static_cast<RuleIndex>(cat.size())).size() + 16384);
+    w.reserve(catalog_ids_json(0, static_cast<RuleIndex>(cat.size())).size() + 32768);
     w.begin_object();
     w.key("schema").value("eqx-validator-output/1");
     w.key("validator").begin_object();

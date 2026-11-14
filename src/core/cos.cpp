@@ -5,8 +5,10 @@
 
 #include <algorithm>
 #include <cctype>
+#include <concepts>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <vector>
 
 #include <qpdf/Buffer.hh>
@@ -30,10 +32,8 @@ namespace {
 
 // qpdf's spelling of a key: "/" + key. Keys of up to 14 characters stay in the string's own buffer.
 inline std::string slash_key(std::string_view key) {
-    std::string k;
-    k.reserve(key.size() + 1);
-    k.push_back('/');
-    k.append(key);
+    std::string k(key.size() + 1, '/');
+    std::memcpy(k.data() + 1, key.data(), key.size());
     return k;
 }
 
@@ -181,12 +181,27 @@ std::optional<Rect> rect(const Obj& h) {
     return r;
 }
 
+namespace {
+
+// The bytes of a buffer that qpdf has just produced for us alone. qpdf 12 decodes into a std::string and wraps it in
+// the Buffer: Buffer::move() hands that string over, where the qpdf at hand has it; otherwise the bytes are copied.
+template <class B>
+std::string take_bytes(B& buf) {
+    if constexpr (requires { { buf.move() } -> std::same_as<std::string>; }) {
+        return buf.move();
+    } else {
+        return std::string(reinterpret_cast<const char*>(buf.getBuffer()), buf.getSize());
+    }
+}
+
+}  // namespace
+
 std::optional<std::string> stream_data(const Obj& stream, std::string* error) {
     if (!stream.isStream()) return std::nullopt;
     try {
         // specialized: also RunLengthDecode, which the content rules need (at the generalized level such a stream is "unfilterable")
         auto buf = const_cast<Obj&>(stream).getStreamData(qpdf_dl_specialized);
-        return std::string(reinterpret_cast<const char*>(buf->getBuffer()), buf->getSize());
+        return take_bytes(*buf);
     } catch (std::exception& e) {
         if (error) *error = e.what();
         return std::nullopt;
