@@ -1172,8 +1172,6 @@ public:
         scale_ = std::min(1.0, double(kMaxCanvasSide) / std::max(w, h));
         w_ = std::max(1, int(std::ceil(w * scale_)));
         h_ = std::max(1, int(std::ceil(h * scale_)));
-        rgb_.assign(std::size_t(w_) * std::size_t(h_) * 3, 255);
-        unknown_.assign(std::size_t(w_) * std::size_t(h_), 0);
     }
     int width() const { return w_; }
     int height() const { return h_; }
@@ -1748,6 +1746,24 @@ public:
     bool gave_up = false;   // a page exceeded the geometry or pixel budget and was not judged
 
 private:
+    struct CodeText {
+        static constexpr std::uint8_t kKnown = 1;       // the entry was read
+        static constexpr std::uint8_t kNoUnicode = 2;   // the code has no Unicode value
+        static constexpr std::uint8_t kInk = 4;         // a character that is neither white space nor U+0000
+        static constexpr std::uint8_t kLetter = 8;      // such a character that is a letter
+        static constexpr std::uint8_t kOneChar = 16;    // exactly one such character: `utf8` holds it
+        std::uint8_t flags = 0;
+        std::uint8_t len = 0;
+        char utf8[4] = {0, 0, 0, 0};
+    };
+    static CodeText read_code_text(const Font* font, std::uint32_t code);
+    CodeText code_text(const Font* font, std::uint32_t code);
+    CodeText code_text_slow(const Font* font, std::uint32_t code);
+    std::unordered_map<const Font*, std::vector<std::unique_ptr<CodeText[]>>> code_texts_;
+    const Font* code_text_font_ = nullptr;                          // the font used last and its pages
+    const std::unique_ptr<CodeText[]>* code_text_pages_ = nullptr;
+    std::size_t code_text_npages_ = 0;
+
     StreamState* state_for(const ContentModel& cm, int si);
     void begin_text_op(int si, std::uint32_t op_index, const RawOp& op, const GState& gs);
     void close_piece(const ContentModel& cm);
@@ -2094,6 +2110,63 @@ void ContrastEngine::begin_text_op(int si, std::uint32_t op_index, const RawOp& 
     }
 }
 
+// The facts on_glyph takes from the Unicode value of a character code. They depend on the font and the code only (a font
+// maps a code to the same value for its lifetime), so they are read once and kept: per font, pages of 64 codes.
+ContrastEngine::CodeText ContrastEngine::read_code_text(const Font* font, std::uint32_t code) {
+    CodeText t;
+    t.flags = CodeText::kKnown;
+    const std::u32string* u = font ? font->to_unicode(code) : nullptr;
+    if (!u) {
+        t.flags |= CodeText::kNoUnicode;
+        return t;
+    }
+    int inking = 0;
+    char32_t one = 0;
+    for (char32_t c : *u) {
+        if (is_unicode_space(c) || c == 0) continue;   // U+0000 draws nothing (a real-world sample: not judged)
+        ++inking;
+        one = c;
+        t.flags |= CodeText::kInk;
+        // a symbol is no letter: arrow, bullet, box stay unflagged (oa_art_bullet; two real-world samples, 2 each)
+        const bool symbol = c == 0xD7 || c == 0xF7 || (c >= 0x2000 && c <= 0x2BFF) || (c >= 0x3000 && c <= 0x303F) || (c >= 0xE000 && c <= 0xF8FF) || c >= 0xFFF0;
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= 0xC0 && !symbol)) t.flags |= CodeText::kLetter;
+    }
+    if (inking == 1) {
+        std::string s;
+        append_utf8(s, one);   // at most 4 bytes
+        t.flags |= CodeText::kOneChar;
+        t.len = std::uint8_t(s.size());
+        std::copy(s.begin(), s.end(), t.utf8);
+    }
+    return t;
+}
+
+// The entry of (font, code) when it is not the read entry of the font used last: reads it, and makes `font` that font.
+ContrastEngine::CodeText ContrastEngine::code_text_slow(const Font* font, std::uint32_t code) {
+    if (!font || code >= 0x10000) return read_code_text(font, code);   // not kept: no font, or a code beyond the tables
+    std::vector<std::unique_ptr<CodeText[]>>& pages = code_texts_[font];
+    const std::size_t p = code >> 6;
+    if (p >= pages.size()) pages.resize(p + 1);
+    if (!pages[p]) pages[p] = std::make_unique<CodeText[]>(64);
+    code_text_font_ = font;
+    code_text_pages_ = pages.data();   // after the resize: the array may have moved
+    code_text_npages_ = pages.size();
+    CodeText& t = pages[p][code & 63];
+    if (!(t.flags & CodeText::kKnown)) t = read_code_text(font, code);
+    return t;
+}
+
+inline ContrastEngine::CodeText ContrastEngine::code_text(const Font* font, std::uint32_t code) {
+    const std::size_t p = code >> 6;
+    if (font == code_text_font_ && p < code_text_npages_) {
+        if (const CodeText* page = code_text_pages_[p].get()) {
+            const CodeText t = page[code & 63];
+            if (t.flags & CodeText::kKnown) return t;
+        }
+    }
+    return code_text_slow(font, code);
+}
+
 void ContrastEngine::on_glyph(const ContentModel& cm, const GlyphEvent& ev) {
     if (ev.stream != text_stream_ || ev.op_index != text_op_ || !ev.real_content) return;
     while (piece_at_ < piece_ends_.size() && ev.glyph_index >= piece_ends_[piece_at_]) {
@@ -2120,20 +2193,23 @@ void ContrastEngine::on_glyph(const ContentModel& cm, const GlyphEvent& ev) {
         piece_box_.urx = std::max(piece_box_.urx, x1);
         piece_box_.ury = std::max(piece_box_.ury, y1);
     }
-    const std::u32string* u = ev.font ? ev.font->to_unicode(ev.code.code) : nullptr;
+    // What the code's Unicode value says (code_text: read once per font and code).
+    const CodeText ct = code_text(ev.font, ev.code.code);
     bool blank = true;
-    if (!u) {
+    if (ct.flags & CodeText::kNoUnicode) {
         piece_letter_ = piece_ink_ = true;     // a glyph without Unicode counts as text
         blank = false;
-    } else {
-        for (char32_t c : *u) {
-            if (is_unicode_space(c) || c == 0) continue;   // U+0000 draws nothing (a real-world sample: not judged)
-            piece_ink_ = true;
-            blank = false;
-            // a symbol is no letter: arrow, bullet, box stay unflagged (oa_art_bullet; two real-world samples, 2 each)
-            const bool symbol = c == 0xD7 || c == 0xF7 || (c >= 0x2000 && c <= 0x2BFF) || (c >= 0x3000 && c <= 0x303F) || (c >= 0xE000 && c <= 0xF8FF) || c >= 0xFFF0;
-            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= 0xC0 && !symbol)) piece_letter_ = true;
-            if (piece_text_.size() < 60) append_utf8(piece_text_, c);
+    } else if (ct.flags & CodeText::kInk) {
+        piece_ink_ = true;
+        blank = false;
+        if (ct.flags & CodeText::kLetter) piece_letter_ = true;
+        if (ct.flags & CodeText::kOneChar) {
+            if (piece_text_.size() < 60) piece_text_.append(ct.utf8, ct.len);
+        } else {   // several characters: one by one, each only while the text is short
+            for (char32_t c : *ev.font->to_unicode(ev.code.code)) {
+                if (is_unicode_space(c) || c == 0) continue;
+                if (piece_text_.size() < 60) append_utf8(piece_text_, c);
+            }
         }
     }
     if (!blank) {
