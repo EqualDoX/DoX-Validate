@@ -19,8 +19,13 @@ import statistics
 import sys
 from pathlib import Path
 
+# Table order; a run holds a subset of these (cold.csv decides, see main).
+KNOWN = ["dox", "dox-shared", "dox-base", "dox-ua1rules", "dox-base-ua1rules", "vellum-ua1", "outloud-conf"]
 VARIANTS = ["dox", "dox-ua1rules", "vellum-ua1", "outloud-conf"]
 NAMES = {"dox": "dox-validate (full catalogue)", "dox-ua1rules": "dox-validate --rules EQX-UA1-",
+         "dox-shared": "dox-validate, default build (shared libqpdf)",
+         "dox-base": "dox-validate before the optimisation (729a5c5)",
+         "dox-base-ua1rules": "dox-validate before the optimisation, --rules EQX-UA1-",
          "vellum-ua1": "VellumPdf 2.3.3 -p ua1", "outloud-conf": "outloud 0.2.1 --layer conformance"}
 
 
@@ -38,6 +43,8 @@ def main(res: Path) -> None:
             runs[r["item"]][r["variant"]].append((float(r["wall_s"]), int(r["maxrss_kb"] or 0) / 1024))
         else:
             excluded[(r["variant"], r["item"])] += 1
+    measured = {v for d in runs.values() for v in d} | {v for v, _ in excluded}
+    VARIANTS[:] = [v for v in KNOWN if v in measured]
     reps = max(len(x) for d in runs.values() for x in d.values())
     docs = sorted(d for d in runs if all(len(runs[d][v]) == reps for v in VARIANTS))
 

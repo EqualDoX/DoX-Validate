@@ -102,10 +102,15 @@ fi
 # --- measurement helper (wall time, CPU time and peak RSS of one tool process; see bench/rusage_exec.c)
 cc -O2 -Wall -o "$TOOLS/rusage_exec" "$HERE/rusage_exec.c"
 
-# --- dox-validate (Release build of the checked-out commit, separate from the developer build tree)
+# --- dox-validate (Release builds of the checked-out commit, separate from the developer build tree)
+#   build-bench         the measured binary: qpdf and pugixml linked statically from their pinned release archives
+#                       (-DDOX_STATIC_DEPS=ON; downloads them into build-bench/deps on the first run, SHA-256 verified)
+#   build-bench-shared  the default build with the distribution's shared libqpdf (variant dox-shared, supplementary)
 if [[ "${1:-}" != "--no-build" ]]; then
-  cmake -S "$ROOT" -B "$ROOT/build-bench" -G Ninja -DCMAKE_BUILD_TYPE=Release > /dev/null
+  cmake -S "$ROOT" -B "$ROOT/build-bench" -G Ninja -DCMAKE_BUILD_TYPE=Release -DDOX_STATIC_DEPS=ON > /dev/null
   ninja -C "$ROOT/build-bench" dox-validate
+  cmake -S "$ROOT" -B "$ROOT/build-bench-shared" -G Ninja -DCMAKE_BUILD_TYPE=Release > /dev/null
+  ninja -C "$ROOT/build-bench-shared" dox-validate
   "$ROOT/build-bench/dox-validate" --version
   git -C "$ROOT" rev-parse HEAD
 fi

@@ -43,6 +43,9 @@ DOX = ROOT / "build-bench" / "dox-validate"
 # Optional second dox-validate build for before/after comparisons (variants dox-base, dox-base-ua1rules), e.g. a Release
 # build of an earlier commit: $DOX_BASELINE, default build-baseline/dox-validate.
 DOX_BASE = Path(os.environ.get("DOX_BASELINE") or ROOT / "build-baseline" / "dox-validate")
+# build-bench is the release build with statically linked qpdf (-DDOX_STATIC_DEPS=ON). The default build, which uses
+# the distribution's shared libqpdf, is measured as the variant dox-shared: $DOX_SHARED, default build-bench-shared.
+DOX_SHARED = Path(os.environ.get("DOX_SHARED") or ROOT / "build-bench-shared" / "dox-validate")
 RUSAGE_EXEC = TOOLS / "rusage_exec"
 CPDF = TOOLS / "cpdf-2.9.3" / "cpdf"
 VERAPDF = {"1.30.4": TOOLS / "verapdf-1.30.4" / "verapdf", "1.30.2": TOOLS / "verapdf-1.30.2" / "verapdf"}
@@ -63,6 +66,8 @@ def argv_for(variant: str, files: list[str], workers: int = 1) -> list[str]:
         return [str(DOX_BASE), "--format", "json", "--jobs", str(workers), *files]
     if variant == "dox-base-ua1rules":
         return [str(DOX_BASE), "--format", "json", "--jobs", str(workers), "--rules", "EQX-UA1-", *files]
+    if variant == "dox-shared":     # the default build (shared libqpdf of the distribution), same call as dox
+        return [str(DOX_SHARED), "--format", "json", "--jobs", str(workers), *files]
     if variant == "cpdf-ua1":       # secondary competitor: cpdf's partial Matterhorn (PDF/UA-1) verifier, one file per run
         assert len(files) <= 1 and workers == 1
         return [str(CPDF), "-verify", "PDF/UA-1(matterhorn)", "-json", *files]
@@ -460,7 +465,7 @@ def rotated(seq: list, k: int) -> list:
 def block_startup(a, docs):
     sink = Sink("startup")
     smallest = min((d for d in docs if d["pages"] > 0), key=lambda d: (d["bytes"], d["id"]))
-    variants = ["dox", "vp-ua1", "vp1.30.2-ua1", "cpdf-ua1"]
+    variants = a.startup_variants
     log_load("startup", "before")
     seq = 0
     for rep in range(a.reps_startup):
@@ -613,6 +618,10 @@ def block_env(a, docs, corpus_sha):
         "dox_commit": sh("git", "-C", str(ROOT), "rev-parse", "HEAD"),
         "dox_tree_dirty_src": bool(sh("git", "-C", str(ROOT), "status", "--porcelain", "--", "src", "catalog", "CMakeLists.txt")),
         "dox_binary_sha256": hashlib.sha256(DOX.read_bytes()).hexdigest() if DOX.exists() else "",
+        "dox_shared_objects": len(sh("ldd", str(DOX)).splitlines()) if DOX.exists() else None,
+        "dox_shared_binary_sha256": hashlib.sha256(DOX_SHARED.read_bytes()).hexdigest() if DOX_SHARED.exists() else "",
+        "dox_baseline_binary": str(DOX_BASE) if DOX_BASE.exists() else "",
+        "dox_baseline_binary_sha256": hashlib.sha256(DOX_BASE.read_bytes()).hexdigest() if DOX_BASE.exists() else "",
         "verapdf": {v: sh(str(p), "--version", env=ENV).splitlines()[0] for v, p in VERAPDF.items() if p.exists()},
         "verapdf_parser": "greenfield (veraPDF's own parser; org.verapdf.apps.GreenfieldCliWrapper)",
         "verapdf_launcher_jvm_args": " ".join(m.group(1).split()) if m else "",
@@ -664,6 +673,7 @@ def main():
                     help="seconds per one-document process (cold, startup, pool); about 10x the slowest veraPDF document")
     ap.add_argument("--corpus-timeout", type=float, default=1800.0,
                     help="seconds per pass for whole-corpus processes (batch, native parallel)")
+    ap.add_argument("--startup-variants", default="dox,vp-ua1,vp1.30.2-ua1,cpdf-ua1")
     ap.add_argument("--cold-variants", default="dox,dox-ua1rules,vp-ua1,vp-ua2,vp-wt1a,vp-wt1r,cpdf-ua1")
     ap.add_argument("--batch-variants", default="dox,dox-ua1rules,vp-ua1,vp-ua2,vp-wt1a,vp-wt1r,vp1.30.2-ua1")
     ap.add_argument("--parallel-variants", default="dox,vp-ua1", help="tool-internal parallelism (--jobs / --processes)")
@@ -677,6 +687,7 @@ def main():
     a.cpus_str = a.cpus
     a.cpus = parse_cpus(a.cpus)
     a.workers = [int(x) for x in a.workers.split(",")]
+    a.startup_variants = a.startup_variants.split(",")
     a.cold_variants = a.cold_variants.split(",")
     a.batch_variants = a.batch_variants.split(",")
     a.parallel_variants = a.parallel_variants.split(",")
