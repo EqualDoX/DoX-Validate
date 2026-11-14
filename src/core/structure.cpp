@@ -44,11 +44,18 @@ std::optional<std::string> ns_string(const Obj& ns) {
     return cos::text(cos::get(ns, "NS"));
 }
 
+// The namespace of a structure type that has none: one null object for all of them (Obj::newNull() allocates an
+// object per call, which is kept for every structure element).
+const Obj& no_namespace() {
+    static const Obj null = Obj::newNull();
+    return null;
+}
+
 std::optional<SType> make_stype(const Obj& type, const Obj& ns) {
     if (!type.isName()) return std::nullopt;
     SType t;
     t.type = *cos::name(type);
-    t.ns = ns.isDictionary() ? ns : Obj::newNull();
+    t.ns = ns.isDictionary() ? ns : no_namespace();
     return t;
 }
 
@@ -403,7 +410,7 @@ int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_pa
                 e.type = *st;
                 e.std20 = default_type20(*st);
             } else {
-                e.type.ns = Obj::newNull();
+                e.type.ns = no_namespace();
             }
             if (e.S) e.std17 = standard_type17(*e.S);
             e.page = ref_of(cos::get(item, "Pg"));
