@@ -680,8 +680,11 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
             e.ref = r;
             // The facts of the type, stype_of(item) with its two standard types: once per type name and namespace.
             const Obj* s = non_null(in.s);
-            if (std::optional<std::string> name = s ? cos::name(*s) : std::nullopt) {
-                const Obj* ns = non_null(in.ns);
+            std::optional<std::string> name = s ? cos::name(*s) : std::nullopt;
+            // /NS is looked at for every element, also when /S is no name and it is not used: an indirect one is
+            // resolved here, and every later reader of the dictionary finds /S and /NS resolved.
+            const Obj* ns = non_null(in.ns);
+            if (name) {
                 const bool in_namespace = ns && ns->isDictionary();
                 std::uint32_t* id = nullptr;
                 if (!in_namespace) id = &b.plain_types.try_emplace(*name, 0).first->second;
