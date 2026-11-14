@@ -365,10 +365,10 @@ private:
             return false;
         };
         for (const StructElem& e : ctx.st.elems()) {
-            Obj at = cos::get(e.dict, "ActualText");
+            Obj at = e.get(StructElem::kActualText, "ActualText");
             if (at.isString() && has_pua(at.getStringValue()))
                 ctx.report(r8432, -1, e.ref, "ActualText of " + e.S.value_or("?") + " contains private use characters");
-            Obj alt = cos::get(e.dict, "Alt");
+            Obj alt = e.get(StructElem::kAlt, "Alt");
             if (alt.isString() && has_pua(alt.getStringValue()))
                 ctx.report(r8433, -1, e.ref, "Alt of " + e.S.value_or("?") + " contains private use characters");
         }

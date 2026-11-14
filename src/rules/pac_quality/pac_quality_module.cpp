@@ -817,7 +817,7 @@ private:
                              elem_label(i) + (ws_content[k] ? ": white space only" : ": no content"));
             }
 
-            Obj alt = cos::get(e.dict, "Alt");
+            Obj alt = e.get(StructElem::kAlt, "Alt");
             if (alt.isString()) {
                 std::string a = cos::text(alt).value_or("");
                 // TextTagHasAltText: WARN when the tag has alt text set; a value of white space and NUL only is
@@ -1293,9 +1293,10 @@ private:
             struct K {
                 const char* key;
                 RuleIndex rule;
+                StructElem::Key bit;
             };
-            for (K k : {K{"Alt", kAlt}, K{"ActualText", kActual}, K{"E", kE}}) {
-                Obj v = cos::get(e.dict, k.key);
+            for (K k : {K{"Alt", kAlt, StructElem::kAlt}, K{"ActualText", kActual, StructElem::kActualText}, K{"E", kE, StructElem::kE}}) {
+                Obj v = e.get(k.bit, k.key);
                 if (!v.isString() || cos::bytes(v).value_or("").empty()) continue;
                 if (lang_determined(e.dict)) continue;
                 ctx_->report(k.rule, elem_page(e.index), e.ref,

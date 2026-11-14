@@ -298,7 +298,7 @@ void Module::structure_tree(ValidationContext& ctx) {
         // A content syntax error masks this warning (U1-X01: same element, Structure tree passes).
         static const RuleIndex parsable = R("EQX-PAC-FailPDFParsable");
         if (!ctx.findings.has(parsable)) {
-            Obj up = cos::get(e.dict, "P");
+            Obj up = e.get(StructElem::kP, "P");
             if (up.isNull() || (up.isDictionary() && st.root_ref().valid() && ref_of(up) == st.root_ref())) {
                 c.parent = pac::kRoot;
                 c.eff_parent = pac::kRoot;
@@ -463,7 +463,7 @@ void Module::parent_keys(ValidationContext& ctx) {
         return p.isIndirect() && ref_of(p) == ref_of(actual);
     };
     for (std::size_t i = 0; i < E.size(); ++i) {
-        Obj p = cos::get(E[i].dict, "P");
+        Obj p = E[i].get(StructElem::kP, "P");
         if (p.isNull()) continue;
         // Also when another parent's /K lists the element: /P names only one of them, the other fails (d_ow_elem_two_parents).
         bool ok = same(p, E[i].parent);
@@ -498,10 +498,16 @@ void Module::corrupt_elements(ValidationContext& ctx) {
     const StructTree& st = ctx.st;
     // Kids PAC stops on (reported as an invalid kid, cr_se_k_null, cr_se_k_string, cr_se_k_page; a negative MCID, ow_mcid_negative) and entries of another type (/Alt, /Lang, cr_se_alt_name,
     // cr_se_lang_int). PAC closes such documents; a silent pass would hide them.
+    struct StringKey {
+        const char* key;
+        StructElem::Key bit;
+    };
     for (const auto& e : st.elems())
-        for (const char* key : {"Alt", "ActualText", "E", "Lang"}) {
-            Obj v = cos::get(e.dict, key);
-            if (!v.isNull() && !v.isString()) ctx.report(parsable, -1, e.ref, std::string("PAC: structure element /") + key + " is not a string (PAC closes the document)");
+        for (const StringKey k : {StringKey{"Alt", StructElem::kAlt}, StringKey{"ActualText", StructElem::kActualText},
+                                  StringKey{"E", StructElem::kE}, StringKey{"Lang", StructElem::kLang}}) {
+            if (!e.has_key(k.bit)) continue;   // no such key: nothing to judge
+            Obj v = cos::get(e.dict, k.key);
+            if (!v.isNull() && !v.isString()) ctx.report(parsable, -1, e.ref, std::string("PAC: structure element /") + k.key + " is not a string (PAC closes the document)");
         }
     auto scan = [&](const Obj& node, ObjRef owner) {
         Obj k = cos::get(node, "K");

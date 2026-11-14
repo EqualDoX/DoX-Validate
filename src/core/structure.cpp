@@ -521,13 +521,62 @@ Obj StructTree::struct_elem_for_mcid(const std::optional<std::int64_t>& struct_p
     return r;
 }
 
+namespace {
+
+// StructElem::keys of a dictionary: which of the keys with a bit it holds (keys as qpdf stores them, with the slash).
+std::uint16_t key_bits(const std::map<std::string, Obj>& entries) {
+    std::uint16_t bits = 0;
+    for (const auto& item : entries) {
+        const std::string& k = item.first;
+        if (k.empty() || k[0] != '/') continue;
+        switch (k.size()) {
+            case 2:
+                switch (k[1]) {
+                    case 'P': bits |= StructElem::kP; break;
+                    case 'E': bits |= StructElem::kE; break;
+                    case 'A': bits |= StructElem::kA; break;
+                    case 'C': bits |= StructElem::kC; break;
+                    case 'T': bits |= StructElem::kT; break;
+                    default: break;
+                }
+                break;
+            case 3:
+                if (k == "/ID") bits |= StructElem::kID;
+                break;
+            case 4:
+                if (k == "/Alt") bits |= StructElem::kAlt;
+                else if (k == "/Ref") bits |= StructElem::kRef;
+                break;
+            case 5:
+                if (k == "/Lang") bits |= StructElem::kLang;
+                break;
+            case 11:
+                if (k == "/ActualText") bits |= StructElem::kActualText;
+                break;
+            default:
+                break;
+        }
+    }
+    return bits;
+}
+
+}  // namespace
+
 int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_page, int depth) {
     // TaggedPDFHelper.getChildren: a dictionary whose /Type is absent or /StructElem is a structure
     // element; a dictionary or stream with /Type /MCR or /OBJR is a content item; an integer is an MCID.
     std::vector<StructKid>& kids = elem_index < 0 ? root_kids_ : elems_[elem_index].kids;
     StructKid kid;
     if (item.isDictionary()) {
-        auto type = cos::name(item, "Type");
+        // The entries of the dictionary, taken once (one copy of its map instead of two map searches per key read
+        // below). entry(key) is cos::get(item, key): the value, a null handle for an absent key and for a null value.
+        const std::map<std::string, Obj> entries = const_cast<Obj&>(item).getDictAsMap();
+        const auto entry = [&](const char* slash_key) -> Obj {
+            auto found = entries.find(slash_key);
+            if (found == entries.end() || found->second.isNull()) return Obj::newNull();
+            return found->second;
+        };
+        auto type = cos::name(entry("/Type"));
         if (!type || *type == "StructElem") {
             kid.kind = StructKid::Kind::Elem;
             kid.dict = item;
@@ -547,16 +596,18 @@ int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_pa
             e.depth = depth;
             e.dict = item;
             e.ref = r;
-            e.S = cos::name(item, "S");
-            if (auto st = stype_of(item)) {
+            const Obj s = entry("/S");
+            e.S = cos::name(s);
+            if (auto st = make_stype(s, entry("/NS"))) {   // stype_of(item)
                 e.type = *st;
                 e.std20 = default_type20(*st);
             } else {
                 e.type.ns = no_namespace();
             }
             if (e.S) e.std17 = standard_type17(*e.S);
-            e.page = ref_of(cos::get(item, "Pg"));
+            e.page = ref_of(entry("/Pg"));
             e.inherited_page = e.page.valid() ? e.page : inherited_page;
+            e.keys = key_bits(entries);
             elems_.push_back(std::move(e));      // may reallocate: re-take references below
             if (r.valid()) by_ref_.emplace(r.key(), idx);
             kid.elem = idx;
@@ -569,8 +620,26 @@ int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_pa
             }
             return idx;
         }
+        // a content item (as below for a stream, from the entries at hand)
+        if (*type == "MCR") {
+            kid.kind = StructKid::Kind::MCR;
+            kid.dict = item;
+            if (auto m = cos::integer(entry("/MCID"))) kid.mcid = *m;
+            ObjRef pg = ref_of(entry("/Pg"));
+            kid.page = pg.valid() ? pg : inherited_page;
+            kid.stm = ref_of(entry("/Stm"));
+            kids.push_back(kid);
+        } else if (*type == "OBJR") {
+            kid.kind = StructKid::Kind::OBJR;
+            kid.dict = item;
+            kid.obj = entry("/Obj");
+            ObjRef pg = ref_of(entry("/Pg"));
+            kid.page = pg.valid() ? pg : inherited_page;
+            kids.push_back(kid);
+        }
+        return -1;   // dictionary of another type: ignored by veraPDF
     }
-    if (item.isDictionary() || item.isStream()) {
+    if (item.isStream()) {
         auto type = cos::name(item, "Type");
         if (type && *type == "MCR") {
             kid.kind = StructKid::Kind::MCR;

@@ -48,6 +48,7 @@ public:
     Obj array(const Obj& elem, std::string_view attr, std::string_view owner) const;
 
 private:
+    const StructTree* st_;
     Obj class_map_;
 };
 

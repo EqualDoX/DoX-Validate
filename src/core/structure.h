@@ -72,8 +72,19 @@ struct StructElem {
     // "0 0 obj <S>", so of several direct elements with the same /S only the one pushed first is validated,
     // together with its subtree. False for elements veraPDF never validates (simulated push order).
     bool verapdf_checked = true;
+    std::uint16_t keys = 0;             // bits of Key: the keys the dictionary holds
     ObjRef page;                        // own /Pg
     ObjRef inherited_page;              // own /Pg, else nearest ancestor's /Pg
+
+    // Which of these keys the element's dictionary holds, whatever their values (noted when the element is collected).
+    // Most elements have none of /Alt, /ActualText, /E, /Lang, /ID, /Ref, /C, and a rule that reads such a key from
+    // every element asks here first: get() is cos::get(dict, name) without the dictionary lookup for an absent key.
+    enum Key : std::uint16_t {
+        kP = 1 << 0, kAlt = 1 << 1, kActualText = 1 << 2, kE = 1 << 3, kLang = 1 << 4,
+        kA = 1 << 5, kC = 1 << 6, kID = 1 << 7, kRef = 1 << 8, kT = 1 << 9,
+    };
+    bool has_key(Key k) const { return (keys & k) != 0; }
+    Obj get(Key k, std::string_view name) const { return has_key(k) ? cos::get(dict, name) : Obj::newNull(); }
 
     // Standard type in a flavour ("" when none). For Pdf20 this is the type name only.
     std::string standard(Flavor f) const;

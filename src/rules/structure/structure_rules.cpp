@@ -306,7 +306,7 @@ void run_structure_rules(ValidationContext& ctx) {
     // registers the keys named by its /Ref array.
     std::unordered_map<std::uint64_t, std::set<ObjRef>> referrers;
     for (const StructElem& e : elems) {
-        if (!e.ref.valid()) continue;
+        if (!e.ref.valid() || !e.has_key(StructElem::kRef)) continue;   // no /Ref: ref_keys is empty
         for (const ObjRef& r : ref_keys(e.dict)) referrers[r.key()].insert(e.ref);
     }
 
@@ -322,7 +322,7 @@ void run_structure_rules(ValidationContext& ctx) {
 
         // 7.1-12 / 8.2.1-2 + PAC StructureElementHasParentKey: no /P entry. veraPDF's containsParent is always true
         // (COSDictionary.getKey never returns null), so this is the normative requirement as PAC checks it.
-        if (cos::get(d, "P").isNull()) {
+        if (e.get(StructElem::kP, "P").isNull()) {
             ctx.report(R.parent17, -1, ref, s_detail(e) + ": no /P entry");
             ctx.report(R.parent20, -1, ref, s_detail(e) + ": no /P entry");
         }
@@ -340,7 +340,7 @@ void run_structure_rules(ValidationContext& ctx) {
             ctx.report(R.circular17, -1, ref, s_detail(e) + ": circular role mapping");
         if (remap17) ctx.report(R.remapped17, -1, ref, "standard type /" + *remap17 + " is remapped");
 
-        if (!catalog_lang) {
+        if (!catalog_lang && (e.keys & (StructElem::kActualText | StructElem::kAlt | StructElem::kE))) {   // else all three are absent
             auto at = se::string_or_name_key(d, "ActualText");
             auto alt = se::string_key(d, "Alt");
             auto exp = se::string_key(d, "E");

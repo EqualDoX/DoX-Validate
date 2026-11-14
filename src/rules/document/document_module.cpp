@@ -670,7 +670,7 @@ private:
 
         // structure elements (GFPDStructElem.getLang)
         for (const auto& e : ctx_->st.elems())
-            if (auto l = cos::bytes(e.dict, "Lang")) cos_lang(*l, -1, ref_or(e.dict, cat_ref_), "structure element");
+            if (auto l = cos::bytes(e.get(StructElem::kLang, "Lang"))) cos_lang(*l, -1, ref_or(e.dict, cat_ref_), "structure element");
         // marked-content property lists (Op_BDC Lang link, string values only)
         for (const auto& f : ctx_->content.frames) {
             if (!f.bdc || !f.lang || f.stream < 0) continue;
