@@ -4,6 +4,7 @@
 #include <map>
 #include <regex>
 #include <set>
+#include <span>
 #include <unordered_set>
 
 #include "core/document.h"
@@ -98,6 +99,14 @@ std::optional<std::string> SType::ns_uri() const {
 }
 
 bool SType::same(const SType& o) const { return type == o.type && ns_uri() == o.ns_uri(); }
+
+std::string StructTree::standard_rec(const Rec& r, Flavor f) const {
+    const TypeFacts& t = types_[r.type];
+    if (f == Flavor::Pdf17) return t.std17 ? *t.std17 : std::string();
+    if (!t.std20) return std::string();
+    if (t.std20->ns_uri() == std::optional<std::string>(kNsMathML)) return "MathML";
+    return t.std20->type;
+}
 
 std::string StructElem::standard(Flavor f) const {
     if (f == Flavor::Pdf17) return std17 ? *std17 : std::string();
@@ -253,8 +262,8 @@ bool StructTree::reaches_root(const Obj& d) const {
     enum : std::uint8_t { kUnknown = 0, kNo = 1, kYes = 2, kWalking = 3 };
     if (reaches_root_elem_.size() != elems_.size()) reaches_root_elem_.assign(elems_.size(), kUnknown);
     auto slot = [&](std::uint64_t key) -> std::uint8_t& {
-        auto it = by_ref_.find(key);
-        return it != by_ref_.end() ? reaches_root_elem_[static_cast<std::size_t>(it->second)] : reaches_root_other_[key];
+        const int i = by_ref_.find(key);
+        return i >= 0 ? reaches_root_elem_[static_cast<std::size_t>(i)] : reaches_root_other_[key];
     };
     std::vector<std::uint64_t> path;   // the indirect dictionaries of this walk, marked kWalking meanwhile
     bool result = false;
@@ -266,7 +275,7 @@ bool StructTree::reaches_root(const Obj& d) const {
             bool element = false;   // an element of the traversal: its /Type is absent or /StructElem (collect_kid)
             if (e.isIndirect()) {
                 key = ref_of(e).key();
-                element = by_ref_.find(key) != by_ref_.end();
+                element = by_ref_.find(key) >= 0;
                 state = &slot(key);
                 if (*state == kNo || *state == kYes) {
                     result = *state == kYes;
@@ -311,8 +320,8 @@ std::vector<std::string> StructTree::kids_standard_types(int i, Flavor f) const 
             truncated_ = true;
             return;
         }
-        for (int k : elems_[e].struct_kids) {
-            std::string st = elems_[k].standard(f);
+        for (int k : struct_kids_of(elems_[static_cast<std::size_t>(e)])) {
+            std::string st = standard_rec(elems_[static_cast<std::size_t>(k)], f);
             if (is_pass_through(st)) rec(k, depth + 1);
             else if (!st.empty()) out.push_back(st);
         }
@@ -328,16 +337,16 @@ std::vector<std::string> StructTree::root_kids_standard_types(Flavor f) const {
             truncated_ = true;
             return;
         }
-        for (int k : elems_[e].struct_kids) {
-            std::string st = elems_[k].standard(f);
+        for (int k : struct_kids_of(elems_[static_cast<std::size_t>(e)])) {
+            std::string st = standard_rec(elems_[static_cast<std::size_t>(k)], f);
             if (is_pass_through(st)) rec(k, depth + 1);
             else if (!st.empty()) out.push_back(st);
         }
     };
-    for (const StructKid& rk : root_kids_) {
+    for (const StructKid& rk : root_kids()) {
         if (rk.kind != StructKid::Kind::Elem || rk.elem < 0) continue;
         int k = rk.elem;
-        std::string st = elems_[k].standard(f);
+        std::string st = standard_rec(elems_[static_cast<std::size_t>(k)], f);
         if (is_pass_through(st)) rec(k, 1);
         else if (!st.empty()) out.push_back(st);
     }
@@ -350,18 +359,17 @@ bool StructTree::has_content_items(int i, Flavor f) const {
             truncated_ = true;
             return false;
         }
-        for (const auto& k : elems_[e].kids)
-            if (k.kind != StructKid::Kind::Elem) return true;
-        for (int k : elems_[e].struct_kids)
-            if (is_pass_through(elems_[k].standard(f)) && rec(k, depth + 1)) return true;
+        const Rec& r = elems_[static_cast<std::size_t>(e)];
+        if (r.n_kids != r.n_struct) return true;   // a kid that is no element
+        for (int k : struct_kids_of(r))
+            if (is_pass_through(standard_rec(elems_[static_cast<std::size_t>(k)], f)) && rec(k, depth + 1)) return true;
         return false;
     };
     return rec(i, 0);
 }
 
 int StructTree::find(const ObjRef& r) const {
-    auto it = by_ref_.find(r.key());
-    return it == by_ref_.end() ? -1 : it->second;
+    return by_ref_.find(r.key());
 }
 
 namespace {
@@ -562,11 +570,41 @@ std::uint16_t key_bits(const std::map<std::string, Obj>& entries) {
 
 }  // namespace
 
-int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_page, int depth) {
+const Obj StructTree::kNoObj;
+
+static_assert(sizeof(ObjRef) == 8, "ObjRef is two ints");
+
+// What only the traversal needs.
+struct StructTree::Build {
+    // The kid words of the open nodes. A node takes one slot per item of its /K when it is opened (an item is at most
+    // one kid) and gives them back when it is closed; nodes are closed in the reverse order of opening.
+    std::vector<std::uint64_t> scratch;
+    // Type name -> index into types_: without a namespace dictionary, and per indirect namespace dictionary (by
+    // object number and generation). A type in a direct namespace dictionary is not looked up: one record each.
+    std::unordered_map<std::string, std::uint32_t> plain_types;
+    std::unordered_map<std::uint64_t, std::unordered_map<std::string, std::uint32_t>> ns_types;
+    // Page reference (number and generation) -> index into pages_; the last one asked for first.
+    std::unordered_map<std::uint64_t, std::uint32_t> page_ids;
+    ObjRef last_page;
+    std::uint32_t last_page_id = 0;
+
+    static std::uint64_t full_key(const ObjRef& r) {
+        return (static_cast<std::uint64_t>(static_cast<std::uint32_t>(r.num)) << 32) | static_cast<std::uint32_t>(r.gen);
+    }
+    std::uint32_t page_id(const ObjRef& r, std::vector<ObjRef>& pages) {
+        if (r == last_page) return last_page_id;
+        auto [it, added] = page_ids.try_emplace(full_key(r), static_cast<std::uint32_t>(pages.size()));
+        if (added) pages.push_back(r);
+        last_page = r;
+        last_page_id = it->second;
+        return last_page_id;
+    }
+};
+
+int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b,
+                            std::uint64_t* out) {
     // TaggedPDFHelper.getChildren: a dictionary whose /Type is absent or /StructElem is a structure
     // element; a dictionary or stream with /Type /MCR or /OBJR is a content item; an integer is an MCID.
-    std::vector<StructKid>& kids = elem_index < 0 ? root_kids_ : elems_[elem_index].kids;
-    StructKid kid;
     if (item.isDictionary()) {
         // The entries of the dictionary, taken once (one copy of its map instead of two map searches per key read
         // below). entry(key) is cos::get(item, key): the value, a null handle for an absent key and for a null value.
@@ -578,124 +616,177 @@ int StructTree::collect_kid(const Obj& item, int elem_index, ObjRef inherited_pa
         };
         auto type = cos::name(entry("/Type"));
         if (!type || *type == "StructElem") {
-            kid.kind = StructKid::Kind::Elem;
-            kid.dict = item;
             ObjRef r = ref_of(item);
-            auto it = r.valid() ? by_ref_.find(r.key()) : by_ref_.end();
-            if (it != by_ref_.end()) {
-                kid.elem = it->second;   // shared or cyclic: one element, listed in every parent
-                kid.revisit = true;
-                kids.push_back(kid);
-                if (elem_index >= 0) elems_[elem_index].struct_kids.push_back(it->second);
+            const int known = r.valid() ? by_ref_.find(r.key()) : -1;
+            if (known >= 0) {
+                *out = kid(StructKid::Kind::Elem, true, known);   // shared or cyclic: one element, listed in every parent
                 return -1;
             }
-            int idx = static_cast<int>(elems_.size());
-            StructElem e;
-            e.index = idx;
+            // The record is complete before it joins the tree: what is read below can throw (a damaged object), and
+            // the tree a failed traversal leaves has every element it reached, whole.
+            Rec e;
             e.parent = elem_index;
             e.depth = depth;
             e.dict = item;
             e.ref = r;
+            // The facts of the type, stype_of(item) with its two standard types: once per type name and namespace.
             const Obj s = entry("/S");
-            e.S = cos::name(s);
-            if (auto st = make_stype(s, entry("/NS"))) {   // stype_of(item)
-                e.type = *st;
-                e.std20 = default_type20(*st);
-            } else {
-                e.type.ns = no_namespace();
+            if (std::optional<std::string> name = cos::name(s)) {
+                const Obj ns = entry("/NS");
+                std::uint32_t* id = nullptr;
+                if (!ns.isDictionary()) id = &b.plain_types.try_emplace(*name, 0).first->second;
+                else if (ns.isIndirect()) id = &b.ns_types[Build::full_key(ref_of(ns))].try_emplace(*name, 0).first->second;
+                if (id && *id != 0) {
+                    e.type = *id;
+                } else {
+                    TypeFacts t;
+                    t.type.type = *name;
+                    t.type.ns = ns.isDictionary() ? ns : no_namespace();
+                    t.std20 = default_type20(t.type);
+                    t.std17 = standard_type17(*name);
+                    t.S = std::move(name);
+                    e.type = static_cast<std::uint32_t>(types_.size());
+                    if (id) *id = e.type;
+                    types_.push_back(std::move(t));
+                }
             }
-            if (e.S) e.std17 = standard_type17(*e.S);
-            e.page = ref_of(entry("/Pg"));
-            e.inherited_page = e.page.valid() ? e.page : inherited_page;
+            const std::uint32_t pg = b.page_id(ref_of(entry("/Pg")), pages_);
+            e.page = pg;
+            e.inherited_page = pages_[pg].valid() ? pg : inherited_page;
             e.keys = key_bits(entries);
-            elems_.push_back(std::move(e));      // may reallocate: re-take references below
-            if (r.valid()) by_ref_.emplace(r.key(), idx);
-            kid.elem = idx;
-            std::vector<StructKid>& kids2 = elem_index < 0 ? root_kids_ : elems_[elem_index].kids;
-            kids2.push_back(kid);
+            const int idx = static_cast<int>(elems_.size());
+            elems_.push_back(std::move(e));
+            if (r.valid()) by_ref_.insert(r.key(), idx);
+            *out = kid(StructKid::Kind::Elem, false, idx);
             if (elem_index < 0) root_elems_.push_back(idx);
-            else {
-                elems_[elem_index].elems.push_back(idx);
-                elems_[elem_index].struct_kids.push_back(idx);
-            }
             return idx;
         }
         // a content item (as below for a stream, from the entries at hand)
         if (*type == "MCR") {
-            kid.kind = StructKid::Kind::MCR;
-            kid.dict = item;
-            if (auto m = cos::integer(entry("/MCID"))) kid.mcid = *m;
+            McrRec m;
+            m.dict = item;
+            if (auto id = cos::integer(entry("/MCID"))) m.mcid = *id;
             ObjRef pg = ref_of(entry("/Pg"));
-            kid.page = pg.valid() ? pg : inherited_page;
-            kid.stm = ref_of(entry("/Stm"));
-            kids.push_back(kid);
-        } else if (*type == "OBJR") {
-            kid.kind = StructKid::Kind::OBJR;
-            kid.dict = item;
-            kid.obj = entry("/Obj");
-            ObjRef pg = ref_of(entry("/Pg"));
-            kid.page = pg.valid() ? pg : inherited_page;
-            kids.push_back(kid);
+            m.page = pg.valid() ? pg : pages_[inherited_page];
+            m.stm = ref_of(entry("/Stm"));
+            *out = kid(StructKid::Kind::MCR, false, static_cast<std::int64_t>(mcrs_.size()));
+            mcrs_.push_back(std::move(m));
+            return -1;
         }
-        return -1;   // dictionary of another type: ignored by veraPDF
+        if (*type == "OBJR") {
+            ObjrRec o;
+            o.dict = item;
+            o.obj = entry("/Obj");
+            ObjRef pg = ref_of(entry("/Pg"));
+            o.page = pg.valid() ? pg : pages_[inherited_page];
+            *out = kid(StructKid::Kind::OBJR, false, static_cast<std::int64_t>(objrs_.size()));
+            objrs_.push_back(std::move(o));
+            return -1;
+        }
+        return -2;   // dictionary of another type: ignored by veraPDF
     }
     if (item.isStream()) {
         auto type = cos::name(item, "Type");
         if (type && *type == "MCR") {
-            kid.kind = StructKid::Kind::MCR;
-            kid.dict = item;
-            if (auto m = cos::integer(item, "MCID")) kid.mcid = *m;
+            McrRec m;
+            m.dict = item;
+            if (auto id = cos::integer(item, "MCID")) m.mcid = *id;
             ObjRef pg = ref_of(cos::get(item, "Pg"));
-            kid.page = pg.valid() ? pg : inherited_page;
-            kid.stm = ref_of(cos::get(item, "Stm"));
-            kids.push_back(kid);
-        } else if (type && *type == "OBJR") {
-            kid.kind = StructKid::Kind::OBJR;
-            kid.dict = item;
-            kid.obj = cos::get(item, "Obj");
-            ObjRef pg = ref_of(cos::get(item, "Pg"));
-            kid.page = pg.valid() ? pg : inherited_page;
-            kids.push_back(kid);
+            m.page = pg.valid() ? pg : pages_[inherited_page];
+            m.stm = ref_of(cos::get(item, "Stm"));
+            *out = kid(StructKid::Kind::MCR, false, static_cast<std::int64_t>(mcrs_.size()));
+            mcrs_.push_back(std::move(m));
+            return -1;
         }
-        return -1;   // dictionary of another type: ignored by veraPDF
+        if (type && *type == "OBJR") {
+            ObjrRec o;
+            o.dict = item;
+            o.obj = cos::get(item, "Obj");
+            ObjRef pg = ref_of(cos::get(item, "Pg"));
+            o.page = pg.valid() ? pg : pages_[inherited_page];
+            *out = kid(StructKid::Kind::OBJR, false, static_cast<std::int64_t>(objrs_.size()));
+            objrs_.push_back(std::move(o));
+            return -1;
+        }
+        return -2;   // stream of another type: ignored by veraPDF
     }
     if (item.isInteger()) {
-        kid.kind = StructKid::Kind::MCID;
-        kid.mcid = item.getIntValue();
-        kid.page = inherited_page;
-        kids.push_back(kid);
+        // The page of an MCID kid is the node's inherited /Pg: not stored (StructKids).
+        const std::int64_t mcid = item.getIntValue();
+        constexpr std::int64_t limit = std::int64_t(1) << 60;
+        if (mcid >= -limit && mcid < limit) {
+            *out = kid(StructKid::Kind::MCID, false, mcid);
+        } else {
+            *out = kid(StructKid::Kind::MCID, true, static_cast<std::int64_t>(wide_mcids_.size()));
+            wide_mcids_.push_back(mcid);
+        }
+        return -1;
     }
-    return -1;
+    return -2;
+}
+
+void StructTree::seal_kids(int elem_index, const std::uint64_t* words, std::size_t n) {
+    if (elem_index < 0) {
+        auto* block = static_cast<std::uint64_t*>(arena_.allocate(n * sizeof(std::uint64_t)));
+        std::copy(words, words + n, block);
+        root_kids_ = block;
+        root_n_kids_ = static_cast<std::uint32_t>(n);
+        return;
+    }
+    std::size_t n_struct = 0, n_shared = 0;
+    for (std::size_t i = 0; i < n; ++i) {
+        if (static_cast<StructKid::Kind>(words[i] & 3) != StructKid::Kind::Elem) continue;
+        ++n_struct;
+        if (words[i] & 4) ++n_shared;
+    }
+    const std::size_t n_ints = n_struct + (n_shared ? 1 + (n_struct - n_shared) : 0);
+    auto* block = static_cast<std::uint64_t*>(arena_.allocate(n * sizeof(std::uint64_t) + n_ints * sizeof(int)));
+    std::copy(words, words + n, block);
+    int* struct_kids = reinterpret_cast<int*>(block + n);
+    int* elems = struct_kids + n_struct;
+    if (n_shared) *elems++ = static_cast<int>(n_struct - n_shared);
+    for (std::size_t i = 0; i < n; ++i) {
+        if (static_cast<StructKid::Kind>(words[i] & 3) != StructKid::Kind::Elem) continue;
+        const int k = static_cast<int>(static_cast<std::int64_t>(words[i]) >> 3);
+        *struct_kids++ = k;
+        if (n_shared && !(words[i] & 4)) *elems++ = k;
+    }
+    Rec& e = elems_[static_cast<std::size_t>(elem_index)];
+    e.block = block;
+    e.n_kids = static_cast<std::uint32_t>(n);
+    e.n_struct = static_cast<std::uint32_t>(n_struct);
+    if (n_shared) e.flags |= kShared;
 }
 
 void StructTree::simulate_verapdf_visits() {
     // BaseValidator: depth-first, children pushed last-to-first, an id is registered when pushed and an
     // object whose id is already registered is not pushed. Element id: "N G obj <type> <S>" for indirect
     // elements (unique), "0 0 obj <S>" for direct elements with a name /S, none otherwise.
-    for (StructElem& e : elems_) e.verapdf_checked = false;
+    // (Every element starts without kChecked.)
     std::unordered_set<std::string> ids;
     std::vector<int> stack;
-    auto push_kids = [&](const std::vector<int>& kids) {
+    auto push_kids = [&](std::span<const int> kids) {
         for (auto it = kids.rbegin(); it != kids.rend(); ++it) {
-            const StructElem& k = elems_[*it];
+            const Rec& k = elems_[static_cast<std::size_t>(*it)];
             if (k.ref.valid()) {
                 if (!ids.insert("R" + std::to_string(k.ref.key())).second) continue;
-            } else if (k.S) {
-                if (!ids.insert("D" + *k.S).second) continue;
+            } else if (const auto& s = types_[k.type].S) {
+                if (!ids.insert("D" + *s).second) continue;
             }
             stack.push_back(*it);
         }
     };
     std::vector<int> root_struct;
-    for (const StructKid& k : root_kids_)
+    for (const StructKid& k : root_kids())
         if (k.kind == StructKid::Kind::Elem && k.elem >= 0) root_struct.push_back(k.elem);
     push_kids(root_struct);
+    verapdf_order_.reserve(elems_.size());   // each element at most once
     while (!stack.empty()) {
         int i = stack.back();
         stack.pop_back();
-        elems_[i].verapdf_checked = true;
+        elems_[static_cast<std::size_t>(i)].flags |= kChecked;
         verapdf_order_.push_back(i);
-        push_kids(elems_[i].struct_kids);
+        push_kids(struct_kids_of(elems_[static_cast<std::size_t>(i)]));
     }
 }
 
@@ -725,6 +816,8 @@ void StructTree::build(Document& doc) {
         int elem;                // -1 = StructTreeRoot
         std::vector<Obj> items;
         std::size_t next = 0;
+        std::size_t first_kid = 0;   // where the node's kid words start in Build::scratch
+        std::size_t n_kids = 0;
     };
     auto items_of = [](const Obj& node) {
         Obj k = cos::get(node, "K");
@@ -733,20 +826,42 @@ void StructTree::build(Document& doc) {
         else if (!k.isNull()) items.push_back(k);
         return items;
     };
+    static_assert(sizeof(Rec) == 64, "an element record is 64 bytes");
+    Build b;
+    types_.emplace_back();   // [0]: /S is no name: no type name, no namespace, no standard type
+    types_[0].type.ns = no_namespace();
+    pages_.push_back(ObjRef{});
+    b.page_ids.emplace(Build::full_key(ObjRef{}), 0);
     std::vector<Frame> stack;
-    stack.push_back({-1, items_of(root_), 0});
-    while (!stack.empty()) {
-        Frame& f = stack.back();
-        if (f.next >= f.items.size()) {
-            stack.pop_back();
-            continue;
+    auto open = [&](int elem, const Obj& node) {
+        Frame f{elem, items_of(node), 0, b.scratch.size(), 0};
+        b.scratch.resize(f.first_kid + f.items.size());
+        stack.push_back(std::move(f));
+    };
+    try {
+        open(-1, root_);
+        while (!stack.empty()) {
+            Frame& f = stack.back();
+            if (f.next >= f.items.size()) {
+                seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids);
+                b.scratch.resize(f.first_kid);
+                stack.pop_back();
+                continue;
+            }
+            Obj item = f.items[f.next++];
+            int parent = f.elem;
+            const std::uint32_t ip = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].inherited_page : 0;
+            int depth = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].depth + 1 : 0;
+            int idx = collect_kid(item, parent, ip, depth, b, &b.scratch[f.first_kid + f.n_kids]);
+            if (idx >= -1) ++f.n_kids;
+            if (idx >= 0) open(idx, elems_[static_cast<std::size_t>(idx)].dict);   // invalidates f
         }
-        Obj item = f.items[f.next++];
-        int parent = f.elem;
-        ObjRef ip = parent >= 0 ? elems_[parent].inherited_page : ObjRef{};
-        int depth = parent >= 0 ? elems_[parent].depth + 1 : 0;
-        int idx = collect_kid(item, parent, ip, depth);
-        if (idx >= 0) stack.push_back({idx, items_of(elems_[idx].dict), 0});   // invalidates f
+    } catch (...) {
+        // The traversal failed (a damaged object). The caller notes it and goes on with the tree as far as it got:
+        // every open node keeps the kids collected so far, and no element is marked as skipped by veraPDF.
+        for (const Frame& f : stack) seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids);
+        for (std::size_t i = 0; i < elems_.size(); ++i) elems_[i].flags |= kChecked;
+        throw;
     }
     simulate_verapdf_visits();
 }

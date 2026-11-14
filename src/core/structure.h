@@ -6,13 +6,17 @@
 
 #include <cstdint>
 #include <memory>
+#include <iterator>
 #include <optional>
+#include <span>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "core/cos.h"
+#include "core/struct_store.h"
 #include "core/tree_shape.h"
+#include "util/chunked_vector.h"
 
 namespace eqx {
 
@@ -42,37 +46,90 @@ struct SType {
     bool same(const SType& o) const;       // same type and same namespace URI
 };
 
+class StructTree;
+
+// The tree keeps its elements and their kids as packed records (StructTree, private part). What a reader gets are the
+// views below: values with the members a plain record would have, made when an element or a kid is asked for. They
+// refer to the tree, which has to outlive them, and cannot be assigned or default-constructed.
+
+// One child in /K of an element or of the StructTreeRoot.
 struct StructKid {
     enum class Kind : std::uint8_t { Elem, MCID, MCR, OBJR };
-    Kind kind = Kind::Elem;
-    int elem = -1;            // Elem: index into StructTree::elems (also for an element visited before)
-    bool revisit = false;     // Elem: the element was already reached through another kid (shared / cyclic)
-    std::int64_t mcid = -1;   // MCID / MCR (-1 = MCR without integer /MCID)
-    Obj dict;                 // Elem / MCR / OBJR dictionary
+    Kind kind;
+    int elem;                 // Elem: index into StructTree::elems (also for an element visited before), else -1
+    bool revisit;             // Elem: the element was already reached through another kid (shared / cyclic)
+    std::int64_t mcid;        // MCID / MCR (-1 = MCR without integer /MCID), else -1
+    const Obj& dict;          // Elem / MCR / OBJR dictionary (an uninitialised handle for an MCID)
     ObjRef page;              // MCID/MCR/OBJR: /Pg of the MCR/OBJR, else the element's (inherited) /Pg
     ObjRef stm;               // MCR /Stm
-    Obj obj;                  // OBJR /Obj
+    const Obj& obj;           // OBJR /Obj (an uninitialised handle otherwise)
+};
+
+// The kids of one node in /K order: size(), [i], range-for (each kid is made as it is reached).
+class StructKids {
+public:
+    class iterator {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = StructKid;
+        using difference_type = std::ptrdiff_t;
+        using pointer = void;
+        using reference = StructKid;
+
+        iterator(const StructKids* kids, std::size_t i) : kids_(kids), i_(i) {}
+        StructKid operator*() const { return (*kids_)[i_]; }
+        iterator& operator++() {
+            ++i_;
+            return *this;
+        }
+        iterator operator++(int) {
+            iterator t = *this;
+            ++i_;
+            return t;
+        }
+        bool operator==(const iterator& o) const { return i_ == o.i_; }
+        bool operator!=(const iterator& o) const { return i_ != o.i_; }
+
+    private:
+        const StructKids* kids_;
+        std::size_t i_;
+    };
+
+    StructKids(const StructTree* tree, const std::uint64_t* words, std::uint32_t n, ObjRef page)
+        : tree_(tree), words_(words), n_(n), page_(page) {}
+    std::size_t size() const { return n_; }
+    bool empty() const { return n_ == 0; }
+    inline StructKid operator[](std::size_t i) const;
+    iterator begin() const { return {this, 0}; }
+    iterator end() const { return {this, n_}; }
+
+private:
+    const StructTree* tree_;
+    const std::uint64_t* words_;   // the packed kids (StructTree::kid)
+    std::uint32_t n_;
+    ObjRef page_;                  // the page of an MCID kid: the node's inherited /Pg
 };
 
 struct StructElem {
-    int index = -1;
-    int parent = -1;          // traversal parent element (-1 = kid of the StructTreeRoot)
-    int depth = 0;
-    Obj dict;
+    int index;
+    int parent;               // traversal parent element (-1 = kid of the StructTreeRoot)
+    int depth;
+    const Obj& dict;
     ObjRef ref;
-    std::optional<std::string> S;   // /S when it is a name
-    SType type;                     // veraPDF getStructureType() (S + NS); type empty when S is not a name
-    std::optional<std::string> std17;   // standard type, PDF/UA-1 semantics
-    std::optional<SType> std20;         // standard type, ISO 32000-2 semantics
-    std::vector<StructKid> kids;        // every child in /K order (elements, MCIDs, MCRs, OBJRs)
-    std::vector<int> elems;             // tree children: structure elements first reached through this element
-    std::vector<int> struct_kids;       // every structure-element child in /K order, also shared/revisited ones
+    // The four facts of the element's type: one record per type in the tree, shared by its elements.
+    const std::optional<std::string>& S;        // /S when it is a name
+    const SType& type;                          // veraPDF getStructureType() (S + NS); type empty when S is not a name
+    const std::optional<std::string>& std17;    // standard type, PDF/UA-1 semantics
+    const std::optional<SType>& std20;          // standard type, ISO 32000-2 semantics
+    StructKids kids;                    // every child in /K order (elements, MCIDs, MCRs, OBJRs)
+    std::span<const int> elems;         // tree children: structure elements first reached through this element
+    std::span<const int> struct_kids;   // every structure-element child in /K order, also shared/revisited ones
                                         // (veraPDF getStructChildren: kidsStandardTypes, hasContentItems)
     // veraPDF validates each model object once (BaseValidator idSet). A direct structure element has the id
     // "0 0 obj <S>", so of several direct elements with the same /S only the one pushed first is validated,
     // together with its subtree. False for elements veraPDF never validates (simulated push order).
-    bool verapdf_checked = true;
-    std::uint16_t keys = 0;             // bits of Key: the keys the dictionary holds
+    bool verapdf_checked;
+    std::uint16_t keys;                 // bits of Key: the keys the dictionary holds
     ObjRef page;                        // own /Pg
     ObjRef inherited_page;              // own /Pg, else nearest ancestor's /Pg
 
@@ -91,6 +148,47 @@ struct StructElem {
     bool is_math(Flavor f) const;       // Pdf20 and standard namespace is MathML
 };
 
+// The elements of a tree in index order: size(), [i], range-for.
+class StructElems {
+public:
+    class iterator {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = StructElem;
+        using difference_type = std::ptrdiff_t;
+        using pointer = void;
+        using reference = StructElem;
+
+        iterator(const StructTree* tree, std::size_t i) : tree_(tree), i_(i) {}
+        inline StructElem operator*() const;
+        iterator& operator++() {
+            ++i_;
+            return *this;
+        }
+        iterator operator++(int) {
+            iterator t = *this;
+            ++i_;
+            return t;
+        }
+        bool operator==(const iterator& o) const { return i_ == o.i_; }
+        bool operator!=(const iterator& o) const { return i_ != o.i_; }
+
+    private:
+        const StructTree* tree_;
+        std::size_t i_;
+    };
+
+    explicit StructElems(const StructTree* tree) : tree_(tree) {}
+    inline std::size_t size() const;
+    bool empty() const { return size() == 0; }
+    inline StructElem operator[](std::size_t i) const;
+    iterator begin() const { return {tree_, 0}; }
+    iterator end() const { return {tree_, size()}; }
+
+private:
+    const StructTree* tree_;
+};
+
 class StructTree {
 public:
     void build(Document& doc);
@@ -99,13 +197,13 @@ public:
     bool truncated() const { return truncated_; }  // a query stopped at the nesting limit: elements were not seen
     Obj root() const { return root_; }
     ObjRef root_ref() const { return root_ref_; }
-    const std::vector<StructElem>& elems() const { return elems_; }
-    const StructElem& elem(int i) const { return elems_[i]; }
+    StructElems elems() const { return StructElems(this); }
+    inline StructElem elem(int i) const;
     const std::vector<int>& root_elems() const { return root_elems_; }
     // Element indices are in pre-order (first kid first, each element at its first occurrence).
     // veraPDF's validation order (simulated BaseValidator traversal): only elements it validates.
     const std::vector<int>& verapdf_order() const { return verapdf_order_; }
-    const std::vector<StructKid>& root_kids() const { return root_kids_; }
+    StructKids root_kids() const { return StructKids(this, root_kids_, root_n_kids_, ObjRef{}); }
     // Element index of an indirect structure element dictionary (-1 when not part of the traversal).
     int find(const ObjRef& r) const;
 
@@ -154,20 +252,92 @@ public:
     bool has_content_items(int elem, Flavor f) const;
 
 private:
+    friend class StructKids;
+    friend class StructElems;
+
+    // --- storage ---------------------------------------------------------------------------------
+    // An element is 64 bytes whatever its type and however many kids it has. What its type says (S, type, std17,
+    // std20) is in one TypeFacts per type of the tree, its two pages are numbers in pages_, and its kids are one
+    // block of the arena:
+    //     n_kids words        the kids in /K order (kid())
+    //     n_struct ints       StructElem::struct_kids: the elements among the kids, in the same order
+    //     only with kShared:  one int n, then n ints: StructElem::elems (struct_kids without the revisited ones;
+    //                         without kShared no kid is revisited and elems is struct_kids)
+    // The records are in chunks, so they are never copied and there is no spare capacity beyond the last chunk.
+    struct Rec {
+        Obj dict;
+        ObjRef ref;
+        std::int32_t parent = -1;
+        std::int32_t depth = 0;
+        std::uint32_t type = 0;             // index into types_
+        std::uint32_t page = 0;             // index into pages_: own /Pg
+        std::uint32_t inherited_page = 0;   // index into pages_
+        std::uint32_t n_kids = 0;
+        const std::uint64_t* block = nullptr;
+        std::uint32_t n_struct = 0;
+        std::uint16_t keys = 0;
+        std::uint8_t flags = 0;             // kChecked, kShared
+    };
+    enum : std::uint8_t { kChecked = 1, kShared = 2 };
+    struct TypeFacts {
+        std::optional<std::string> S;
+        SType type;
+        std::optional<std::string> std17;
+        std::optional<SType> std20;
+    };
+    // A kid is one word: the kind in bits 0-1, a flag in bit 2, a signed value in the 61 bits above.
+    //   Elem  value = element index, flag = revisit
+    //   MCID  value = the MCID; with the flag (an MCID outside 61 bits) the index of the MCID in wide_mcids_
+    //   MCR   value = index into mcrs_
+    //   OBJR  value = index into objrs_
+    static std::uint64_t kid(StructKid::Kind kind, bool flag, std::int64_t value) {
+        return (static_cast<std::uint64_t>(value) << 3) | (flag ? 4u : 0u) | static_cast<std::uint64_t>(kind);
+    }
+    struct McrRec {
+        Obj dict;
+        ObjRef page, stm;
+        std::int64_t mcid = -1;
+    };
+    struct ObjrRec {
+        Obj dict, obj;
+        ObjRef page;
+    };
+    inline StructKid kid_view(std::uint64_t word, ObjRef mcid_page) const;
+    static const int* ints_of(const Rec& r) { return reinterpret_cast<const int*>(r.block + r.n_kids); }
+    static std::span<const int> struct_kids_of(const Rec& r) { return {ints_of(r), r.n_struct}; }
+    static std::span<const int> elems_of(const Rec& r) {
+        const int* ints = ints_of(r);
+        if (!(r.flags & kShared)) return {ints, r.n_struct};
+        return {ints + r.n_struct + 1, static_cast<std::size_t>(ints[r.n_struct])};
+    }
+    std::string standard_rec(const Rec& r, Flavor f) const;   // StructElem::standard
+
     mutable bool truncated_ = false;
-    // Records one /K item of a node (elem_index -1 = StructTreeRoot); returns the index of a newly created
-    // element (to be expanded next), else -1.
-    int collect_kid(const Obj& item, int elem_index, ObjRef inherited_page, int depth);
+    struct Build;   // what only the traversal needs (structure.cpp)
+    // Records one /K item of a node (elem_index -1 = StructTreeRoot) as a kid word in *out. Returns the index of a
+    // newly created element (to be expanded next), -1 for any other kid, -2 when the item is no kid (nothing written).
+    int collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b, std::uint64_t* out);
+    // Gives a node (elem_index -1 = StructTreeRoot) its kids: `n` words, complete.
+    void seal_kids(int elem_index, const std::uint64_t* words, std::size_t n);
     void simulate_verapdf_visits();
+
+    static const Obj kNoObj;   // StructKid::dict / obj of a kid that has none: a default-constructed handle
 
     bool present_ = false;
     Obj root_;
     ObjRef root_ref_;
-    std::vector<StructElem> elems_;
+    ChunkedVector<Rec, 512> elems_;
+    std::vector<TypeFacts> types_;        // [0]: an element whose /S is no name
+    std::vector<ObjRef> pages_;           // [0]: no page
+    BlockArena arena_;                    // the kid blocks
+    ChunkedVector<McrRec, 256> mcrs_;
+    ChunkedVector<ObjrRec, 256> objrs_;
+    std::vector<std::int64_t> wide_mcids_;
     std::vector<int> root_elems_;
     std::vector<int> verapdf_order_;
-    std::vector<StructKid> root_kids_;
-    std::unordered_map<std::uint64_t, int> by_ref_;
+    const std::uint64_t* root_kids_ = nullptr;   // the kids of the StructTreeRoot, in the arena
+    std::uint32_t root_n_kids_ = 0;
+    RefIndex by_ref_;
     std::unordered_map<std::string, std::string> role_map_;
     Obj parent_tree_;
     std::unordered_map<std::int64_t, Obj> parent_tree_entries_;
@@ -190,5 +360,40 @@ private:
     mutable std::vector<std::uint8_t> reaches_root_elem_;
     mutable std::unordered_map<std::uint64_t, std::uint8_t> reaches_root_other_;
 };
+
+inline StructKid StructTree::kid_view(std::uint64_t word, ObjRef mcid_page) const {
+    const auto kind = static_cast<StructKid::Kind>(word & 3);
+    const bool flag = (word & 4) != 0;
+    const std::int64_t value = static_cast<std::int64_t>(word) >> 3;
+    switch (kind) {
+        case StructKid::Kind::Elem:
+            return {kind, static_cast<int>(value), flag, -1, elems_[static_cast<std::size_t>(value)].dict, ObjRef{}, ObjRef{}, kNoObj};
+        case StructKid::Kind::MCID:
+            return {kind, -1, false, flag ? wide_mcids_[static_cast<std::size_t>(value)] : value, kNoObj, mcid_page, ObjRef{}, kNoObj};
+        case StructKid::Kind::MCR: {
+            const McrRec& m = mcrs_[static_cast<std::size_t>(value)];
+            return {kind, -1, false, m.mcid, m.dict, m.page, m.stm, kNoObj};
+        }
+        case StructKid::Kind::OBJR:
+        default: {
+            const ObjrRec& o = objrs_[static_cast<std::size_t>(value)];
+            return {kind, -1, false, -1, o.dict, o.page, ObjRef{}, o.obj};
+        }
+    }
+}
+
+inline StructElem StructTree::elem(int i) const {
+    const Rec& r = elems_[static_cast<std::size_t>(i)];
+    const TypeFacts& t = types_[r.type];
+    const ObjRef inherited = pages_[r.inherited_page];
+    return {i,       r.parent, r.depth, r.dict, r.ref, t.S, t.type, t.std17, t.std20,
+            StructKids(this, r.block, r.n_kids, inherited), elems_of(r), struct_kids_of(r), (r.flags & kChecked) != 0,
+            r.keys,  pages_[r.page], inherited};
+}
+
+inline StructKid StructKids::operator[](std::size_t i) const { return tree_->kid_view(words_[i], page_); }
+inline StructElem StructElems::iterator::operator*() const { return tree_->elem(static_cast<int>(i_)); }
+inline std::size_t StructElems::size() const { return tree_->elems_.size(); }
+inline StructElem StructElems::operator[](std::size_t i) const { return tree_->elem(static_cast<int>(i)); }
 
 }  // namespace eqx

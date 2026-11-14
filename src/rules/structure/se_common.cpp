@@ -57,12 +57,16 @@ Obj Attributes::value(const Obj& elem, std::string_view attr, std::string_view o
     };
     // An element of the traversal knows whether its dictionary has /A and /C at all (StructElem::keys): without the
     // key there is nothing to visit, and the dictionary is not searched for it.
-    const StructElem* known = nullptr;
+    bool known = false;
+    std::uint16_t keys = 0;
     if (elem.isIndirect())
-        if (const int i = st_->find(ref_of(elem)); i >= 0) known = &st_->elem(i);
-    if ((!known || known->has_key(StructElem::kA)) && visit_attribute_objects(cos::get(elem, "A"), supplies)) return found;
+        if (const int i = st_->find(ref_of(elem)); i >= 0) {
+            known = true;
+            keys = st_->elem(i).keys;
+        }
+    if ((!known || (keys & StructElem::kA)) && visit_attribute_objects(cos::get(elem, "A"), supplies)) return found;
     if (class_map_.isNull()) return Obj::newNull();
-    if (known && !known->has_key(StructElem::kC)) return Obj::newNull();
+    if (known && !(keys & StructElem::kC)) return Obj::newNull();
     // Attribute classes: /C is a class name or an array of them (non-names are skipped).
     Obj classes = cos::get(elem, "C");
     std::vector<Obj> names;

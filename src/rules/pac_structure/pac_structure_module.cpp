@@ -450,7 +450,7 @@ void Module::parent_keys(ValidationContext& ctx) {
     const auto& E = st.elems();
     // Further parents of shared elements (a dictionary referenced from several /K entries).
     std::unordered_map<int, std::vector<int>> extra;
-    auto note_shared = [&](const std::vector<StructKid>& kids, int parent) {
+    auto note_shared = [&](const StructKids& kids, int parent) {
         for (const auto& k : kids)
             if (k.kind == StructKid::Kind::Elem && k.revisit && k.elem >= 0) extra[k.elem].push_back(parent);
     };

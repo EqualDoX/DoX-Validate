@@ -526,7 +526,7 @@ private:
     const Sink& sink_;
     bool reference_dedup_;
     const Compiled& C_;
-    const std::vector<StructElem>& elems_;
+    const StructElems elems_;
     const int root_;
     const Obj root_dict_;
     Types T_;
@@ -544,7 +544,7 @@ private:
 
     // -- tree (core StructTree: struct_kids = veraPDF getStructChildren, shared kids listed in every parent) --
     // Every struct child of a node in /K order, shared/revisited ones included.
-    const std::vector<int>& kids_of(int n) const { return n == root_ ? root_kids_ : elems_[n].struct_kids; }
+    std::span<const int> kids_of(int n) const { return n == root_ ? std::span<const int>(root_kids_) : elems_[n].struct_kids; }
     const Obj& dict_of(int n) const { return n == root_ ? root_dict_ : elems_[n].dict; }
 
     void build_nodes() {
