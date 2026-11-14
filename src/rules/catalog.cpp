@@ -16,7 +16,14 @@ const char* target_name(int target) {
     return (target >= 0 && target < T_COUNT) ? names[target] : "?";
 }
 
-Catalog::Catalog() { rules_ = catalog_rules(&n_); }
+Catalog::Catalog() {
+    rules_ = catalog_rules(&n_);
+    // R("...") and the ownership table are computed from the generated index; both come from one generator run.
+    if (n_ != catalog_index::kRuleCount) {
+        std::fprintf(stderr, "eqx: internal error: the generated catalogue index does not match the catalogue\n");
+        std::abort();
+    }
+}
 
 const Catalog& Catalog::get() {
     static const Catalog instance;
@@ -27,10 +34,14 @@ RuleIndex Catalog::find(std::string_view id) const {
     // The generated table is sorted by id (byte order): binary search.
     const RuleInfo* b = rules_;
     const RuleInfo* e = rules_ + n_;
-    const RuleInfo* it = std::lower_bound(b, e, id, [](const RuleInfo& r, std::string_view v) {
-        return std::string_view(r.id) < v;
-    });
-    if (it != e && std::string_view(it->id) == id) return static_cast<RuleIndex>(it - b);
+    // One pass over the id per step: no strlen. The ids contain no NUL byte; an id with one is not in the table.
+    const auto cmp = [](const char* rule_id, std::string_view v) {   // <0, 0, >0 like rule_id <=> v
+        const int c = std::strncmp(rule_id, v.data(), v.size());
+        return c != 0 ? c : (rule_id[v.size()] != '\0' ? 1 : 0);
+    };
+    if (id.find('\0') != std::string_view::npos) return kNoRule;
+    const RuleInfo* it = std::lower_bound(b, e, id, [&](const RuleInfo& r, std::string_view v) { return cmp(r.id, v) < 0; });
+    if (it != e && cmp(it->id, id) == 0) return static_cast<RuleIndex>(it - b);
     return kNoRule;
 }
 

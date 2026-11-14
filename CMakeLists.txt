@@ -107,10 +107,14 @@ endif()
 # titles, severities, standards references and the requirements that need human evaluation.
 set(DOX_CATALOG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/catalog CACHE PATH "Directory with rules.json, wcag2.json and matrix.json")
 set(EQX_GEN ${CMAKE_CURRENT_BINARY_DIR}/gen/catalog_data.cpp)
+# Rule ids and families as constant expressions (included by rules/catalog.h as "catalog_index.h"): rule lookups by
+# name and the ownership table are resolved at compile time.
+set(EQX_GEN_INDEX ${CMAKE_CURRENT_BINARY_DIR}/gen/catalog_index.h)
 add_custom_command(
-  OUTPUT ${EQX_GEN}
+  OUTPUT ${EQX_GEN} ${EQX_GEN_INDEX}
   COMMAND ${Python3_EXECUTABLE} -I ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_catalog.py
           ${DOX_CATALOG_DIR}/rules.json ${DOX_CATALOG_DIR}/wcag2.json ${DOX_CATALOG_DIR}/matrix.json ${EQX_GEN}
+          ${EQX_GEN_INDEX}
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/tools/gen_catalog.py
           ${DOX_CATALOG_DIR}/rules.json
           ${DOX_CATALOG_DIR}/wcag2.json
@@ -120,8 +124,8 @@ add_custom_command(
 file(GLOB_RECURSE EQX_SOURCES CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
 list(REMOVE_ITEM EQX_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp)
 
-add_library(eqx_core STATIC ${EQX_SOURCES} ${EQX_GEN})
-target_include_directories(eqx_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+add_library(eqx_core STATIC ${EQX_SOURCES} ${EQX_GEN} ${EQX_GEN_INDEX})
+target_include_directories(eqx_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_BINARY_DIR}/gen)
 target_compile_definitions(eqx_core PUBLIC DOX_VALIDATE_VERSION="${PROJECT_VERSION}")
 target_link_libraries(eqx_core PUBLIC ${DOX_QPDF_TARGET} ${DOX_PUGIXML_TARGET} PkgConfig::ZLIB)
 target_compile_options(eqx_core PRIVATE -Wall -Wextra -Wno-unused-parameter)

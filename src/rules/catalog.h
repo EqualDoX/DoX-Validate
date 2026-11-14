@@ -7,6 +7,8 @@
 #include <string_view>
 #include <vector>
 
+#include "catalog_index.h"   // generated: rule ids and families as constant expressions
+
 namespace eqx {
 
 enum class Severity : std::uint8_t { Error = 0, Warning = 1 };
@@ -42,6 +44,9 @@ constexpr RuleIndex kNoRule = 0xffffffffu;
 const RuleInfo* catalog_rules(std::size_t* n);
 const char* const* catalog_manual(int target);
 const char* catalog_sha256();
+// The ids of the rules [first, last) as the JSON report writes them: "ID","ID",...,"ID" (no escaping needed, which
+// the generator checks). Empty when first >= last.
+std::string_view catalog_ids_json(RuleIndex first, RuleIndex last);
 
 class Catalog {
 public:
@@ -61,7 +66,24 @@ private:
     std::size_t n_ = 0;
 };
 
-// Convenience: rule index by id, resolved once (use in function-local statics).
+namespace catalog_index {
+// Index of a canonical id in the generated id table. An unknown id is not a constant expression: it fails the build.
+consteval RuleIndex index_of(std::string_view id) {
+    std::size_t lo = 0, hi = kRuleCount;
+    while (lo < hi) {
+        const std::size_t mid = lo + (hi - lo) / 2;
+        if (kRuleIds[mid] < id) lo = mid + 1;
+        else hi = mid;
+    }
+    if (lo == kRuleCount || kRuleIds[lo] != id) throw "unknown canonical rule id";
+    return static_cast<RuleIndex>(lo);
+}
+}  // namespace catalog_index
+
+// Rule index by id. A string literal is resolved by the compiler (an unknown id does not compile); any other
+// string is looked up at run time and aborts when unknown.
+template <std::size_t N>
+consteval RuleIndex R(const char (&id)[N]) { return catalog_index::index_of(std::string_view(id, N - 1)); }
 inline RuleIndex R(std::string_view id) { return Catalog::get().require(id); }
 
 }  // namespace eqx
