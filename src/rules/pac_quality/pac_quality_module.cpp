@@ -113,6 +113,23 @@ double ascent_em(const Font* f) {
     return a && *a > 0 && *a < 2500 ? *a / 1000.0 : 0.8;
 }
 
+// ascent_em per font: the font dictionary is read once per font, not once per text item.
+struct AscentCache {
+    std::unordered_map<const Font*, double> by_font;
+    const Font* last = nullptr;
+    double last_value = 0;
+    bool have_last = false;
+    double of(const Font* f) {
+        if (have_last && f == last) return last_value;
+        auto pos = by_font.find(f);
+        if (pos == by_font.end()) pos = by_font.emplace(f, ascent_em(f)).first;
+        last = f;
+        last_value = pos->second;
+        have_last = true;
+        return last_value;
+    }
+};
+
 struct McContent {
     int frame = -1;
     int page = -1;
@@ -123,12 +140,12 @@ struct McContent {
     Rect box;                 // union of all item boxes on the page
     bool box_valid = false;
 
-    void add_item(const ContentItem& it, const TextRun* run) {
+    void add_item(const ContentItem& it, const TextRun* run, AscentCache& ascents) {
         if (run) {
             acc.add(*run);
             if (it.bbox_valid && run->size_user > 0) {
                 // the item box spans -0.2 .. +0.8 em around the baseline
-                const double top = it.bbox.ury - 0.8 * run->size_user + ascent_em(run->font) * run->size_user;
+                const double top = it.bbox.ury - 0.8 * run->size_user + ascents.of(run->font) * run->size_user;
                 if (!ascent_top_valid || top > ascent_top) ascent_top = top;
                 ascent_top_valid = true;
             }
@@ -562,37 +579,69 @@ private:
         std::unordered_map<int, int> mcid_index;
         std::unordered_map<int, McContent> stream_parent_content;   // element -> content via /StructParent only
         std::vector<int> stream_parent_order;
+        AscentCache ascents;
+        // Content items come in runs of one marked-content sequence: what depends only on (stream, frame) or on the
+        // stream is looked up when that changes, not for every item.
+        int run_stream = -1, run_frame = -2;   // the (stream, frame) the values below belong to
+        int mf = -1;                            // mcid_frame of it
+        bool in_artifact = false;               // mf < 0 and inside an /Artifact sequence
+        int mc_at = -1;                         // index in mcid_mc_ of mf (-1: not looked up yet)
+        McContent* plain = nullptr;             // entry of plain_mc_ for the frame (nullptr: not looked up yet)
+        int sp_stream = -1;                     // the stream the two values below belong to
+        int sp_elem = -1;                       // element named by the stream's structure parent (-1 none)
+        McContent* sp_content = nullptr;        // its entry in stream_parent_content
         for (const ContentItem& it : cm.items) {
             if (it.stream < 0 || !cm.streams[it.stream].semantic) continue;
             std::optional<TextRun> run_view;   // cm.texts[i] is a view, built on access
             if (it.kind == ContentItem::Kind::Text && it.text >= 0) run_view.emplace(cm.texts[it.text]);
             const TextRun* run = run_view ? &*run_view : nullptr;
             int page = cm.page_of(it.stream);
-            int mf = mcid_frame(it.stream, it.frame);
+            if (it.stream != run_stream || it.frame != run_frame) {
+                run_stream = it.stream;
+                run_frame = it.frame;
+                mf = mcid_frame(it.stream, it.frame);
+                in_artifact = mf < 0 && artifact_frame(it.stream, it.frame) >= 0;
+                mc_at = -1;
+                plain = nullptr;
+            }
             // Artifact content belongs to no element, unless the sequence has an MCID: Word writes /Artifact <</MCID n>> BDC
             // for table rules owned by a role-mapped element (a real-world sample: PAC 7 white-space elements, not
             // the 44 elements holding only such paths).
-            if (mf < 0 && artifact_frame(it.stream, it.frame) >= 0) continue;
+            if (in_artifact) continue;
             if (mf >= 0) {
-                auto [pos, fresh] = mcid_index.emplace(mf, int(mcid_mc_.size()));
-                if (fresh) mcid_mc_.push_back(make_mc(mf, page));
-                mcid_mc_[pos->second].add_item(it, run);
+                if (mc_at < 0) {
+                    auto [pos, fresh] = mcid_index.emplace(mf, int(mcid_mc_.size()));
+                    if (fresh) mcid_mc_.push_back(make_mc(mf, page));
+                    mc_at = pos->second;
+                }
+                mcid_mc_[mc_at].add_item(it, run, ascents);
                 // A Form XObject painted inside the sequence is not looked into for white space (probe ws_form: not flagged).
-                if (cm.frames[mf].stream != it.stream) mcid_mc_[pos->second].nontext = true;
+                if (cm.frames[mf].stream != it.stream) mcid_mc_[mc_at].nontext = true;
                 continue;
             }
             // No marked-content identifier: judged only for "outside the page" (a real-world sample: /Span BDC without MCID).
             if (it.frame >= 0) {
-                auto [plain, fresh] = plain_mc_.emplace(it.frame, make_mc(it.frame, page));
-                plain->second.add_item(it, run);
+                if (!plain) {
+                    auto pos = plain_mc_.find(it.frame);
+                    if (pos == plain_mc_.end()) pos = plain_mc_.emplace(it.frame, make_mc(it.frame, page)).first;
+                    plain = &pos->second;   // map nodes stay where they are
+                }
+                plain->add_item(it, run, ascents);
             }
             // A Form XObject whose own /StructParent names the element.
-            Obj se = cm.streams[it.stream].parent_struct_elem;
-            int ei = se.isDictionary() ? st.find(ref_of(se)) : -1;
-            if (ei < 0) continue;
-            auto [pos, fresh] = stream_parent_content.emplace(ei, make_mc(-1, page));
-            if (fresh) stream_parent_order.push_back(ei);
-            pos->second.add_item(it, run);
+            if (it.stream != sp_stream) {
+                sp_stream = it.stream;
+                const Obj& se = cm.streams[it.stream].parent_struct_elem;
+                sp_elem = se.isDictionary() ? st.find(ref_of(se)) : -1;
+                sp_content = nullptr;
+                if (sp_elem >= 0) {
+                    auto [pos, fresh] = stream_parent_content.emplace(sp_elem, make_mc(-1, page));
+                    if (fresh) stream_parent_order.push_back(sp_elem);
+                    sp_content = &pos->second;   // references into an unordered_map survive rehashing
+                }
+            }
+            if (sp_elem < 0) continue;
+            sp_content->add_item(it, run, ascents);
         }
 
         // Structure -> content: an MCID kid names the sequence with that MCID on its page (/Pg), an MCR with
