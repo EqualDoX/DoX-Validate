@@ -525,6 +525,12 @@ void Module::corrupt_elements(ValidationContext& ctx) {
                 continue;
             }
             ObjRef where = it.isIndirect() ? ref_of(it) : owner;
+            // An element of the traversal whose /S is a name has nothing to report: it was taken for an element because
+            // it has no /Type or /Type /StructElem (StructTree::collect_kid), and with a name /S both cases below pass.
+            if (where.valid() && it.isIndirect()) {
+                const int known = st.find(where);
+                if (known >= 0 && st.elem(known).S) continue;
+            }
             auto type = cos::name(it, "Type");
             bool has_s = cos::has(it, "S"), has_mcid = cos::has(it, "MCID"), has_obj = cos::has(it, "Obj");
             bool s_ok = cos::name(it, "S").has_value();
@@ -646,13 +652,20 @@ void Module::parent_tree(ValidationContext& ctx) {
     // The other direction: every MCID kid of an element against the ParentTree entry of its page. PAC: StructuralParentTreeInvalidReference for each kid whose entry names another element (two
     // elements claim one sequence: two real-world samples, 4 and 21 kids, measured exactly; both invisible before,
     // the content side sees a consistent owner).
+    // /StructParents of a page, read at the first kid on it (the kids of one page come one after another)
+    std::vector<char> page_sp_known(pages.size(), 0);
+    std::vector<std::optional<std::int64_t>> page_sp(pages.size());
     for (std::size_t i = 0; i < E.size(); ++i) {
         if (!E[i].ref.valid()) continue;
         for (const auto& k : E[i].kids) {
             if ((k.kind != StructKid::Kind::MCID && k.kind != StructKid::Kind::MCR) || k.mcid < 0 || k.stm.valid() || !k.page.valid()) continue;
             const int pi = ctx.doc.page_index(k.page);
             if (pi < 0) continue;
-            auto sp = cos::integer(pages[pi].dict, "StructParents");
+            if (!page_sp_known[std::size_t(pi)]) {
+                page_sp[std::size_t(pi)] = cos::integer(pages[pi].dict, "StructParents");
+                page_sp_known[std::size_t(pi)] = 1;
+            }
+            const std::optional<std::int64_t>& sp = page_sp[std::size_t(pi)];
             if (!sp) continue;
             Obj entry = st.parent_tree_entry(*sp);
             if (!entry.isArray()) continue;
