@@ -51,6 +51,71 @@ std::optional<double> real_value(const Obj& v) {   // COSObject.getReal
 
 bool known(const Obj& d, std::string_view key) { return !cos::get(d, key).isNull(); }
 
+// The numbers of a /Widths array (COSObject.getReal of each item).
+using WidthValues = std::vector<std::optional<double>>;
+
+const std::shared_ptr<const WidthValues>& no_widths() {
+    static const std::shared_ptr<const WidthValues> none = std::make_shared<const WidthValues>();
+    return none;
+}
+
+// The numbers of the /Widths array `w` of the font dictionary `font`, kept once per distinct array of the document.
+//
+// A producer that writes a subset font per page repeats the same 256 widths in thousands of font dictionaries
+// (govinfo-fr-2024-12-30: 3685 arrays, 33 different ones). Two things are then held once instead of once per font:
+//   - our copy of the numbers;
+//   - qpdf's array. Every integer of it is an object of its own (112 bytes plus a 16-byte handle in qpdf 12), and qpdf
+//     keeps a parsed object as long as the document is open: 108 MB of the 256 MB that document needed. When the
+//     array is a direct object made of direct integers only and an array with the same integers was seen before, the
+//     dictionary's /Widths entry is pointed at that array, and the duplicate is freed.
+// The dictionary reads as before for every caller: the same key, an array of the same length with the same integers
+// (compared as integers, not as the doubles above). What changes is the identity of the array object, which nothing
+// can ask for: a direct object has no reference, and a width array has no other reader than this function (the walk
+// over the whole object graph of the document module only looks for dictionaries inside arrays). An indirect array,
+// or one with a real number or any other object in it, is left alone.
+std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& font, const Obj& w) {
+    const std::vector<Obj> items = cos::array_items(w);
+    WidthValues values;
+    values.reserve(items.size());
+    bool integers = !w.isIndirect() && font.isDictionary();
+    std::uint64_t hash = 1469598103934665603ull;
+    const auto same_bits = [](const std::optional<double>& a, const std::optional<double>& b) {
+        if (a.has_value() != b.has_value()) return false;
+        if (!a) return true;
+        return std::memcmp(&*a, &*b, sizeof(double)) == 0;   // -0.0 and 0.0 are different widths to print
+    };
+    for (const Obj& x : items) {
+        const std::optional<double> v = real_value(x);
+        integers = integers && x.isInteger() && !x.isIndirect();
+        std::uint64_t bits = 0x7ff8dead00000000ull;   // no number
+        if (v) std::memcpy(&bits, &*v, sizeof bits);
+        hash = (hash ^ bits) * 1099511628211ull;
+        hash = (hash ^ (v ? 1 : 0)) * 1099511628211ull;
+        values.push_back(v);
+    }
+    auto range = cache.widths.equal_range(hash);
+    for (auto it = range.first; it != range.second; ++it) {
+        DocCache::SharedWidths& known_widths = it->second;
+        const WidthValues& have = *known_widths.values;
+        if (have.size() != values.size() || !std::equal(have.begin(), have.end(), values.begin(), same_bits)) continue;
+        if (integers) {
+            if (!known_widths.array.isInitialized()) {
+                known_widths.array = w;   // the first array of this kind that others can refer to
+            } else if (!known_widths.array.isSameObjectAs(w)) {
+                // equal as doubles: equal as integers too? (integers beyond 2^53 can differ)
+                bool same = known_widths.array.getArrayNItems() == static_cast<int>(items.size());
+                for (int i = 0; same && i < static_cast<int>(items.size()); ++i)
+                    same = known_widths.array.getArrayItem(i).getIntValue() == items[static_cast<std::size_t>(i)].getIntValue();
+                if (same) Obj(font).replaceKey("/Widths", known_widths.array);
+            }
+        }
+        return known_widths.values;
+    }
+    auto added = cache.widths.emplace(hash, DocCache::SharedWidths{std::make_shared<const WidthValues>(std::move(values)),
+                                                                     integers ? w : Obj()});
+    return added->second.values;
+}
+
 // cmap.CharacterCollections: [PDF 1.4, ISO 32000-1, ISO 32000-2]
 struct Collection {
     const char* name;
@@ -360,7 +425,7 @@ struct VeraFont::Impl {
     // widths (PDFont.getWidth)
     bool widths_known = false;
     std::int64_t first_char = 0, last_char = 0;
-    std::vector<std::optional<double>> widths;
+    std::shared_ptr<const WidthValues> widths = no_widths();   // never null; shared between fonts with equal arrays
     bool widths_is_array = false;
     bool missing_width_known = false;
     double missing_width = 0;
@@ -397,9 +462,9 @@ std::optional<double> VeraFont::Impl::pdfont_width(VeraFont& f, int code) const 
         return dw;
     }
     if (widths_known) {
-        if (widths_is_array && !widths.empty() && code >= first_char && code <= last_char) {
+        if (widths_is_array && !widths->empty() && code >= first_char && code <= last_char) {
             std::size_t i = static_cast<std::size_t>(code - first_char);
-            return i < widths.size() ? widths[i] : std::nullopt;
+            return i < widths->size() ? (*widths)[i] : std::nullopt;
         }
     }
     if (missing_width_known) return missing_width;
@@ -748,7 +813,7 @@ std::unique_ptr<VeraFont> load_vera_font(Document& doc, std::shared_ptr<DocCache
     im.last_char = cos::integer(d, "LastChar").value_or(0);
     Obj w = cos::get(d, "Widths");
     im.widths_is_array = w.isArray();
-    for (const Obj& x : cos::array_items(w)) im.widths.push_back(real_value(x));
+    if (im.widths_is_array) im.widths = shared_widths(cache, d, w);
     im.encoding = encoding_from(cos::get(d, "Encoding"));
     if (f->vkind == VeraKind::Type1 && f->font_name && is_std14(*f->font_name)) {
         im.advance_metrics = fontdata::std_metrics(*f->font_name);
@@ -870,7 +935,7 @@ double VeraFont::compute_advance(std::uint32_t code) const {
     if (vkind == VeraKind::None) return 0;
     if (im.widths_is_array && cos::integer(dict, "FirstChar")) {
         std::int64_t i = static_cast<std::int64_t>(code) - im.first_char;
-        if (i >= 0 && static_cast<std::size_t>(i) < im.widths.size()) return im.widths[static_cast<std::size_t>(i)].value_or(0);
+        if (i >= 0 && static_cast<std::size_t>(i) < im.widths->size()) return (*im.widths)[static_cast<std::size_t>(i)].value_or(0);
     }
     if (im.advance_metrics && !im.widths_is_array) {
         auto nm = im.encoding.name(static_cast<int>(code));

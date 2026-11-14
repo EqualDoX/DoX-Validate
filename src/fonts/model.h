@@ -40,6 +40,12 @@ struct DocCache {
     std::unordered_map<std::string, std::shared_ptr<FontProgram>> programs;   // FontProgramIDGenerator ids
     std::unordered_map<std::uint64_t, std::shared_ptr<const CMap>> merged;    // CMap streams with /UseCMap
     std::unordered_map<std::uint64_t, bool> flate_damaged;   // font program streams: their Flate data fails (pdfont.cpp)
+    // /Widths arrays with the same numbers, kept once for all fonts that have them (pdfont.cpp, shared_widths).
+    struct SharedWidths {
+        std::shared_ptr<const std::vector<std::optional<double>>> values;
+        Obj array;   // a direct array of direct integers with these values, when a font had one: the others refer to it
+    };
+    std::unordered_multimap<std::uint64_t, SharedWidths> widths;   // by a hash of the values
 };
 
 // veraPDF PDCMap over a COS object (name, stream or anything else).
