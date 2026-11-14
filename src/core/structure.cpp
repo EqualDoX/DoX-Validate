@@ -902,6 +902,7 @@ void StructTree::build(Document& doc) {
         throw;
     }
     simulate_verapdf_visits();
+    complete_ = true;
 }
 
 }  // namespace eqx

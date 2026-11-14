@@ -203,6 +203,9 @@ public:
 
     bool present() const { return present_; }
     bool truncated() const { return truncated_; }  // a query stopped at the nesting limit: elements were not seen
+    // The traversal reached its end: the kids of every element are the items of its /K. False after a build that
+    // failed on the way (the tree then holds what was reached, and /K of an element may name more).
+    bool complete() const { return complete_; }
     Obj root() const { return root_; }
     ObjRef root_ref() const { return root_ref_; }
     StructElems elems() const { return StructElems(this); }
@@ -336,6 +339,7 @@ private:
     static const Obj kNoObj;   // StructKid::dict / obj of a kid that has none: a default-constructed handle
 
     bool present_ = false;
+    bool complete_ = false;
     Obj root_;
     ObjRef root_ref_;
     ChunkedVector<Rec, 512> elems_;

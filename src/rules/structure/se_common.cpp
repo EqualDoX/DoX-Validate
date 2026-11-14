@@ -1,5 +1,6 @@
 #include "rules/structure/se_common.h"
 
+#include <algorithm>
 #include <unordered_set>
 
 namespace eqx::se {
@@ -184,17 +185,70 @@ void walk_children(const StructTree& st, const Obj& node, Flavor f, bool* ok, Le
     }
 }
 
+// The same walk over the records of the tree, when they say what the dictionaries say: the tree was built to its end
+// (the element kids of an element are then the struct children of its dictionary, in order, and an indirect child is
+// the element the lookup by object gives) and every element on the way down is indirect (its index stands for its
+// object, so "already on the path" is the same question). `leaf` is called at the end, in the order of the walk.
+// Returns false, without a call of `leaf` and with *ok untouched, when the walk has to go over the dictionaries: `node`
+// is no indirect element of the tree, or a pass-through child is a direct dictionary.
+template <class Leaf>
+bool walk_children_in_tree(const StructTree& st, const Obj& node, Flavor f, bool* ok, Leaf& leaf) {
+    if (!st.complete() || !node.isIndirect()) return false;
+    const int start = st.find(ref_of(node));
+    if (start < 0) return false;
+    const auto& elems = st.elems();
+    struct Level {
+        int elem;
+        std::size_t next;
+    };
+    std::vector<Level> stack;            // its elements are the path
+    std::vector<std::pair<int, std::string>> leaves;
+    stack.push_back({start, 0});
+    bool fine = true;
+    std::size_t visits = 0;
+    while (!stack.empty()) {
+        Level& top = stack.back();
+        const std::span<const int> kids = elems[static_cast<std::size_t>(top.elem)].struct_kids;
+        if (top.next >= kids.size()) {
+            stack.pop_back();
+            continue;
+        }
+        const int k = kids[top.next++];
+        if (++visits > kMaxVisits) {
+            fine = false;
+            break;
+        }
+        const StructElem child = elems[static_cast<std::size_t>(k)];
+        std::string t = child.standard(f);
+        if (!is_pass_through(t)) {
+            leaves.emplace_back(k, std::move(t));
+            continue;
+        }
+        if (!child.ref.valid()) return false;
+        if (std::find_if(stack.begin(), stack.end(), [k](const Level& l) { return l.elem == k; }) != stack.end()) {
+            fine = false;
+            continue;
+        }
+        stack.push_back({k, 0});
+    }
+    for (auto& item : leaves) leaf(elems[static_cast<std::size_t>(item.first)].dict, std::move(item.second));
+    if (!fine && ok) *ok = false;
+    return true;
+}
+
 }  // namespace
 
 std::vector<TypedChild> significance_children(const StructTree& st, const Obj& node, Flavor f, bool* ok) {
     std::vector<TypedChild> out;
-    walk_children(st, node, f, ok, [&](const Obj& child, std::string t) { out.push_back({child, std::move(t)}); });
+    const auto leaf = [&](const Obj& child, std::string t) { out.push_back({child, std::move(t)}); };
+    if (!walk_children_in_tree(st, node, f, ok, leaf)) walk_children(st, node, f, ok, leaf);
     return out;
 }
 
 std::vector<std::string> children_standard_types(const StructTree& st, const Obj& node, Flavor f, bool* ok) {
     std::vector<std::string> out;
-    walk_children(st, node, f, ok, [&](const Obj&, std::string t) { out.push_back(std::move(t)); });
+    const auto leaf = [&](const Obj&, std::string t) { out.push_back(std::move(t)); };
+    if (!walk_children_in_tree(st, node, f, ok, leaf)) walk_children(st, node, f, ok, leaf);
     return out;
 }
 

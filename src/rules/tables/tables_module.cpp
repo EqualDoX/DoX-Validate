@@ -117,10 +117,14 @@ public:
             auto it = by_identity.find(se::identity(d));
             return it != by_identity.end() && st.elem(it->second).verapdf_checked;
         };
+        // Whether a type is a Table in a flavour: asked once per type record of the tree (0 = not asked yet).
+        std::vector<char> is_table[2] = {std::vector<char>(st.type_count(), 0), std::vector<char>(st.type_count(), 0)};
         for (int idx : se::element_order(st, ref_mode)) {
             const StructElem& e = st.elem(idx);
             for (Flavor f : {Flavor::Pdf17, Flavor::Pdf20}) {
-                if (e.standard(f) != "Table") continue;
+                char& table = is_table[f == Flavor::Pdf17 ? 0 : 1][e.type_id];
+                if (table == 0) table = e.standard(f) == "Table" ? 2 : 1;
+                if (table != 2) continue;
                 const FlavourRules& fr = f == Flavor::Pdf17 ? ua1 : ua2;
                 BuiltTable b = build_table(st, attrs, e.dict, f);
                 tables::TableResult res;
