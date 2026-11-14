@@ -54,8 +54,11 @@ public:
     template <class... A>
     T& emplace_back(A&&... args) {
         const std::size_t at = size_ % ChunkSize;
-        if (at == 0 && size_ / ChunkSize == chunks_.size())
+        if (at == 0 && size_ / ChunkSize == chunks_.size()) {
+            // room for the pointer first, so that a chunk that was allocated is always kept
+            if (chunks_.size() == chunks_.capacity()) chunks_.reserve(chunks_.empty() ? 16 : 2 * chunks_.size());
             chunks_.push_back(static_cast<T*>(::operator new(ChunkSize * sizeof(T), std::align_val_t(alignof(T)))));
+        }
         T* p = ::new (static_cast<void*>(chunks_[size_ / ChunkSize] + at)) T(std::forward<A>(args)...);
         ++size_;
         return *p;

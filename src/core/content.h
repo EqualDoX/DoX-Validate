@@ -394,8 +394,7 @@ public:
     const_iterator end() const { return {this, size()}; }
 
     // --- for the interpreter ---
-    // A LineArt item must get its painting attributes with set_paint, an ImageXObject item its image with
-    // set_xobject, before the item is read.
+    // The side record of a line-art or image item is stored before the item, so an item never lacks it.
     int add(ContentItem::Kind kind, int stream, int frame, std::uint32_t op_index, const Rect* bbox) {
         content_detail::ItemRecord& r = recs_.emplace_back();
         r.kind = static_cast<std::uint8_t>(kind);
@@ -408,14 +407,20 @@ public:
         }
         return static_cast<int>(recs_.size()) - 1;
     }
-    void set_paint(int item, std::uint8_t paint, const Color& fill, float fill_alpha, bool exact_rect) {
+    int add_line_art(int stream, int frame, std::uint32_t op_index, const Rect* bbox, std::uint8_t paint, const Color& fill,
+                     float fill_alpha, bool exact_rect) {
+        const std::uint32_t paint_record = paint_index(PaintRecord{fill, fill_alpha});
+        const int item = add(ContentItem::Kind::LineArt, stream, frame, op_index, bbox);
         content_detail::ItemRecord& r = recs_[static_cast<std::size_t>(item)];
-        r.flags = static_cast<std::uint8_t>((r.flags & 1) | ((paint & 3) << 1) | (exact_rect ? 8 : 0));
-        r.aux = paint_index(PaintRecord{fill, fill_alpha});
+        r.flags = static_cast<std::uint8_t>(r.flags | ((paint & 3) << 1) | (exact_rect ? 8 : 0));
+        r.aux = paint_record;
+        return item;
     }
-    void set_xobject(int item, ObjRef ref) {
-        recs_[static_cast<std::size_t>(item)].aux = static_cast<std::uint32_t>(xobjects_.size());
-        xobjects_.push_back(ref);
+    int add_image(int stream, int frame, std::uint32_t op_index, const Rect& bbox, ObjRef image) {
+        xobjects_.push_back(image);
+        const int item = add(ContentItem::Kind::ImageXObject, stream, frame, op_index, &bbox);
+        recs_[static_cast<std::size_t>(item)].aux = static_cast<std::uint32_t>(xobjects_.size() - 1);
+        return item;
     }
     content_detail::ItemRecord& record(std::size_t i) { return recs_[i]; }
     const content_detail::ItemRecord& record(std::size_t i) const { return recs_[i]; }

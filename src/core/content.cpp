@@ -777,7 +777,7 @@ void Interpreter::do_xobject(int si, std::uint32_t op_index, int frame, const st
             const Rect bbox{*std::min_element(xs, xs + 4), *std::min_element(ys, ys + 4), *std::max_element(xs, xs + 4),
                             *std::max_element(ys, ys + 4)};
             const ObjRef image = ref_of(xo);
-            m_.items.set_xobject(m_.items.add(ContentItem::Kind::ImageXObject, si, frame, op_index, &bbox), image);
+            m_.items.add_image(si, frame, op_index, bbox, image);
         } else if (parent.signature_appearance) {
             m_.signature_graphics.push_back({si, frame, "image"});
         }
@@ -1209,13 +1209,13 @@ bool Interpreter::step(Exec& x) {
         } else if (oc == Op::S || oc == Op::s || oc == Op::f || oc == Op::F || oc == Op::f_star || oc == Op::B || oc == Op::B_star ||
                    oc == Op::b || oc == Op::b_star) {
             Rect r{px0, py0, px1, py1};
-            int idx = add_item(ContentItem::Kind::LineArt, opi, have_path ? &r : nullptr);
-            if (idx >= 0) {
+            if (semantic) {
                 bool fills = oc != Op::S && oc != Op::s;
                 bool strokes = oc == Op::S || oc == Op::s || oc == Op::B || oc == Op::B_star || oc == Op::b || oc == Op::b_star;
-                m_.items.set_paint(idx, static_cast<std::uint8_t>((fills ? 1 : 0) | (strokes ? 2 : 0)), gs.fill,
-                                   static_cast<float>(gs.fill_alpha),
-                                   have_path && path_rects == 1 && !path_other && gs.ctm.b == 0 && gs.ctm.c == 0);
+                m_.items.add_line_art(si, fstack.empty() ? -1 : fstack.back(), opi, have_path ? &r : nullptr,
+                                      static_cast<std::uint8_t>((fills ? 1 : 0) | (strokes ? 2 : 0)), gs.fill,
+                                      static_cast<float>(gs.fill_alpha),
+                                      have_path && path_rects == 1 && !path_other && gs.ctm.b == 0 && gs.ctm.c == 0);
             } else if (sp->signature_appearance && path_curve) {
                 m_.signature_graphics.push_back({si, fstack.empty() ? -1 : fstack.back(), "drawn path"});
             }

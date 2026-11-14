@@ -203,16 +203,13 @@ EQX_TEST(content_model_item_views) {
     const int text = cm.items.add(ContentItem::Kind::Text, 3, 7, 11, nullptr);
     cm.texts.begin_run(text, style_of(9));
     cm.texts.end_run(5, 2);
-    const int path = cm.items.add(ContentItem::Kind::LineArt, 3, -1, 12, &box);
     Color red;
     red.family = ColorFamily::RGB;
     red.rgb[0] = 1;
-    cm.items.set_paint(path, 3, red, 0.5f, true);
-    const int path2 = cm.items.add(ContentItem::Kind::LineArt, 3, -1, 13, nullptr);
-    cm.items.set_paint(path2, 1, red, 0.5f, false);            // the same paint as the path before it
+    const int path = cm.items.add_line_art(3, -1, 12, &box, 3, red, 0.5f, true);
+    const int path2 = cm.items.add_line_art(3, -1, 13, nullptr, 1, red, 0.5f, false);   // the same paint as the path before it
     const int shading = cm.items.add(ContentItem::Kind::Shading, 4, 2, 14, nullptr);
-    const int image = cm.items.add(ContentItem::Kind::ImageXObject, 4, 2, 15, &box);
-    cm.items.set_xobject(image, ObjRef{42, 1});
+    const int image = cm.items.add_image(4, 2, 15, box, ObjRef{42, 1});
     const int inline_image = cm.items.add(ContentItem::Kind::InlineImage, 5, -1, 16, &box);
     EXPECT_EQ(cm.items.size(), std::size_t(6));
 
