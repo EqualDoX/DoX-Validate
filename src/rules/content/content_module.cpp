@@ -55,20 +55,27 @@ const std::unordered_map<std::string_view, std::string_view>& signatures() {
     return m;
 }
 
-bool operands_match(std::string_view sig, const std::vector<Operand>& a) {
-    if (sig == "+" || sig == "*?") {
+// A signature as the observer keeps it per operator: its text, length and whether it is one of the two patterns.
+struct Signature {
+    const char* text = nullptr;   // nullptr: the operator is not judged
+    std::uint8_t length = 0;
+    bool plus = false, star = false;   // "+", "*?"
+};
+
+bool operands_match(const Signature& sig, const std::vector<Operand>& a) {
+    if (sig.plus || sig.star) {
         std::size_t n = a.size();
-        if (sig == "*?" && n > 0 && a.back().type == Operand::Name) --n;
-        else if (sig == "*?" && n == 0) return false;
-        if (sig == "+" && n == 0) return false;
+        if (sig.star && n > 0 && a.back().type == Operand::Name) --n;
+        else if (sig.star && n == 0) return false;
+        if (sig.plus && n == 0) return false;
         for (std::size_t i = 0; i < n; ++i)
             if (!a[i].is_number()) return false;
         return true;
     }
-    if (a.size() != sig.size()) return false;
-    for (std::size_t i = 0; i < sig.size(); ++i) {
+    if (a.size() != sig.length) return false;
+    for (std::size_t i = 0; i < sig.length; ++i) {
         const Operand& o = a[i];
-        switch (sig[i]) {
+        switch (sig.text[i]) {
             case 'n': if (!o.is_number()) return false; break;
             case 's': if (o.type != Operand::String) return false; break;
             case 'N': if (o.type != Operand::Name) return false; break;
@@ -106,13 +113,16 @@ struct SyntaxObserver final : ContentObserver {
     void on_operator(const ContentModel&, int stream, std::uint32_t, const RawOp& op, const GState&) override {
         if (problems.size() > 10000) return;
         static const auto table = [] {
-            std::array<const char*, static_cast<std::size_t>(Op::Count)> t{};
-            for (const auto& [name, sig] : signatures()) t[static_cast<std::size_t>(op_code(name))] = sig.data();
-            t[static_cast<std::size_t>(Op::EI)] = "x";
+            std::array<Signature, static_cast<std::size_t>(Op::Count)> t{};
+            const auto set = [&](Op code, std::string_view sig) {
+                t[static_cast<std::size_t>(code)] = Signature{sig.data(), static_cast<std::uint8_t>(sig.size()), sig == "+", sig == "*?"};
+            };
+            for (const auto& [name, sig] : signatures()) set(op_code(name), sig);
+            set(Op::EI, "x");
             return t;
         }();
-        const char* sig = table[static_cast<std::size_t>(op.code)];
-        if (!sig) return;   // unknown operators are not judged (behaviour not established)
+        const Signature& sig = table[static_cast<std::size_t>(op.code)];
+        if (!sig.text) return;   // unknown operators are not judged (behaviour not established)
         if (!operands_match(sig, *op.operands)) {
             char buf[160];
             std::snprintf(buf, sizeof buf, "operator %.*s at byte %zu has operands (%s)", int(op.op.size()),

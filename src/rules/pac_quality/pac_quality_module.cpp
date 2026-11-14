@@ -335,6 +335,22 @@ struct OperatorStates final : ContentObserver {
         return c == Op::Tj || c == Op::TJ || c == Op::quote || c == Op::dquote || c == Op::Td || c == Op::TD || c == Op::Tm || c == Op::T_star;
     }
     std::vector<int> bx, mc_depth;
+    // What the state machine below asks of an operator, as bits per operator code (general, paint, path_part, text_show
+    // and the operators named in the Page state): one table read instead of a switch per question.
+    enum : std::uint8_t { kGeneral = 1, kPaint = 2, kPathPart = 4, kTextShow = 8, kPageLevel = 16 };
+    static std::uint8_t classes(Op c) {
+        static const auto table = [] {
+            std::array<std::uint8_t, static_cast<std::size_t>(Op::Count)> t{};
+            for (std::size_t i = 0; i < t.size(); ++i) {
+                const Op o = static_cast<Op>(i);
+                const bool page_level = o == Op::q || o == Op::Q || o == Op::cm || o == Op::sh || o == Op::BI || o == Op::EI || o == Op::ID || o == Op::Do;
+                t[i] = static_cast<std::uint8_t>((general(o) ? kGeneral : 0) | (paint(o) ? kPaint : 0) | (path_part(o) ? kPathPart : 0) |
+                                                 (text_show(o) ? kTextShow : 0) | (page_level ? kPageLevel : 0));
+            }
+            return t;
+        }();
+        return table[static_cast<std::size_t>(c)];
+    }
     void on_operator(const ContentModel& cm, int stream, std::uint32_t, const RawOp& op, const GState&) override {
         if (stream < 0) return;
         if (std::size_t(stream) >= state.size()) state.resize(std::size_t(stream) + 1, Page), bx.resize(std::size_t(stream) + 1, 0);
@@ -376,25 +392,26 @@ struct OperatorStates final : ContentObserver {
             hits.push_back({stream, "PAC: operator " + std::string(op.op) + " outside a Type 3 glyph description (PAC closes the document)"});
             return;
         }
+        const std::uint8_t cls = classes(c);
         switch (st) {
             case Page:
                 if (c == Op::BT) st = Text;
                 else if (c == Op::m || c == Op::re) st = Path;
                 // a lone n: PAC passes it (two real-world samples); nothing is painted
                 else if (c == Op::n) ok = true;
-                else ok = general(c) || c == Op::q || c == Op::Q || c == Op::cm || c == Op::sh || c == Op::BI || c == Op::EI || c == Op::ID || c == Op::Do;
+                else ok = (cls & (kGeneral | kPageLevel)) != 0;
                 break;
             case Text:
                 if (c == Op::ET) st = Page;
-                else ok = general(c) || text_show(c);
+                else ok = (cls & (kGeneral | kTextShow)) != 0;
                 break;
             case Path:
                 if (c == Op::W || c == Op::W_star) st = Clip;
-                else if (paint(c)) st = Page;
-                else ok = path_part(c);
+                else if (cls & kPaint) st = Page;
+                else ok = (cls & kPathPart) != 0;
                 break;
             case Clip:
-                if (paint(c)) st = Page;
+                if (cls & kPaint) st = Page;
                 else ok = false;
                 break;
         }
