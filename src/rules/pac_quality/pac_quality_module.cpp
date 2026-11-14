@@ -481,16 +481,9 @@ public:
         // The file's frame: PAC refuses a file without %%EOF ("corrupted PDF document", sb_no_eof; a few bytes after the marker pass, sb_eof_trailing_junk) and an unknown version
         // (unsupported-version error, sb_header_version_bad). qpdf reads both silently.
         {
-            std::FILE* f = std::fopen(ctx.doc.path().c_str(), "rb");
-            if (f) {
-                char tail[1024];
-                const long n = long(std::min<std::uint64_t>(sizeof tail, ctx.doc.file_size()));
-                std::string_view view;
-                if (std::fseek(f, -n, SEEK_END) == 0) view = std::string_view(tail, std::fread(tail, 1, std::size_t(n), f));
-                std::fclose(f);
-                if (!view.empty() && view.find("%%EOF") == std::string_view::npos)
-                    ctx.report(rp, -1, ObjRef{}, "PAC: no %%EOF in the last 1024 bytes of the file (ISO 32000-1 7.5.5; PAC refuses the file)");
-            }
+            const std::string& tail = ctx.doc.file_tail();   // the last 1024 bytes, kept when the file was opened
+            if (!tail.empty() && tail.find("%%EOF") == std::string::npos)
+                ctx.report(rp, -1, ObjRef{}, "PAC: no %%EOF in the last 1024 bytes of the file (ISO 32000-1 7.5.5; PAC refuses the file)");
             const std::string& v = ctx.doc.header_version();
             if (!v.empty() && !(v.size() == 3 && v[1] == '.' && ((v[0] == '1' && v[2] >= '0' && v[2] <= '7') || (v[0] == '2' && v[2] == '0'))))
                 ctx.report(rp, -1, ObjRef{}, "PAC: the header names PDF version " + v + " (PAC refuses the file)");

@@ -12,7 +12,6 @@
 // ctx.pac_applicable (PAC defines its checks for PDF <= 1.7 only); their findings carry "PAC:" in the detail.
 #include <algorithm>
 #include <cctype>
-#include <fstream>
 #include <functional>
 #include <limits>
 #include <map>
@@ -357,16 +356,8 @@ private:
         const std::size_t at = head.find("%PDF-");
         if (at != 0) why.push_back("the header is not at the start of the file");
         // PDFParser.findLastXRef: the keyword must lie within the last 1024 bytes
-        {
-            const std::uint64_t size = ctx_->doc.file_size();
-            const std::uint64_t n = std::min<std::uint64_t>(size, 1024);
-            std::string tail(static_cast<std::size_t>(n), '\0');
-            std::ifstream in(ctx_->doc.path(), std::ios::binary);
-            in.seekg(static_cast<std::streamoff>(size - n));
-            in.read(tail.data(), static_cast<std::streamsize>(n));
-            tail.resize(static_cast<std::size_t>(in.gcount()));
-            if (tail.find("startxref") == std::string::npos) why.push_back("no startxref in the last 1024 bytes");
-        }
+        // (the document kept these bytes when it was opened; the file is not read again)
+        if (ctx_->doc.file_tail().find("startxref") == std::string::npos) why.push_back("no startxref in the last 1024 bytes");
         for (const std::string& w : ctx_->doc.warnings())
             if (w.find("reconstruct cross-reference table") != std::string::npos) {
                 why.push_back("the cross-reference table had to be rebuilt");
