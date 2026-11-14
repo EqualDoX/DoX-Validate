@@ -15,6 +15,7 @@
 #include <fstream>
 #include <functional>
 #include <limits>
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -426,19 +427,33 @@ private:
             }
             if (!is_dict_based(h)) return;
             Obj d = cos::dict_of(h);
-            if (h.isDictionary() && cos::name_is(d, "Type", "Filespec")) cos_filespecs_.push_back(h);
-            Obj md = cos::get(d, "Metadata");
-            if (is_metadata_object(md) && !cos::name_is(d, "Type", "Catalog")) {
+            // The entries of the dictionary, taken once (a copy of its map), instead of a dictionary search for /Type,
+            // for /Metadata and for every key: what cos::name_is, cos::get and getKeys/getKey read one by one, read
+            // in the same order.
+            const std::map<std::string, Obj> entries = d.getDictAsMap();
+            const auto type_is = [&](const char* slash_name) {   // cos::name_is(d, "Type", name)
+                auto type = entries.find("/Type");
+                return type != entries.end() && type->second.isName() && type->second.getName() == slash_name;
+            };
+            if (h.isDictionary() && type_is("/Filespec")) cos_filespecs_.push_back(h);
+            Obj md = Obj::newNull();   // cos::get(d, "Metadata")
+            if (auto found = entries.find("/Metadata"); found != entries.end() && !found->second.isNull()) md = found->second;
+            if (is_metadata_object(md) && !type_is("/Catalog")) {
                 ObjRef r = ref_of(md);
                 // veraPDF artefact: a shared PDMetadata ID makes it skip the main package; reproduced only in
                 // --reference-dedup mode (the default evaluates the catalog's package regardless)
                 if (r.valid() && r == main_ref && ctx_->reference_dedup) main_metadata_shadowed_ = true;
                 if (!r.valid() || md_seen.insert(r.key()).second) other_metadata_.push_back(md);
             }
-            for (auto& k : d.getKeys()) {
-                Obj v = d.getKey(k);
-                if (!v.isIndirect() && (v.isArray() || is_dict_based(v))) visit(v);
+            // getKeys() gives the keys whose value is not null, having looked at every value: so here, before any direct
+            // value is followed.
+            std::vector<const Obj*> direct;
+            for (const auto& item : entries) {
+                const Obj& v = item.second;
+                if (v.isNull()) continue;
+                if (!v.isIndirect() && (v.isArray() || is_dict_based(v))) direct.push_back(&v);
             }
+            for (const Obj* v : direct) visit(*v);
         };
         Obj trailer = ctx_->doc.trailer();
         visit(trailer);

@@ -624,7 +624,6 @@ void Module::parent_tree(ValidationContext& ctx) {
                 ctx.report(invalid_entry, pi, owner, "ParentTree entry " + std::to_string(key) + " is not an array");
             continue;
         }
-        std::string where = "StructParents " + std::to_string(key) + ", MCID " + std::to_string(*f.mcid);
         // An MCID beyond the array with no element claiming it passes PAC (ct_orphan_mcid, ct_artifact_with_mcid): only the element side counts, below.
         if (*f.mcid >= entry.getArrayNItems()) continue;
         Obj item = entry.getArrayItem(static_cast<int>(*f.mcid));
@@ -632,7 +631,8 @@ void Module::parent_tree(ValidationContext& ctx) {
         // (st_pt_short).
         if (item.isNull()) continue;
         if (!item.isDictionary()) {
-            ctx.report(invalid_entry, pi, owner, where + ": entry is not a structure element");
+            ctx.report(invalid_entry, pi, owner,
+                       "StructParents " + std::to_string(key) + ", MCID " + std::to_string(*f.mcid) + ": entry is not a structure element");
             continue;
         }
         // PAC reads consistency from the element's side only: an entry naming an element that does not list the MCID passes when no element claims it otherwise
