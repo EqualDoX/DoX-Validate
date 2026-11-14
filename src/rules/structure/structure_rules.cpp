@@ -315,22 +315,51 @@ void run_structure_rules(ValidationContext& ctx) {
     std::vector<int> h_elems17;
     bool list_cycle = false, toci_cycle = false;
 
+    // What the role mapping says about an element is a fact of its type (/S and /NS): worked out for the first element
+    // of each type record of the tree (StructElem::type_id) and read from there for the others.
+    struct TypeFacts {
+        std::string s17, s20;                          // StructElem::standard
+        std::optional<bool> circ17, circ20;
+        std::optional<std::string> remap17, remap20;   // remap20: for a type without a standard type (s20 empty)
+        std::optional<std::string> same_ns;            // role mapped within its namespace
+        bool math20 = false;
+    };
+    std::vector<TypeFacts> type_facts(st.type_count());
+    std::vector<char> type_known(st.type_count(), 0);
+    const auto facts_of = [&](const StructElem& e) -> const TypeFacts& {
+        TypeFacts& t = type_facts[e.type_id];
+        if (!type_known[e.type_id]) {
+            type_known[e.type_id] = 1;
+            t.s17 = e.standard(Flavor::Pdf17);
+            if (e.S) t.circ17 = st.circular17(*e.S);
+            t.remap17 = remapped17(st, e);
+            t.s20 = e.standard(Flavor::Pdf20);
+            if (e.S) t.circ20 = st.circular17(*e.S) || st.circular20(e.type);
+            if (t.s20.empty()) t.remap20 = remapped20_nonstandard(e);
+            if (e.S) t.same_ns = st.role_map_to_same_ns_tag(e.type);
+            t.math20 = e.is_math(Flavor::Pdf20);
+        }
+        return t;
+    };
+
     for (int idx : order) {
         const StructElem& e = elems[idx];
         const Obj& d = e.dict;
         const ObjRef ref = e.ref;
+        const TypeFacts& facts = facts_of(e);
 
         // 7.1-12 / 8.2.1-2 + PAC StructureElementHasParentKey: no /P entry. veraPDF's containsParent is always true
         // (COSDictionary.getKey never returns null), so this is the normative requirement as PAC checks it.
-        if (e.get(StructElem::kP, "P").isNull()) {
+        // (/P naming the element's parent is an entry.)
+        if (!e.p_is_parent && e.get(StructElem::kP, "P").isNull()) {
             ctx.report(R.parent17, -1, ref, s_detail(e) + ": no /P entry");
             ctx.report(R.parent20, -1, ref, s_detail(e) + ": no /P entry");
         }
 
         // ---------------------------------------------------------------- PDF/UA-1 (PDF 1.7 semantics)
-        const std::string s17 = e.standard(Flavor::Pdf17);
-        const std::optional<bool> circ17 = e.S ? std::optional<bool>(st.circular17(*e.S)) : std::nullopt;
-        const auto remap17 = remapped17(st, e);
+        const std::string& s17 = facts.s17;
+        const std::optional<bool>& circ17 = facts.circ17;
+        const std::optional<std::string>& remap17 = facts.remap17;
         if (s17.empty()) {
             // SENonStandard.isNotMappedToStandardType
             if (!remap17 && circ17 != std::optional<bool>(true))
@@ -370,22 +399,19 @@ void run_structure_rules(ValidationContext& ctx) {
         }
 
         // ---------------------------------------------------------------- PDF/UA-2, WTPDF (ISO 32000-2 semantics)
-        const std::string s20 = e.standard(Flavor::Pdf20);
-        const std::optional<bool> circ20 =
-            e.S ? std::optional<bool>(st.circular17(*e.S) || st.circular20(e.type)) : std::nullopt;
+        const std::string& s20 = facts.s20;
+        const std::optional<bool>& circ20 = facts.circ20;
         if (s20.empty()) {
-            auto remap20 = remapped20_nonstandard(e);
+            const std::optional<std::string>& remap20 = facts.remap20;
             if (!remap20 && circ20 != std::optional<bool>(true))
                 ctx.report(R.unmapped20, -1, ref, s_detail(e) + " is not mapped to a standard type");
             if (remap20) ctx.report(R.remapped20, -1, ref, "standard type /" + *remap20 + " is remapped");
         }
         if (circ20 == std::optional<bool>(true))
             ctx.report(R.circular20, -1, ref, s_detail(e) + ": circular role mapping");
-        if (e.S) {
-            if (auto same = st.role_map_to_same_ns_tag(e.type))
-                ctx.report(R.same_ns20, -1, ref, s_detail(e) + " role mapped within namespace " + *same);
-        }
-        if (e.is_math(Flavor::Pdf20)) {
+        if (const std::optional<std::string>& same = facts.same_ns)
+            ctx.report(R.same_ns20, -1, ref, s_detail(e) + " role mapped within namespace " + *same);
+        if (facts.math20) {
             if (!has_parent_formula_or_math(st, d))
                 ctx.report(R.math_parent, -1, ref, s_detail(e) + ": MathML element outside Formula");
         } else if (s20 == "H") {
@@ -461,7 +487,7 @@ void run_structure_rules(ValidationContext& ctx) {
         std::unordered_set<std::string> seen;
         for (int idx : order) {
             const StructElem& e = elems[idx];
-            if (e.standard(Flavor::Pdf17) != "Note") continue;
+            if (facts_of(e).s17 != "Note") continue;
             auto id = se::string_key(e.dict, "ID");
             bool order_dup = id && !seen.insert(*id).second && doc_order;
             auto it = dup.find(se::identity(e.dict));
