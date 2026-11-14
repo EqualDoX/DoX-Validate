@@ -4,7 +4,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <exception>
 #include <map>
+#include <unordered_map>
 #include <vector>
 
 #include "util/text.h"
@@ -66,17 +68,28 @@ bool is_painter(const ContentItem& it) {
            it.kind == ContentItem::Kind::ImageXObject || it.kind == ContentItem::Kind::Shading;
 }
 
+// A painted item of a page, as far as flat_background reads it.
+struct Painter {
+    Rect bbox;
+    Color fill;
+    float fill_alpha = 1;
+    ContentItem::Kind kind = ContentItem::Kind::LineArt;
+    std::uint8_t paint = 0;
+    bool bbox_valid = false;
+    bool exact_rect = false;
+};
+
 // The page colour under r: white where nothing painted touches r, the colour of one opaque filled rectangle covering r when it is the
 // last paint there. False otherwise: the page content draws there itself (often the field's frame), which is not judged here.
-bool flat_background(const ContentModel& cm, const std::vector<int>& painters, const Rect& r, unsigned char* out) {
-    int last = -1;
-    for (int i : painters)
-        if (!cm.items[std::size_t(i)].bbox_valid || cm.items[std::size_t(i)].bbox.intersects(r)) last = i;
-    if (last < 0) {
+bool flat_background(const std::vector<Painter>& painters, const Rect& r, unsigned char* out) {
+    const Painter* last = nullptr;
+    for (const Painter& p : painters)
+        if (!p.bbox_valid || p.bbox.intersects(r)) last = &p;
+    if (!last) {
         out[0] = out[1] = out[2] = 255;
         return true;
     }
-    const ContentItem& p = cm.items[std::size_t(last)];
+    const Painter& p = *last;
     const bool covers = p.bbox_valid && p.bbox.llx <= r.llx + 0.5 && p.bbox.lly <= r.lly + 0.5 && p.bbox.urx >= r.urx - 0.5 &&
                         p.bbox.ury >= r.ury - 0.5;
     if (p.kind != ContentItem::Kind::LineArt || p.paint != 1 || !p.exact_rect || !p.fill.known() || p.fill_alpha < 1.0f || !covers)
@@ -84,6 +97,23 @@ bool flat_background(const ContentModel& cm, const std::vector<int>& painters, c
     for (int k = 0; k < 3; ++k) out[k] = to8(p.fill.rgb[k]);
     return true;
 }
+
+// Whether check_form_fields can find a field on the page: an annotation whose /Subtype is Widget, or is given by
+// reference (then it is not looked at here). Reads only what the interpreter has read when the page's content ends:
+// it has gone through the page's /Annots and has asked every entry whether it is a dictionary.
+bool may_hold_fields(const Page& pg) {
+    for (const Obj& a : cos::array_items(cos::get(pg.dict, "Annots"))) {
+        const Obj subtype = cos::get(a, "Subtype");
+        if (subtype.isIndirect() || (subtype.isName() && subtype.getName() == "/Widget")) return true;
+    }
+    return false;
+}
+
+// A failure while a page was taken, thrown again by the check whose part it was.
+struct TakeFailure final : std::exception {
+    std::string message;
+    const char* what() const noexcept override { return message.c_str(); }
+};
 
 bool letter(char32_t c) {
     return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
@@ -196,79 +226,6 @@ std::string text_detail(const TextFacts& f, const TextJudgement& j, const Rect& 
     return d;
 }
 
-// WCAG 1.4.11 for form fields: the visual information that identifies the field (its border or background, ISO 32000-1 12.5.6.19
-// /MK) against the page around it. Read-only fields are inactive components (exempt); hidden fields are not shown. Only fields on a
-// page area the content leaves empty (or covers with one flat rectangle) are judged: elsewhere the page draws the frame itself. The
-// appearance stream decides what a viewer shows, /MK is what it is regenerated from, so a finding is always for review.
-void check_form_fields(ValidationContext& ctx) {
-    static const RuleIndex rule = R("EQX-WCAG-1.4.11-NonTextContrastReview");
-    const ContentModel& cm = ctx.content;
-    const auto& pages = ctx.doc.pages();
-    struct Field {
-        std::size_t page;
-        Obj annot;
-        Rect r;
-        const char* kind;
-        std::string label;
-        bool border, fill;
-        unsigned char bc[3], bg[3];
-    };
-    std::vector<Field> fields;
-    for (std::size_t pi = 0; pi < pages.size(); ++pi) {
-        for (const Obj& a : cos::array_items(cos::get(pages[pi].dict, "Annots"))) {
-            if (!cos::name_is(a, "Subtype", "Widget")) continue;
-            if (cos::integer(a, "F").value_or(0) & (1 | 2 | 32)) continue;   // Invisible, Hidden, NoView
-            auto r = cos::rect(cos::get(a, "Rect"));
-            if (!r || r->width() < 2 || r->height() < 2) continue;
-            std::optional<std::string> ft, label;
-            std::int64_t ff = -1;
-            Obj f = a;
-            for (int guard = 0; f.isDictionary() && guard < 64; ++guard) {
-                if (!ft) ft = cos::name(f, "FT");
-                if (ff < 0) ff = cos::integer(f, "Ff").value_or(-1);
-                if (!label) label = cos::text(f, "TU");
-                if (!label) label = cos::text(f, "T");
-                f = cos::get(f, "Parent");
-            }
-            if (!ft || (*ft != "Tx" && *ft != "Btn" && *ft != "Ch")) continue;
-            if (ff > 0 && (ff & 1)) continue;   // ReadOnly
-            Field fd{pi, a, *r, "", label.value_or(""), false, false, {}, {}};
-            Obj mk = cos::get(a, "MK");
-            fd.border = mk_colour(cos::get(mk, "BC"), fd.bc) && border_width(a) > 0;
-            fd.fill = mk_colour(cos::get(mk, "BG"), fd.bg);
-            if (!fd.border && !fd.fill) continue;   // no indicator of its own (a label or the page may identify it)
-            const std::int64_t flags = std::max<std::int64_t>(ff, 0);
-            fd.kind = *ft == "Tx" ? "text field" : *ft == "Ch" ? "choice field"
-                      : (flags & (1 << 16)) ? "push button" : (flags & (1 << 15)) ? "radio button" : "check box";
-            fields.push_back(std::move(fd));
-        }
-    }
-    if (fields.empty()) return;
-    // the painters of the pages that hold such fields
-    std::vector<std::vector<int>> painters(pages.size());
-    std::vector<char> wanted(pages.size(), 0);
-    for (const Field& f : fields) wanted[f.page] = 1;
-    for (std::size_t i = 0; i < cm.items.size(); ++i) {
-        const StreamInstance& s = cm.streams[std::size_t(cm.items[i].stream)];
-        if (s.page >= 0 && std::size_t(s.page) < pages.size() && wanted[std::size_t(s.page)] && s.semantic && is_painter(cm.items[i]))
-            painters[std::size_t(s.page)].push_back(int(i));
-    }
-    for (const Field& f : fields) {
-        unsigned char page_bg[3];
-        if (!flat_background(cm, painters[f.page], f.r, page_bg)) continue;
-        const double rb = f.border ? contrast8(f.bc, page_bg) : 0, rf = f.fill ? contrast8(f.bg, page_bg) : 0;
-        if (std::max(rb, rf) >= 3.0) continue;
-        std::string d = "WCAG 1.4.11 manual review: form field";
-        if (!f.label.empty()) d += " \"" + excerpt(f.label) + "\"";
-        d += std::string(" (") + f.kind + "): its boundary has " + ratio_str(std::max(rb, rf)) + " against the page " + hex(page_bg) + " (";
-        if (f.border) d += "border " + hex(f.bc) + " " + ratio_str(rb);
-        if (f.fill) d += std::string(f.border ? ", " : "") + "background " + hex(f.bg) + " " + ratio_str(rf);
-        d += "), required 3:1 unless something else identifies the field; colours from /MK, the appearance stream decides what is shown; " +
-             box_str(f.r);
-        ctx.report(rule, int(f.page), ref_of(f.annot), d);
-    }
-}
-
 // WCAG 1.4.1: text set apart from the text next to it on the same line by colour alone, the way links commonly are (failure F73).
 // Same font and size, no underline below it, and the two colours less than 3:1 apart (Understanding 1.4.1: a lightness difference
 // of 3:1 is a distinction of its own). The reference is the page's usual colour for that font and size, so only the text that differs
@@ -286,11 +243,25 @@ struct ColourRun {
 
 std::uint32_t colour_key(const unsigned char* c) { return std::uint32_t(c[0]) << 16 | std::uint32_t(c[1]) << 8 | c[2]; }
 
-void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>& rs, std::vector<ColourRun>& scratch,
-                 const std::vector<int>& thin) {
-    static const RuleIndex rule = R("EQX-WCAG-1.4.1-UseOfColorReview");
-    const ContentModel& cm = ctx.content;
-    // the usual colour per font and size (letters), and the links of the page
+// A phrase colour_page reports unless a link frame around it or around its neighbour is a visual cue of its own.
+struct ColourCandidate {
+    int stream = -1;             // of its first run
+    double x0 = 0, x1 = 0, base = 0, size = 0;
+    double o0 = 0, o1 = 0;       // the neighbour phrase
+    unsigned char rgb[3] = {0, 0, 0}, other[3] = {0, 0, 0};
+    std::string text;            // as the detail shows it
+};
+
+// A page whose text runs were analysed (two runs or more): its link annotations are read when it is reported.
+struct ColourPage {
+    std::size_t page = 0;
+    std::vector<ColourCandidate> candidates;
+};
+
+// The analysis of a page's runs: everything of the check that needs the content alone.
+void colour_page(const ContentModel& cm, std::vector<ColourRun>& rs, std::vector<ColourRun>& scratch, const std::vector<int>& thin,
+                 std::vector<ColourCandidate>& candidates) {
+    // the usual colour per font and size (letters)
     std::map<std::pair<int, long>, std::map<std::uint32_t, int>> usage;
     // (font, size in tenths of a point); the rounded size of the size asked last is kept: runs of one size come in rows
     double style_size = 0;
@@ -308,15 +279,6 @@ void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>&
     std::map<std::pair<int, long>, std::uint32_t> usual;
     for (const auto& [k, m] : usage)
         usual[k] = std::max_element(m.begin(), m.end(), [](const auto& x, const auto& y) { return x.second < y.second; })->first;
-    struct Link {
-        Rect r;
-        bool framed;
-    };
-    std::vector<Link> links;
-    for (const Obj& a : cos::array_items(cos::get(ctx.doc.pages()[pi].dict, "Annots"))) {
-        if (!cos::name_is(a, "Subtype", "Link")) continue;
-        if (auto r = cos::rect(cos::get(a, "Rect"))) links.push_back({*r, border_width(a) > 0 && !cos::array_items(cos::get(a, "C")).empty()});
-    }
     sort_by_base_x0(rs, scratch);   // std::sort by (base, x0)
     std::vector<const ColourRun*> line;
     for (std::size_t a = 0; a < rs.size();) {
@@ -389,33 +351,64 @@ void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>&
             // phrase can be the body text when the page's usual colour for this font and size is that of its links.
             const double o0 = line[other_phrase->first]->x0, o1 = line[other_phrase->last]->x1;
             if (underlined(x0, x1) || underlined(o0, o1)) continue;
-            const double cx = (x0 + x1) / 2, cy = base + 0.3 * size, ocx = (o0 + o1) / 2;
-            bool link = false, framed = false;
-            for (const Link& lk : links) {
-                if (lk.r.contains(cx, cy)) link = true, framed = framed || lk.framed;
-                if (lk.r.contains(ocx, cy) && lk.framed) framed = true;
-            }
-            if (framed) continue;   // the link border is a visual cue of its own
+            // What is left is whether a link frames one of the two phrases (report_colour_page), and the report.
+            ColourCandidate c;
+            c.stream = cm.items[std::size_t(f.item)].stream;
+            c.x0 = x0, c.x1 = x1, c.base = base, c.size = size, c.o0 = o0, c.o1 = o1;
+            std::copy(f.rgb, f.rgb + 3, c.rgb);
+            std::copy(other->rgb, other->rgb + 3, c.other);
             std::string text;
             for (std::size_t q = ph[k].first; q <= ph[k].last; ++q)
                 text += to_utf8(cm.texts[std::size_t(cm.items[std::size_t(line[q]->item)].text)].text);
-            char size_s[32];
-            std::snprintf(size_s, sizeof size_s, "%.1f pt", size);
-            const std::string d = "WCAG 1.4.1 manual review: \"" + excerpt(text) + "\" (" + hex(f.rgb) + ") is set apart from the adjacent text (" +
-                                  hex(other->rgb) + ") by colour alone: same font and size (" + size_s + "), no underline, the two colours " +
-                                  ratio_str(contrast8(f.rgb, other->rgb)) + " apart (3:1 or another visual cue needed if the colour carries meaning)" +
-                                  (link ? "; it is a link" : "") + "; " + box_str(Rect{x0, base - 0.2 * size, x1, base + 0.8 * size});
-            const StreamInstance& s = cm.streams[std::size_t(cm.items[std::size_t(f.item)].stream)];
-            ctx.report(rule, s.page, s.ref, d);
+            c.text = excerpt(std::move(text));
+            candidates.push_back(std::move(c));
         }
+    }
+}
+
+// The links of the page, and the findings among the page's candidates.
+void report_colour_page(ValidationContext& ctx, const ColourPage& cp) {
+    static const RuleIndex rule = R("EQX-WCAG-1.4.1-UseOfColorReview");
+    const ContentModel& cm = ctx.content;
+    struct Link {
+        Rect r;
+        bool framed;
+    };
+    std::vector<Link> links;
+    for (const Obj& a : cos::array_items(cos::get(ctx.doc.pages()[cp.page].dict, "Annots"))) {
+        if (!cos::name_is(a, "Subtype", "Link")) continue;
+        if (auto r = cos::rect(cos::get(a, "Rect"))) links.push_back({*r, border_width(a) > 0 && !cos::array_items(cos::get(a, "C")).empty()});
+    }
+    for (const ColourCandidate& c : cp.candidates) {
+        const double x0 = c.x0, x1 = c.x1, base = c.base, size = c.size, o0 = c.o0, o1 = c.o1;
+        const double cx = (x0 + x1) / 2, cy = base + 0.3 * size, ocx = (o0 + o1) / 2;
+        bool link = false, framed = false;
+        for (const Link& lk : links) {
+            if (lk.r.contains(cx, cy)) link = true, framed = framed || lk.framed;
+            if (lk.r.contains(ocx, cy) && lk.framed) framed = true;
+        }
+        if (framed) continue;   // the link border is a visual cue of its own
+        char size_s[32];
+        std::snprintf(size_s, sizeof size_s, "%.1f pt", size);
+        const std::string d = "WCAG 1.4.1 manual review: \"" + c.text + "\" (" + hex(c.rgb) + ") is set apart from the adjacent text (" +
+                              hex(c.other) + ") by colour alone: same font and size (" + size_s + "), no underline, the two colours " +
+                              ratio_str(contrast8(c.rgb, c.other)) + " apart (3:1 or another visual cue needed if the colour carries meaning)" +
+                              (link ? "; it is a link" : "") + "; " + box_str(Rect{x0, base - 0.2 * size, x1, base + 0.8 * size});
+        const StreamInstance& s = cm.streams[std::size_t(c.stream)];
+        ctx.report(rule, s.page, s.ref, d);
     }
 }
 
 }  // namespace
 
-void check_use_of_color(ValidationContext& ctx) {
-    const ContentModel& cm = ctx.content;
-    const std::size_t npages = ctx.doc.pages().size();
+struct ContentColours::State {
+    // form fields: the painted items per page, for the pages that may hold a field
+    std::unordered_map<std::size_t, std::vector<Painter>> painters;
+    int asked_page = -1;         // the page may_hold_fields was asked for last, and its answer
+    bool asked_wanted = false;
+    bool painters_failed = false;
+    std::string painters_what;
+    // use of colour: the loop over the items of check_use_of_color as it was, and what it found per page
     std::vector<ColourRun> runs, scratch;
     std::vector<int> thin;   // painted paths: underline candidates
     std::map<std::string, int> font_ids;
@@ -423,12 +416,92 @@ void check_use_of_color(ValidationContext& ctx) {
     const Font* last_font = nullptr;
     int last_font_id = 0;
     int page = -1;
+    std::vector<ColourPage> pages;
+    bool colour_failed = false;
+    std::string colour_what;
+
+    void take_painters(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end);
+    void take_colours(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end);
+};
+
+namespace {
+
+const std::vector<Painter>& painters_of(const ContentColours& taken, std::size_t page) {
+    static const std::vector<Painter> none;
+    const auto pos = taken.state->painters.find(page);
+    return pos == taken.state->painters.end() ? none : pos->second;
+}
+
+void painters_failure(const ContentColours& taken) {
+    if (!taken.state->painters_failed) return;
+    TakeFailure f;
+    f.message = taken.state->painters_what;
+    throw f;
+}
+
+template <class F>
+void guarded(bool& failed, std::string& what, F&& work) {
+    try {
+        work();
+    } catch (const std::exception& e) {
+        failed = true;
+        try {
+            what = e.what();
+        } catch (...) {
+            what.clear();
+        }
+    }
+}
+
+}  // namespace
+
+ContentColours::ContentColours() : state(std::make_unique<State>()) {}
+ContentColours::~ContentColours() = default;
+
+void ContentColours::take(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end) {
+    State& st = *state;
+    // A failure here (memory) is one the check would have had reading the same items: it is kept, that part takes
+    // nothing more, and its check throws it.
+    if (!st.painters_failed) guarded(st.painters_failed, st.painters_what, [&] { st.take_painters(cm, doc, begin, end); });
+    if (!st.colour_failed) guarded(st.colour_failed, st.colour_what, [&] { st.take_colours(cm, doc, begin, end); });
+}
+
+void ContentColours::State::take_painters(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end) {
+    const auto& pages = doc.pages();
+    for (std::size_t i = begin; i < end; ++i) {
+        const ContentItem& it = cm.items[i];
+        const StreamInstance& s = cm.streams[std::size_t(it.stream)];
+        if (!(s.page >= 0 && std::size_t(s.page) < pages.size() && s.semantic && is_painter(it))) continue;
+        if (s.page != asked_page) {
+            asked_page = s.page;
+            asked_wanted = may_hold_fields(pages[std::size_t(s.page)]);
+        }
+        if (!asked_wanted) continue;
+        Painter p;
+        p.bbox = it.bbox;
+        p.fill = it.fill;
+        p.fill_alpha = it.fill_alpha;
+        p.kind = it.kind;
+        p.paint = it.paint;
+        p.bbox_valid = it.bbox_valid;
+        p.exact_rect = it.exact_rect;
+        painters[std::size_t(s.page)].push_back(p);
+    }
+}
+
+// The items of a page follow each other in the content model and are taken in one call, so the runs of a page are
+// analysed when its items have been gone through (flush), as they were when the first item of the next page came.
+void ContentColours::State::take_colours(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end) {
+    const std::size_t npages = doc.pages().size();
     auto flush = [&]() {
-        if (page >= 0 && runs.size() >= 2) colour_page(ctx, std::size_t(page), runs, scratch, thin);
+        if (page >= 0 && runs.size() >= 2) {
+            pages.push_back({std::size_t(page), {}});
+            colour_page(cm, runs, scratch, thin, pages.back().candidates);
+        }
         runs.clear();
         thin.clear();
     };
-    for (std::size_t i = 0; i < cm.items.size(); ++i) {
+    for (std::size_t i = begin; i < end; ++i) {
         const ContentItem& it = cm.items[i];
         const StreamInstance& s = cm.streams[std::size_t(it.stream)];
         if (!s.semantic || s.page < 0 || std::size_t(s.page) >= npages || !it.bbox_valid) continue;
@@ -461,6 +534,81 @@ void check_use_of_color(ValidationContext& ctx) {
         runs.push_back(r);
     }
     flush();
+}
+
+void check_use_of_color(ValidationContext& ctx, const ContentColours& taken) {
+    for (const ColourPage& cp : taken.state->pages) report_colour_page(ctx, cp);
+    if (taken.state->colour_failed) {
+        TakeFailure f;
+        f.message = taken.state->colour_what;
+        throw f;
+    }
+}
+
+// WCAG 1.4.11 for form fields: the visual information that identifies the field (its border or background, ISO 32000-1 12.5.6.19
+// /MK) against the page around it. Read-only fields are inactive components (exempt); hidden fields are not shown. Only fields on a
+// page area the content leaves empty (or covers with one flat rectangle) are judged: elsewhere the page draws the frame itself. The
+// appearance stream decides what a viewer shows, /MK is what it is regenerated from, so a finding is always for review.
+void check_form_fields(ValidationContext& ctx, const ContentColours& taken) {
+    static const RuleIndex rule = R("EQX-WCAG-1.4.11-NonTextContrastReview");
+    const auto& pages = ctx.doc.pages();
+    struct Field {
+        std::size_t page;
+        Obj annot;
+        Rect r;
+        const char* kind;
+        std::string label;
+        bool border, fill;
+        unsigned char bc[3], bg[3];
+    };
+    std::vector<Field> fields;
+    for (std::size_t pi = 0; pi < pages.size(); ++pi) {
+        for (const Obj& a : cos::array_items(cos::get(pages[pi].dict, "Annots"))) {
+            if (!cos::name_is(a, "Subtype", "Widget")) continue;
+            if (cos::integer(a, "F").value_or(0) & (1 | 2 | 32)) continue;   // Invisible, Hidden, NoView
+            auto r = cos::rect(cos::get(a, "Rect"));
+            if (!r || r->width() < 2 || r->height() < 2) continue;
+            std::optional<std::string> ft, label;
+            std::int64_t ff = -1;
+            Obj f = a;
+            for (int guard = 0; f.isDictionary() && guard < 64; ++guard) {
+                if (!ft) ft = cos::name(f, "FT");
+                if (ff < 0) ff = cos::integer(f, "Ff").value_or(-1);
+                if (!label) label = cos::text(f, "TU");
+                if (!label) label = cos::text(f, "T");
+                f = cos::get(f, "Parent");
+            }
+            if (!ft || (*ft != "Tx" && *ft != "Btn" && *ft != "Ch")) continue;
+            if (ff > 0 && (ff & 1)) continue;   // ReadOnly
+            Field fd{pi, a, *r, "", label.value_or(""), false, false, {}, {}};
+            Obj mk = cos::get(a, "MK");
+            fd.border = mk_colour(cos::get(mk, "BC"), fd.bc) && border_width(a) > 0;
+            fd.fill = mk_colour(cos::get(mk, "BG"), fd.bg);
+            if (!fd.border && !fd.fill) continue;   // no indicator of its own (a label or the page may identify it)
+            const std::int64_t flags = std::max<std::int64_t>(ff, 0);
+            fd.kind = *ft == "Tx" ? "text field" : *ft == "Ch" ? "choice field"
+                      : (flags & (1 << 16)) ? "push button" : (flags & (1 << 15)) ? "radio button" : "check box";
+            fields.push_back(std::move(fd));
+        }
+    }
+    if (fields.empty()) return;
+    // the painters of the pages that hold such fields: taken with the pages (ContentColours::take keeps those of
+    // every page that may hold a field, see may_hold_fields)
+    painters_failure(taken);
+    for (const Field& f : fields) {
+        unsigned char page_bg[3];
+        if (!flat_background(painters_of(taken, f.page), f.r, page_bg)) continue;
+        const double rb = f.border ? contrast8(f.bc, page_bg) : 0, rf = f.fill ? contrast8(f.bg, page_bg) : 0;
+        if (std::max(rb, rf) >= 3.0) continue;
+        std::string d = "WCAG 1.4.11 manual review: form field";
+        if (!f.label.empty()) d += " \"" + excerpt(f.label) + "\"";
+        d += std::string(" (") + f.kind + "): its boundary has " + ratio_str(std::max(rb, rf)) + " against the page " + hex(page_bg) + " (";
+        if (f.border) d += "border " + hex(f.bc) + " " + ratio_str(rb);
+        if (f.fill) d += std::string(f.border ? ", " : "") + "background " + hex(f.bg) + " " + ratio_str(rf);
+        d += "), required 3:1 unless something else identifies the field; colours from /MK, the appearance stream decides what is shown; " +
+             box_str(f.r);
+        ctx.report(rule, int(f.page), ref_of(f.annot), d);
+    }
 }
 
 }  // namespace eqx::wcag

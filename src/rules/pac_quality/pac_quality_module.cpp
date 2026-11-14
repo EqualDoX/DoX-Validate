@@ -61,31 +61,6 @@ std::string std17(const StructElem& e) {
     return e.std17.value_or(std::string());
 }
 
-// Text accumulation over text runs in content order: a space is inserted between runs on different
-// lines or separated by a visible gap, so words of separate lines/operators do not merge.
-struct TextAcc {
-    std::u32string text;
-    std::uint32_t unmapped = 0;
-    std::uint32_t glyphs = 0;
-    Rect last;
-    bool has_last = false;
-
-    void add(const TextRun& r) {
-        glyphs += r.glyphs;
-        unmapped += r.unmapped;
-        if (r.text.empty()) return;
-        if (has_last && !text.empty() && !pacq::is_whitespace(text.back()) && !pacq::is_whitespace(r.text.front())) {
-            double h = std::max(1.0, std::min(last.height(), r.bbox.height()));
-            bool new_line = std::fabs(r.bbox.lly - last.lly) > 0.5 * h;
-            bool gap = r.bbox.llx - last.urx > 0.25 * h;
-            if (new_line || gap) text.push_back(U' ');
-        }
-        text += r.text;
-        last = r.bbox;
-        has_last = true;
-    }
-};
-
 void unite(Rect& acc, bool& valid, const Rect& r) {
     if (!valid) {
         acc = r;
@@ -98,7 +73,6 @@ void unite(Rect& acc, bool& valid, const Rect& r) {
     acc.ury = std::max(acc.ury, r.ury);
 }
 
-// Content of one marked-content sequence with an MCID.
 // Ascent of a font in em (FontDescriptor /Ascent / 1000; Type 0: of the descendant), 0.8 (the glyph box top
 // used everywhere else) when the descriptor gives none or an implausible value. Used for the heading top that
 // PAC's TOCI destination check measures from (Phase 3 calibration, see check_toc_destination).
@@ -113,42 +87,67 @@ double ascent_em(const Font* f) {
     return a && *a > 0 && *a < 2500 ? *a / 1000.0 : 0.8;
 }
 
-// ascent_em per font: the font dictionary is read once per font, not once per text item.
-struct AscentCache {
-    std::unordered_map<const Font*, double> by_font;
+// --- Content gathered page by page ---------------------------------------------------------------------
+// The content of the marked-content sequences is gathered from the content items when their page's content stream
+// has ended (Module::take), so the content model need not keep the items until the module runs. Gathering reads the
+// content model only. The one thing it needed of the PDF's objects, a font's ascent (ascent_em reads the font
+// descriptor), is left to gather_content(): the fonts are noted in the order their ascent was asked first, and
+// the text items that can decide a sequence's ascent top are kept as numbers (AscentTops).
+
+// The fonts whose ascent the gathering asked for, in the order of the first request.
+struct AscentFonts {
+    std::vector<const Font*> fonts;
+    std::unordered_map<const Font*, std::uint32_t> index;
     const Font* last = nullptr;
-    double last_value = 0;
-    bool have_last = false;
-    double of(const Font* f) {
-        if (have_last && f == last) return last_value;
-        auto pos = by_font.find(f);
-        if (pos == by_font.end()) pos = by_font.emplace(f, ascent_em(f)).first;
+    std::uint32_t last_index = 0;
+    std::uint32_t of(const Font* f) {
+        if (!fonts.empty() && f == last) return last_index;
+        auto [pos, fresh] = index.emplace(f, static_cast<std::uint32_t>(fonts.size()));
+        if (fresh) fonts.push_back(f);
         last = f;
-        last_value = pos->second;
-        have_last = true;
-        return last_value;
+        last_index = pos->second;
+        return last_index;
     }
 };
 
+// Content of one marked-content sequence with an MCID (or of the items a Form XObject's /StructParent gives to an
+// element). The text is that of its text runs in content order: a space is inserted between runs on different lines
+// or separated by a visible gap, so words of separate lines/operators do not merge.
 struct McContent {
     int frame = -1;
     int page = -1;
-    double ascent_top = 0;        // highest baseline + Ascent * size of its text items (upright text)
-    bool ascent_top_valid = false;
-    TextAcc acc;
+    pacq::PackedText text;
+    std::uint32_t unmapped = 0;
+    std::uint32_t glyphs = 0;
+    Rect last;                // box of the last run with text
+    bool has_last = false;
     bool nontext = false;     // images, paths, shadings
-    Rect box;                 // union of all item boxes on the page
     bool box_valid = false;
+    bool ascent_top_valid = false;
+    Rect box;                 // union of all item boxes on the page
+    double ascent_top = 0;    // highest baseline + Ascent * size of its text items (upright text); set by gather_content
+    pacq::AscentTops tops;
 
-    void add_item(const ContentItem& it, const TextRun* run, AscentCache& ascents) {
+    void add_text(const TextRun& r) {
+        glyphs += r.glyphs;
+        unmapped += r.unmapped;
+        if (r.text.empty()) return;
+        if (has_last && !text.empty() && !pacq::is_whitespace(text.back()) && !pacq::is_whitespace(r.text.front())) {
+            double h = std::max(1.0, std::min(last.height(), r.bbox.height()));
+            bool new_line = std::fabs(r.bbox.lly - last.lly) > 0.5 * h;
+            bool gap = r.bbox.llx - last.urx > 0.25 * h;
+            if (new_line || gap) text.push_back(U' ');
+        }
+        text.append(r.text);
+        last = r.bbox;
+        has_last = true;
+    }
+
+    void add_item(const ContentItem& it, const TextRun* run, AscentFonts& fonts) {
         if (run) {
-            acc.add(*run);
-            if (it.bbox_valid && run->size_user > 0) {
-                // the item box spans -0.2 .. +0.8 em around the baseline
-                const double top = it.bbox.ury - 0.8 * run->size_user + ascents.of(run->font) * run->size_user;
-                if (!ascent_top_valid || top > ascent_top) ascent_top = top;
-                ascent_top_valid = true;
-            }
+            add_text(*run);
+            // the item box spans -0.2 .. +0.8 em around the baseline
+            if (it.bbox_valid && run->size_user > 0) tops.add(fonts.of(run->font), run->size_user, it.bbox.ury);
         } else {
             nontext = true;
         }
@@ -163,25 +162,48 @@ McContent make_mc(int frame, int page) {
     return m;
 }
 
+// Content of a marked-content sequence without MCID that is no artifact: only its place is judged.
+struct PlainContent {
+    int page = -1;
+    bool box_valid = false;
+    Rect box;
+
+    void add_item(const ContentItem& it, const TextRun* run, AscentFonts& fonts) {
+        if (run && it.bbox_valid && run->size_user > 0) fonts.of(run->font);   // the ascent was asked for here as well
+        if (it.bbox_valid) unite(box, box_valid, it.bbox);
+    }
+};
+
+// Text accumulation of an element with its descendants (full_text).
+struct TextAcc {
+    std::u32string text;
+    std::uint32_t unmapped = 0;
+    std::uint32_t glyphs = 0;
+};
+
 // Own content of a structure element: the marked-content sequences its MCID / MCR kids reference (in /K
-// order), plus content attributed to it only through a Form XObject's /StructParent.
+// order), plus content attributed to it only through a Form XObject's /StructParent. Its text is that of the
+// sequences in this order, with a space between two that would run into each other (Module::own_text); kept here
+// is what the checks ask of that text without reading it.
 struct ElemContent {
-    TextAcc acc;
+    std::uint32_t unmapped = 0;
+    std::uint32_t glyphs = 0;
     bool nontext = false;
     bool has_items = false;
+    bool box_valid = false;
+    bool ascent_top_valid = false;
+    bool blank = true;           // every code point of the text is white space (also: no text)
+    bool blank_or_nul = true;    // ... is white space or U+0000
     int page = -1;            // page of the first own content
     Rect box;                 // union of own content boxes on `page`
-    bool box_valid = false;
     double ascent_top = 0;    // highest ascent top of the text on `page` (McContent::ascent_top)
-    bool ascent_top_valid = false;
 
     void add(const McContent& mc) {
-        if (!mc.acc.text.empty() && !acc.text.empty() && !pacq::is_whitespace(acc.text.back()) &&
-            !pacq::is_whitespace(mc.acc.text.front()))
-            acc.text.push_back(U' ');
-        acc.text += mc.acc.text;
-        acc.unmapped += mc.acc.unmapped;
-        acc.glyphs += mc.acc.glyphs;
+        // (the space that may come between two texts is white space)
+        blank = blank && mc.text.all_of([](char32_t c) { return pacq::is_whitespace(c); });
+        blank_or_nul = blank_or_nul && mc.text.all_of([](char32_t c) { return c == U'\0' || pacq::is_whitespace(c); });
+        unmapped += mc.unmapped;
+        glyphs += mc.glyphs;
         nontext = nontext || mc.nontext;
         if (!has_items) page = mc.page;
         has_items = true;
@@ -191,6 +213,12 @@ struct ElemContent {
             ascent_top_valid = true;
         }
     }
+};
+
+// A failure while a page was taken, thrown again where run() would have met it.
+struct TakeFailure final : std::exception {
+    std::string message;
+    const char* what() const noexcept override { return message.c_str(); }
 };
 
 // Explicit destination of a link (ISO 32000-1 12.3.2.2).
@@ -430,8 +458,11 @@ public:
     void prepare(ValidationContext& ctx, std::vector<ContentObserver*>& observers) override {
         // The contrast engine also measures EqualDoX's WCAG colour rules (wcag_color.h), which apply to every PDF version; on PDF 2.0
         // the engine removes the PAC findings it makes as well.
+        ctx_ = &ctx;
         contrast_ = pacc::make_contrast_observer(ctx);
         observers.push_back(contrast_.get());
+        tap_.module = this;
+        observers.push_back(&tap_);   // the content items, page by page (take)
         // A rule selection of WCAG rules only (dox-validate --rules EQX-WCAG-): the contrast engine and the WCAG checks, nothing of PAC's.
         wcag_only_ = !ctx.selected.empty();
         for (RuleIndex r : owned_rules(name()))
@@ -443,8 +474,9 @@ public:
 
     void run(ValidationContext& ctx) override {
         ctx_ = &ctx;
-        wcag::check_form_fields(ctx);
-        wcag::check_use_of_color(ctx);
+        take(ctx.content);   // what no page end delivered (the interpretation stopped inside a page)
+        wcag::check_form_fields(ctx, colours_);
+        wcag::check_use_of_color(ctx, colours_);
         if (wcag_only_) {   // the contrast engine reported the WCAG text and figure findings while the content was interpreted
             contrast_.reset();
             return;
@@ -560,10 +592,28 @@ private:
     std::unique_ptr<ContentObserver> contrast_;
     UnmappedCodes unmapped_;
     OperatorStates states_;
+    // The content items are taken when their page's content stream ends.
+    struct PageTap final : ContentObserver {
+        Module* module = nullptr;
+        void on_stream_end(const ContentModel& cm, int si) override {
+            if (cm.streams[std::size_t(si)].kind == StreamInstance::Kind::Page) module->take(cm);
+        }
+    };
+    PageTap tap_;
+    std::size_t taken_ = 0;                // the items before it were taken
+    wcag::ContentColours colours_;         // for the two WCAG checks that read content items
+    bool gather_failed_ = false;           // gathering failed while a page was taken: gather_content throws it
+    std::string gather_what_;
     std::vector<ElemContent> elem_content_;
-    std::vector<McContent> mcid_mc_;       // tagged marked content (own MCID)
-    std::map<int, McContent> plain_mc_;    // frame -> content of a marked-content sequence without MCID, not an artifact
+    ChunkedVector<McContent, 256> mcid_mc_;       // tagged marked content (own MCID)
+    std::unordered_map<int, int> mcid_index_;     // frame -> its entry in mcid_mc_, for the frames of the page being taken
+    std::map<int, PlainContent> plain_mc_;        // frame -> content of a marked-content sequence without MCID, not an artifact
+    std::unordered_map<int, McContent> stream_parent_content_;   // element -> content via /StructParent only
+    std::vector<int> stream_parent_order_;
+    AscentFonts ascent_fonts_;
     std::vector<int> mc_owner_;            // per mcid_mc_: element whose MCID/MCR kid names it (-1 none)
+    std::vector<std::uint32_t> elem_mc_begin_;    // per element: where its sequences start in elem_mcs_ (and one more entry)
+    std::vector<int> elem_mcs_;                   // the sequences (mcid_mc_) of the elements, per element in /K order
     bool catalog_lang_ = false;
     bool dest_names_built_ = false;
     std::unordered_map<std::string, Obj> dest_names_;
@@ -595,25 +645,44 @@ private:
         return found;
     }
 
-    void gather_content() {
-        const ContentModel& cm = ctx_->content;
+    // Takes the items that were not taken yet: those of the page that has ended, or, called from run(), what an
+    // interpretation that stopped early left.
+    void take(const ContentModel& cm) {
+        const std::size_t begin = taken_, end = cm.items.size();
+        taken_ = end;
+        if (begin >= end) return;
+        colours_.take(cm, ctx_->doc, begin, end);
+        if (wcag_only_ || gather_failed_) return;
+        // A failure here (memory) is one gather_content would have had reading the same items: kept, and thrown there.
+        try {
+            take_content(cm, begin, end);
+        } catch (const std::exception& e) {
+            gather_failed_ = true;
+            try {
+                gather_what_ = e.what();
+            } catch (...) {
+                gather_what_.clear();
+            }
+        }
+    }
+
+    // The loop of gather_content over the content items, for the items [begin, end) of one page.
+    void take_content(const ContentModel& cm, std::size_t begin, std::size_t end) {
         const StructTree& st = ctx_->st;
-        elem_content_.assign(st.elems().size(), ElemContent{});
-        std::unordered_map<int, int> mcid_index;
-        std::unordered_map<int, McContent> stream_parent_content;   // element -> content via /StructParent only
-        std::vector<int> stream_parent_order;
-        AscentCache ascents;
+        AscentFonts& ascents = ascent_fonts_;
+        mcid_index_.clear();   // a sequence gets items of its own page only
         // Content items come in runs of one marked-content sequence: what depends only on (stream, frame) or on the
         // stream is looked up when that changes, not for every item.
         int run_stream = -1, run_frame = -2;   // the (stream, frame) the values below belong to
         int mf = -1;                            // mcid_frame of it
         bool in_artifact = false;               // mf < 0 and inside an /Artifact sequence
         int mc_at = -1;                         // index in mcid_mc_ of mf (-1: not looked up yet)
-        McContent* plain = nullptr;             // entry of plain_mc_ for the frame (nullptr: not looked up yet)
+        PlainContent* plain = nullptr;          // entry of plain_mc_ for the frame (nullptr: not looked up yet)
         int sp_stream = -1;                     // the stream the two values below belong to
         int sp_elem = -1;                       // element named by the stream's structure parent (-1 none)
-        McContent* sp_content = nullptr;        // its entry in stream_parent_content
-        for (const ContentItem& it : cm.items) {
+        McContent* sp_content = nullptr;        // its entry in stream_parent_content_
+        for (std::size_t i = begin; i < end; ++i) {
+            const ContentItem& it = cm.items[i];
             if (it.stream < 0 || !cm.streams[it.stream].semantic) continue;
             std::optional<TextRun> run_view;   // cm.texts[i] is a view, built on access
             if (it.kind == ContentItem::Kind::Text && it.text >= 0) run_view.emplace(cm.texts[it.text]);
@@ -633,7 +702,7 @@ private:
             if (in_artifact) continue;
             if (mf >= 0) {
                 if (mc_at < 0) {
-                    auto [pos, fresh] = mcid_index.emplace(mf, int(mcid_mc_.size()));
+                    auto [pos, fresh] = mcid_index_.emplace(mf, int(mcid_mc_.size()));
                     if (fresh) mcid_mc_.push_back(make_mc(mf, page));
                     mc_at = pos->second;
                 }
@@ -646,26 +715,52 @@ private:
             if (it.frame >= 0) {
                 if (!plain) {
                     auto pos = plain_mc_.find(it.frame);
-                    if (pos == plain_mc_.end()) pos = plain_mc_.emplace(it.frame, make_mc(it.frame, page)).first;
+                    if (pos == plain_mc_.end()) {
+                        PlainContent pc;
+                        pc.page = page;
+                        pos = plain_mc_.emplace(it.frame, pc).first;
+                    }
                     plain = &pos->second;   // map nodes stay where they are
                 }
                 plain->add_item(it, run, ascents);
             }
-            // A Form XObject whose own /StructParent names the element.
+            // A Form XObject whose own /StructParent names the element. (The stream's structure parent was read when the
+            // stream instance was made: asking whether it is a dictionary reads nothing new.)
             if (it.stream != sp_stream) {
                 sp_stream = it.stream;
                 const Obj& se = cm.streams[it.stream].parent_struct_elem;
                 sp_elem = se.isDictionary() ? st.find(ref_of(se)) : -1;
                 sp_content = nullptr;
                 if (sp_elem >= 0) {
-                    auto [pos, fresh] = stream_parent_content.emplace(sp_elem, make_mc(-1, page));
-                    if (fresh) stream_parent_order.push_back(sp_elem);
+                    auto [pos, fresh] = stream_parent_content_.emplace(sp_elem, make_mc(-1, page));
+                    if (fresh) stream_parent_order_.push_back(sp_elem);
                     sp_content = &pos->second;   // references into an unordered_map survive rehashing
                 }
             }
             if (sp_elem < 0) continue;
             sp_content->add_item(it, run, ascents);
         }
+    }
+
+    void gather_content() {
+        const ContentModel& cm = ctx_->content;
+        const StructTree& st = ctx_->st;
+        elem_content_.assign(st.elems().size(), ElemContent{});
+        // The content items were gathered page by page (take_content). What that left: the ascent of every font, asked
+        // in the order the items asked for it, and with it the ascent top of every sequence.
+        if (gather_failed_) {
+            TakeFailure f;
+            f.message = gather_what_;
+            throw f;
+        }
+        {
+            std::vector<double> ascent;
+            ascent.reserve(ascent_fonts_.fonts.size());
+            for (const Font* f : ascent_fonts_.fonts) ascent.push_back(ascent_em(f));
+            for (McContent& mc : mcid_mc_) mc.ascent_top_valid = mc.tops.resolve(ascent, mc.ascent_top);
+            for (auto& [elem, mc] : stream_parent_content_) mc.ascent_top_valid = mc.tops.resolve(ascent, mc.ascent_top);
+        }
+        mcid_index_ = {};
 
         // Structure -> content: an MCID kid names the sequence with that MCID on its page (/Pg), an MCR with
         // /Stm the one in that content stream. This does not depend on the ParentTree (U1-X03 has none,
@@ -685,7 +780,11 @@ private:
             // PAC finds all 21 P and H1 "white space only" and no linkable text.
         }
         mc_owner_.assign(mcid_mc_.size(), -1);
+        elem_mc_begin_.assign(st.elems().size() + 1, 0);
+        std::size_t at = 0;   // the elements come in the order of their indices
         for (const StructElem& e : st.elems()) {
+            if (std::size_t(e.index) != at) throw std::logic_error("pac_quality: the structure elements are not in the order of their indices");
+            elem_mc_begin_[at++] = std::uint32_t(elem_mcs_.size());
             ElemContent& ec = elem_content_[e.index];
             for (const StructKid& kid : e.kids) {
                 if ((kid.kind != StructKid::Kind::MCID && kid.kind != StructKid::Kind::MCR) || kid.mcid < 0) continue;
@@ -700,11 +799,25 @@ private:
                 if (f == by_key.end()) continue;
                 for (int m : f->second) {
                     ec.add(mcid_mc_[m]);
+                    elem_mcs_.push_back(m);
                     if (mc_owner_[m] < 0) mc_owner_[m] = e.index;
                 }
             }
         }
-        for (int ei : stream_parent_order) elem_content_[ei].add(stream_parent_content[ei]);
+        elem_mc_begin_[at] = std::uint32_t(elem_mcs_.size());
+        for (int ei : stream_parent_order_) elem_content_[ei].add(stream_parent_content_.at(ei));
+    }
+
+    // The text of an element's own content, appended to `out` (empty before): the texts of its sequences in /K
+    // order, then of what a Form XObject's /StructParent gives it, with a space between two texts that would
+    // otherwise join a non-space to a non-space.
+    void own_text(int i, std::u32string& out) const {
+        const auto join = [&](const pacq::PackedText& t) {
+            if (!t.empty() && !out.empty() && !pacq::is_whitespace(out.back()) && !pacq::is_whitespace(t.front())) out.push_back(U' ');
+            t.append_to(out);
+        };
+        for (std::uint32_t k = elem_mc_begin_[std::size_t(i)]; k < elem_mc_begin_[std::size_t(i) + 1]; ++k) join(mcid_mc_[std::size_t(elem_mcs_[k])].text);
+        if (auto sp = stream_parent_content_.find(i); sp != stream_parent_content_.end()) join(sp->second.text);
     }
 
     // Text of an element and its descendants (own content first, then the children in /K order).
@@ -713,12 +826,15 @@ private:
         TextAcc out;
         std::vector<int> stack{root};
         std::size_t budget = 100000;
+        std::u32string own;
         while (!stack.empty() && budget-- > 0) {
             int i = stack.back();
             stack.pop_back();
-            const TextAcc& a = elem_content_[i].acc;
-            if (!a.text.empty() && !out.text.empty() && !pacq::is_whitespace(out.text.back())) out.text.push_back(U' ');
-            out.text += a.text;
+            own.clear();
+            own_text(i, own);
+            const ElemContent& a = elem_content_[i];
+            if (!own.empty() && !out.text.empty() && !pacq::is_whitespace(out.text.back())) out.text.push_back(U' ');
+            out.text += own;
             out.unmapped += a.unmapped;
             out.glyphs += a.glyphs;
             const auto& kids = st.elem(i).elems;
@@ -795,9 +911,7 @@ private:
             const ElemContent& ec = elem_content_[k];
             // U+0000 counts as no text (tu_tu_zero: flagged). Glyphs without any mapping stay text (U1-F02 passes), except that PAC also flags a simple font without an encoding
             // (tu_noenc_ne_41): not reproduced, recorded.
-            std::u32string own = ec.acc.text;
-            own.erase(std::remove(own.begin(), own.end(), U'\0'), own.end());
-            if (ec.nontext || ec.acc.unmapped > 0 || !whitespace_only(own)) continue;
+            if (ec.nontext || ec.unmapped > 0 || !ec.blank_or_nul) continue;
             bool ok = true, located = ec.box_valid, content = ec.has_items;
             for (const StructKid& kid : e.kids) {
                 if (kid.kind == StructKid::Kind::OBJR) ok = false;
@@ -820,7 +934,7 @@ private:
         std::vector<char> has_text(n, 0);
         for (std::size_t k = n; k-- > 0;) {
             const ElemContent& ec = elem_content_[k];
-            if (ec.acc.unmapped > 0 || !whitespace_only(ec.acc.text)) has_text[k] = 1;
+            if (ec.unmapped > 0 || !ec.blank) has_text[k] = 1;
             for (int c : elems[k].elems)
                 if (c >= 0 && has_text[c]) has_text[k] = 1;
         }
@@ -1241,7 +1355,7 @@ private:
             if (owner < 0 && !form_shared && fr.struct_elem.isDictionary()) owner = st.find(ref_of(fr.struct_elem));
             // Without a structure tree no marked content can be in a Link (a real-world sample: MCIDs, no tree).
             if (owner >= 0 || !st.present()) {
-                if (auto url = pacq::find_linkable(mc.acc.text)) {
+                if (auto url = pacq::find_linkable(mc.text.str())) {
                     bool in_link = false;
                     for (int a = owner; a >= 0 && !in_link; a = st.elem(a).parent)
                         if (std17(st.elem(a)) == "Link") in_link = true;

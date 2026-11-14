@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -109,8 +110,24 @@ inline void sort_run_keys(std::vector<RunKey>& keys) {
     sort_by_base_x0(keys, scratch);
 }
 
-// Run after the interpretation (no rendering).
-void check_form_fields(ValidationContext& ctx);
-void check_use_of_color(ValidationContext& ctx);
+// What the two checks below need of the content items. It is taken page by page, when a page's content stream has
+// ended, so that the content model need not keep the items until the checks run: the painted items of the pages that
+// may hold a form field, and, for the use-of-colour check, the phrases it would report if no link frame decides
+// otherwise. Only the content model is read (and annotation dictionaries the interpreter has read already); the
+// PDF's objects are read and the findings reported by the checks, as before.
+class ContentColours {
+public:
+    ContentColours();
+    ~ContentColours();
+    // Takes the items [begin, end) of `cm`: those of one page in one call, in the order of the items.
+    void take(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end);
+
+    struct State;
+    std::unique_ptr<State> state;
+};
+
+// Run after the interpretation (no rendering), on what was taken of the whole content.
+void check_form_fields(ValidationContext& ctx, const ContentColours& taken);
+void check_use_of_color(ValidationContext& ctx, const ContentColours& taken);
 
 }  // namespace eqx::wcag
