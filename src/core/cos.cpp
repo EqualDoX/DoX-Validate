@@ -26,22 +26,63 @@ Obj dict_of(const Obj& h) {
     return Obj::newNull();
 }
 
-Obj get(const Obj& h, std::string_view key) {
-    Obj d = dict_of(h);
-    if (!d.isDictionary()) return Obj::newNull();
+namespace {
+
+// qpdf's spelling of a key: "/" + key. Keys of up to 14 characters stay in the string's own buffer.
+inline std::string slash_key(std::string_view key) {
     std::string k;
     k.reserve(key.size() + 1);
     k.push_back('/');
     k.append(key);
-    if (!d.hasKey(k)) return Obj::newNull();
-    return d.getKey(k);
+    return k;
+}
+
+// The value of key k ("/Key") in h, a dictionary or a stream (its dictionary): a pointer to the value, or nullptr
+// when h is neither, the key is missing, or the value is null (also an indirect reference to nothing). `hold` keeps
+// alive what the pointer may refer to. No null handle is created and no handle copied for the caller to inspect.
+#ifdef DOX_QPDF_PINNED
+// With the pinned, statically linked qpdf (CMake DOX_STATIC_DEPS) the dictionary is searched once, through the lookup
+// qpdf uses itself: BaseHandle::find returns the stored value, or an uninitialized handle when the key is missing
+// or the object is no dictionary. It is declared in qpdf's installed ObjectHandle.hh but not exported by the shared
+// library, which offers hasKey() and getKey() only: two searches for a present key.
+inline const Obj* value_of(const Obj& h, const std::string& k, Obj& hold) {
+    const Obj* v = &h.find(k);
+    if (!v->isInitialized()) {   // no such key in a dictionary, or h is not a dictionary
+        if (!h.isStream()) return nullptr;
+        hold = const_cast<Obj&>(h).getDict();
+        v = &hold.find(k);       // refers into the stream's dictionary, which the stream keeps
+        if (!v->isInitialized()) return nullptr;
+    }
+    return v->isNull() ? nullptr : v;
+}
+#else
+inline const Obj* value_of(const Obj& h, const std::string& k, Obj& hold) {
+    const Obj* d = &h;
+    if (!h.isDictionary()) {
+        if (!h.isStream()) return nullptr;
+        hold = const_cast<Obj&>(h).getDict();
+        if (!hold.isDictionary()) return nullptr;
+        d = &hold;
+    }
+    if (!d->hasKey(k)) return nullptr;   // false for a missing key and for a null value
+    hold = d->getKey(k);
+    return &hold;
+}
+#endif
+
+}  // namespace
+
+// h[key]. A missing key and a null value both give a direct null.
+Obj get(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    if (!v) return Obj::newNull();
+    return v == &hold ? std::move(hold) : *v;
 }
 
 bool has(const Obj& h, std::string_view key) {
-    Obj d = dict_of(h);
-    if (!d.isDictionary()) return false;
-    std::string k = "/" + std::string(key);
-    return d.hasKey(k) && !d.getKey(k).isNull();
+    Obj hold;
+    return value_of(h, slash_key(key), hold) != nullptr;
 }
 
 std::optional<std::string> name(const Obj& h) {
@@ -51,11 +92,20 @@ std::optional<std::string> name(const Obj& h) {
     return n;
 }
 
-std::optional<std::string> name(const Obj& h, std::string_view key) { return name(get(h, key)); }
+std::optional<std::string> name(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    return v ? name(*v) : std::nullopt;
+}
 
 bool name_is(const Obj& h, std::string_view key, std::string_view value) {
-    auto n = name(h, key);
-    return n && *n == value;
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    if (!v || !v->isName()) return false;
+    const std::string n = v->getName();
+    std::string_view s = n;
+    if (!s.empty() && s[0] == '/') s.remove_prefix(1);
+    return s == value;
 }
 
 std::optional<std::int64_t> integer(const Obj& h) {
@@ -63,7 +113,11 @@ std::optional<std::int64_t> integer(const Obj& h) {
     return std::nullopt;
 }
 
-std::optional<std::int64_t> integer(const Obj& h, std::string_view key) { return integer(get(h, key)); }
+std::optional<std::int64_t> integer(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    return v ? integer(*v) : std::nullopt;
+}
 
 std::optional<double> number(const Obj& h) {
     if (h.isInteger()) return static_cast<double>(h.getIntValue());
@@ -71,11 +125,16 @@ std::optional<double> number(const Obj& h) {
     return std::nullopt;
 }
 
-std::optional<double> number(const Obj& h, std::string_view key) { return number(get(h, key)); }
+std::optional<double> number(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    return v ? number(*v) : std::nullopt;
+}
 
 std::optional<bool> boolean(const Obj& h, std::string_view key) {
-    Obj v = get(h, key);
-    if (v.isBool()) return v.getBoolValue();
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    if (v && v->isBool()) return v->getBoolValue();
     return std::nullopt;
 }
 
@@ -84,14 +143,22 @@ std::optional<std::string> bytes(const Obj& h) {
     return std::nullopt;
 }
 
-std::optional<std::string> bytes(const Obj& h, std::string_view key) { return bytes(get(h, key)); }
+std::optional<std::string> bytes(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    return v ? bytes(*v) : std::nullopt;
+}
 
 std::optional<std::string> text(const Obj& h) {
     if (!h.isString()) return std::nullopt;
     return pdf_text_to_utf8(h.getStringValue());
 }
 
-std::optional<std::string> text(const Obj& h, std::string_view key) { return text(get(h, key)); }
+std::optional<std::string> text(const Obj& h, std::string_view key) {
+    Obj hold;
+    const Obj* v = value_of(h, slash_key(key), hold);
+    return v ? text(*v) : std::nullopt;
+}
 
 std::vector<Obj> array_items(const Obj& h) {
     std::vector<Obj> out;

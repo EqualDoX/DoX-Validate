@@ -87,6 +87,9 @@ if(DOX_STATIC_DEPS)
   set_target_properties(dox_qpdf PROPERTIES
     IMPORTED_LOCATION ${DOX_QPDF_LIB}
     INTERFACE_INCLUDE_DIRECTORIES ${DOX_QPDF_SOURCE}/include
+    # DOX_QPDF_PINNED: this exact qpdf is linked statically, so core/cos.cpp may call the dictionary lookup that
+    # qpdf's shared library does not export (one search per key instead of two).
+    INTERFACE_COMPILE_DEFINITIONS DOX_QPDF_PINNED
     INTERFACE_LINK_LIBRARIES "PkgConfig::JPEG;PkgConfig::ZLIB")
   add_dependencies(dox_qpdf dox_qpdf_build)
 
