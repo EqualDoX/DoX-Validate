@@ -31,6 +31,37 @@ const std::set<std::string>& std20_set() {
     return s;
 }
 
+// Membership in one of the two sets above without a tree search over strings: the names of a set grouped by length,
+// compared as bytes. The same answer as set.count(type) > 0.
+class NameSet {
+public:
+    explicit NameSet(const std::set<std::string>& names) {
+        for (const std::string& n : names) {
+            if (n.size() >= by_length_.size()) by_length_.resize(n.size() + 1);
+            by_length_[n.size()].push_back(n);
+        }
+    }
+    bool contains(std::string_view name) const {
+        if (name.size() >= by_length_.size()) return false;
+        for (const std::string& n : by_length_[name.size()])
+            if (name == n) return true;
+        return false;
+    }
+
+private:
+    std::vector<std::vector<std::string>> by_length_;
+};
+
+bool in_std17(std::string_view type) {
+    static const NameSet names(std17_set());
+    return names.contains(type);
+}
+
+bool in_std20(std::string_view type) {
+    static const NameSet names(std20_set());
+    return names.contains(type);
+}
+
 bool is_hn(const std::string& t) {
     // ^H[1-9][0-9]*$
     if (t.size() < 2 || t[0] != 'H' || t[1] < '1' || t[1] > '9') return false;
@@ -79,33 +110,74 @@ bool StructElem::is_math(Flavor f) const {
     return f == Flavor::Pdf20 && std20 && std20->ns_uri() == std::optional<std::string>(kNsMathML);
 }
 
-bool StructTree::is_standard17(const std::string& type) { return std17_set().count(type) > 0; }
+bool StructTree::is_standard17(const std::string& type) { return in_std17(type); }
 
 bool StructTree::is_standard20(const SType& t) {
     auto uri = t.ns.isDictionary() ? ns_string(t.ns) : std::nullopt;
     if (t.ns.isDictionary() && uri) {
-        if (*uri == kNsPdf) return std17_set().count(t.type) > 0;
-        if (*uri == kNsPdf2) return std20_set().count(t.type) > 0 || is_hn(t.type);
+        if (*uri == kNsPdf) return in_std17(t.type);
+        if (*uri == kNsPdf2) return in_std20(t.type) || is_hn(t.type);
         if (*uri == kNsMathML) return true;
         return false;
     }
-    return std17_set().count(t.type) > 0;
+    return in_std17(t.type);
 }
 
 bool StructTree::is_pass_through(const std::string& t) { return t == "NonStruct" || t == "Div" || t == "Part"; }
 
+// The role-mapping answers depend on the type alone: on its name and the /RoleMap (PDF 1.7), on its name, its namespace
+// dictionary and the /RoleMap (PDF 2.0). A document has few types and many elements, so each answer is computed once per
+// type: by name, and for PDF 2.0 per namespace object (types in a direct namespace dictionary are computed every time).
+
 std::optional<std::string> StructTree::standard_type17(const std::string& type) const {
-    return rolemap::standard_type17(role_map_, type);
+    auto known = standard17_.find(type);
+    if (known == standard17_.end()) known = standard17_.emplace(type, rolemap::standard_type17(role_map_, type)).first;
+    return known->second;
 }
 
-bool StructTree::circular17(const std::string& type) const { return rolemap::circular17(role_map_, type); }
+bool StructTree::circular17(const std::string& type) const {
+    auto known = circular17_.find(type);
+    if (known == circular17_.end()) known = circular17_.emplace(type, rolemap::circular17(role_map_, type)).first;
+    return known->second;
+}
 
-std::optional<SType> StructTree::default_type20(const SType& t) const { return rolemap::standard_type20(role_map_, t); }
+StructTree::TypeFacts20* StructTree::facts20(const SType& t) const {
+    std::uint64_t ns = 0;   // no namespace dictionary
+    if (t.ns.isDictionary()) {
+        if (!t.ns.isIndirect()) return nullptr;
+        ns = t.ns_ref().key();
+    }
+    return &facts20_[ns][t.type];
+}
 
-bool StructTree::circular20(const SType& t) const { return rolemap::circular20(t); }
+std::optional<SType> StructTree::default_type20(const SType& t) const {
+    TypeFacts20* f = facts20(t);
+    if (!f) return rolemap::standard_type20(role_map_, t);
+    if (!f->standard_known) {
+        f->standard = rolemap::standard_type20(role_map_, t);
+        f->standard_known = true;
+    }
+    return f->standard;
+}
+
+bool StructTree::circular20(const SType& t) const {
+    TypeFacts20* f = facts20(t);
+    if (!f) return rolemap::circular20(t);
+    if (!f->circular_known) {
+        f->circular = rolemap::circular20(t);
+        f->circular_known = true;
+    }
+    return f->circular;
+}
 
 std::optional<std::string> StructTree::role_map_to_same_ns_tag(const SType& t) const {
-    return rolemap::remap_within_namespace(t);
+    TypeFacts20* f = facts20(t);
+    if (!f) return rolemap::remap_within_namespace(t);
+    if (!f->same_ns_known) {
+        f->same_ns = rolemap::remap_within_namespace(t);
+        f->same_ns_known = true;
+    }
+    return f->same_ns;
 }
 
 std::optional<SType> StructTree::stype_of(const Obj& d) const {

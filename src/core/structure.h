@@ -163,6 +163,17 @@ private:
     mutable std::unordered_map<std::int64_t, Obj> parent_tree_cache_;
     mutable NumsIndex parent_tree_nums_;
     mutable std::unique_ptr<TreeShape<std::int64_t>> parent_tree_shape_;   // the /Kids and /Limits, as lookups reach them
+    // The role-mapping answers per type, computed at the first question (standard_type17 ... role_map_to_same_ns_tag).
+    struct TypeFacts20 {
+        bool standard_known = false, circular_known = false, same_ns_known = false;
+        std::optional<SType> standard;
+        bool circular = false;
+        std::optional<std::string> same_ns;
+    };
+    TypeFacts20* facts20(const SType& t) const;   // nullptr for a type in a direct namespace dictionary (not kept)
+    mutable std::unordered_map<std::string, std::optional<std::string>> standard17_;
+    mutable std::unordered_map<std::string, bool> circular17_;
+    mutable std::unordered_map<std::uint64_t, std::unordered_map<std::string, TypeFacts20>> facts20_;   // by namespace object
     // reaches_root per dictionary, filled as the /P chains are walked: elements of the traversal by index, other
     // indirect dictionaries by object.
     mutable std::vector<std::uint8_t> reaches_root_elem_;
