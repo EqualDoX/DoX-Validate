@@ -149,9 +149,47 @@ const NamesIndex::Entries* names_entries(NamesIndex* cache, const Obj& node, Obj
     return &it->second;
 }
 
+// The value of `key` in the /Names of a node that has /Names: true with `found` set to the value at the last position
+// whose key equals `key` (a null object when that key has no value), false when the key is not there or /Names is no
+// array. With `cache`, the array is searched through its index (the same result as the scan).
+bool names_value(const Obj& node, const std::u32string& key, NamesIndex* cache, Obj& found) {
+    bool hit = false;
+    Obj names = cos::get(node, "Names");
+    if (names.isArray()) {
+        int n = names.getArrayNItems();
+        if (const NamesIndex::Entries* e = names_entries(cache, node, names)) {
+            const std::uint64_t h = text_hash(key);
+            auto lo = std::lower_bound(e->begin(), e->end(), std::make_pair(h, std::numeric_limits<int>::min()));
+            auto hi = std::upper_bound(e->begin(), e->end(), std::make_pair(h, std::numeric_limits<int>::max()));
+            for (auto it = hi; it != lo;) {   // the last position first
+                --it;
+                if (pdf_text_to_u32(names.getArrayItem(it->second).getStringValue()) != key) continue;
+                found = it->second + 1 < n ? names.getArrayItem(it->second + 1) : Obj::newNull();
+                hit = true;
+                break;
+            }
+        } else {
+            for (int i = 0; i < n; i += 2) {
+                Obj k = names.getArrayItem(i);
+                if (!k.isString() || pdf_text_to_u32(k.getStringValue()) != key) continue;
+                found = i + 1 < n ? names.getArrayItem(i + 1) : Obj::newNull();
+                hit = true;
+            }
+        }
+    }
+    return hit;
+}
+
+bool text_limit(const Obj& item, std::u32string& out) {
+    if (!item.isString()) return false;
+    out = pdf_text_to_u32(item.getStringValue());
+    return true;
+}
+
 // PDNameTreeNode.getObject(key): Limits, Names (first match per LinkedHashMap: the last value of a key), Kids. On an
 // explicit stack: nesting has no limit; a node met again ends its branch. With `cache`, a /Names array is searched
-// through its index (the same result as the scan below: the last position whose key equals `key`).
+// through its index (the same result as the scan: the last position whose key equals `key`).
+// (A plain tree is searched through its TreeShape, see is_struct_destination; this walk serves any other.)
 Obj name_tree_lookup(const Obj& root, const std::u32string& key, std::unordered_set<std::uint64_t>& seen,
                      NamesIndex* cache = nullptr) {
     std::vector<std::pair<std::vector<Obj>, std::size_t>> stack;
@@ -166,30 +204,7 @@ Obj name_tree_lookup(const Obj& root, const std::u32string& key, std::unordered_
             auto hi = pdf_text_to_u32(limits.getArrayItem(1).getStringValue());
             if (key < lo || key > hi) return false;
         }
-        if (known(node, "Names")) {
-            Obj names = cos::get(node, "Names");
-            if (names.isArray()) {
-                int n = names.getArrayNItems();
-                if (const NamesIndex::Entries* e = names_entries(cache, node, names)) {
-                    const std::uint64_t h = text_hash(key);
-                    auto lo = std::lower_bound(e->begin(), e->end(), std::make_pair(h, std::numeric_limits<int>::min()));
-                    auto hi = std::upper_bound(e->begin(), e->end(), std::make_pair(h, std::numeric_limits<int>::max()));
-                    for (auto it = hi; it != lo;) {   // the last position first
-                        --it;
-                        if (pdf_text_to_u32(names.getArrayItem(it->second).getStringValue()) != key) continue;
-                        found = it->second + 1 < n ? names.getArrayItem(it->second + 1) : Obj::newNull();
-                        break;
-                    }
-                } else {
-                    for (int i = 0; i < n; i += 2) {
-                        Obj k = names.getArrayItem(i);
-                        if (!k.isString() || pdf_text_to_u32(k.getStringValue()) != key) continue;
-                        found = i + 1 < n ? names.getArrayItem(i + 1) : Obj::newNull();
-                    }
-                }
-            }
-            return found.isInitialized();
-        }
+        if (known(node, "Names")) return names_value(node, key, cache, found);
         if (known(node, "Kids")) stack.push_back({cos::array_items(cos::get(node, "Kids")), 0});
         return false;
     };
@@ -839,8 +854,23 @@ private:
             if (!is_dict(names)) return false;
             Obj dests = cos::get(names, "Dests");
             if (is_dict(dests)) {
-                std::unordered_set<std::uint64_t> seen;
-                Obj r = name_tree_lookup(dests, pdf_text_to_u32(dest.getStringValue()), seen, &dest_names_);
+                const std::u32string key = pdf_text_to_u32(dest.getStringValue());
+                // A plain tree through its decoded shape (core/tree_shape.h), any other by the walk over the objects.
+                if (!dests_shape_) dests_shape_ = std::make_unique<TreeShape<std::u32string>>(dests, "Names", &text_limit, true);
+                Obj r;
+                const auto leaf = [&](const Obj& node, Obj& value) { return names_value(node, key, &dest_names_, value); };
+                switch (dests_shape_->find(key, leaf, r)) {
+                    case TreeShape<std::u32string>::Result::Found:
+                        break;
+                    case TreeShape<std::u32string>::Result::NotFound:
+                        r = Obj();
+                        break;
+                    case TreeShape<std::u32string>::Result::NotPlain: {
+                        std::unordered_set<std::uint64_t> seen;
+                        r = name_tree_lookup(dests, key, seen, &dest_names_);
+                        break;
+                    }
+                }
                 if (!r.isInitialized()) return false;
                 dest = r;
             }
@@ -856,6 +886,7 @@ private:
 
     std::unordered_set<std::uint64_t> actions_seen_;
     NamesIndex dest_names_;   // the /Dests name tree's /Names arrays, indexed on first lookup
+    std::unique_ptr<TreeShape<std::u32string>> dests_shape_;   // its /Kids and /Limits, as lookups reach them
 
     // GFPDAction / GFPDGoToAction (UA-2 8.8-2: containsStructDestination) and the Next chain
     void action(const Obj& first, int page, ObjRef owner) {

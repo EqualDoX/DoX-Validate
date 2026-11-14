@@ -5,12 +5,14 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
 #include "core/cos.h"
+#include "core/tree_shape.h"
 
 namespace eqx {
 
@@ -160,6 +162,11 @@ private:
     std::unordered_map<std::int64_t, Obj> parent_tree_entries_;
     mutable std::unordered_map<std::int64_t, Obj> parent_tree_cache_;
     mutable NumsIndex parent_tree_nums_;
+    mutable std::unique_ptr<TreeShape<std::int64_t>> parent_tree_shape_;   // the /Kids and /Limits, as lookups reach them
+    // reaches_root per dictionary, filled as the /P chains are walked: elements of the traversal by index, other
+    // indirect dictionaries by object.
+    mutable std::vector<std::uint8_t> reaches_root_elem_;
+    mutable std::unordered_map<std::uint64_t, std::uint8_t> reaches_root_other_;
 };
 
 }  // namespace eqx

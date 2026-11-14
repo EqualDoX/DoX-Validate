@@ -7,6 +7,7 @@
 
 #include <array>
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -14,6 +15,7 @@
 #include <vector>
 
 #include "core/cos.h"
+#include "core/tree_shape.h"
 
 namespace eqx::annot {
 
@@ -51,6 +53,7 @@ private:
     Obj root_;
     std::unordered_map<std::uint64_t, Nums> cache_;
     std::optional<Nums> root_cache_;
+    std::unique_ptr<TreeShape<std::int64_t>> shape_;   // the /Kids and /Limits, as lookups reach them
 };
 
 class NameTree {
@@ -64,6 +67,7 @@ private:
     Obj root_;
     std::unordered_map<std::uint64_t, Names> cache_;
     std::optional<Names> root_cache_;
+    std::unique_ptr<TreeShape<std::string>> shape_;    // the /Kids and /Limits (as UTF-8), as lookups reach them
 };
 
 // DictionaryKeysHelper.getRichTextStringOrStreamEntryStringRepresentation on the XML bytes: the

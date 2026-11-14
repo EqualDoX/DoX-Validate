@@ -188,6 +188,32 @@ static Obj search_tree(const Obj& root, Open open) {
 
 Obj NumberTree::get(std::int64_t key) {
     if (!(root_.isDictionary() || root_.isStream())) return Obj::newNull();
+    // A plain tree through its decoded shape (core/tree_shape.h), any other by the walk over the objects below.
+    if (!shape_)
+        shape_ = std::make_unique<TreeShape<std::int64_t>>(
+            root_, "Nums",
+            [](const Obj& item, std::int64_t& out) {
+                if (!item.isInteger()) return false;
+                out = item.getIntValue();
+                return true;
+            },
+            true);
+    {
+        Obj found = Obj::newNull();
+        const auto leaf = [&](const Obj& node, Obj& value) {
+            Nums scratch;
+            const Nums& m = nums_of(node, scratch);
+            auto it = m.find(key);
+            if (it == m.end() || it->second.isNull()) return false;
+            value = it->second;
+            return true;
+        };
+        switch (shape_->find(key, leaf, found)) {
+            case TreeShape<std::int64_t>::Result::Found: return found;
+            case TreeShape<std::int64_t>::Result::NotFound: return Obj::newNull();
+            case TreeShape<std::int64_t>::Result::NotPlain: break;
+        }
+    }
     return search_tree(root_, [&](const Obj& node, Obj& found, std::vector<Obj>& kids) {
         Obj limits = cos::get(node, "Limits");
         // PDNumberTreeNode.parseLimitsArray: an array of at least two integers, otherwise no limits.
@@ -242,6 +268,32 @@ const NameTree::Names& NameTree::names_of(const Obj& node, Names& scratch) {
 
 Obj NameTree::get(const std::string& key) {
     if (!(root_.isDictionary() || root_.isStream())) return Obj::newNull();
+    // A plain tree through its decoded shape (the limits as UTF-8, as compared below), any other by the walk below.
+    if (!shape_)
+        shape_ = std::make_unique<TreeShape<std::string>>(
+            root_, "Names",
+            [](const Obj& item, std::string& out) {
+                if (!item.isString()) return false;
+                out = pdf_text_to_utf8(item.getStringValue());
+                return true;
+            },
+            true);
+    {
+        Obj found = Obj::newNull();
+        const auto leaf = [&](const Obj& node, Obj& value) {
+            Names scratch;
+            const Names& m = names_of(node, scratch);
+            auto it = m.find(key);
+            if (it == m.end() || it->second.isNull()) return false;
+            value = it->second;
+            return true;
+        };
+        switch (shape_->find(key, leaf, found)) {
+            case TreeShape<std::string>::Result::Found: return found;
+            case TreeShape<std::string>::Result::NotFound: return Obj::newNull();
+            case TreeShape<std::string>::Result::NotPlain: break;
+        }
+    }
     return search_tree(root_, [&](const Obj& node, Obj& found, std::vector<Obj>& kids) {
         if (!(node.isDictionary() || node.isStream())) return false;
         Obj limits = cos::get(node, "Limits");

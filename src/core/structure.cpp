@@ -294,9 +294,37 @@ const NumsIndex::Entries* nums_entries(NumsIndex* cache, const Obj& node, Obj& n
     return &it->second;
 }
 
+// The value of `key` in the /Nums of a node that has /Nums: the last of duplicate keys; a null handle when the key is
+// not there (or /Nums is no array). With `cache`, the array is looked up through its index (the same result as the scan).
+Obj nums_value(const Obj& node, std::int64_t key, NumsIndex* cache) {
+    Obj found = Obj::newNull();
+    Obj nums = const_cast<Obj&>(node).getKey("/Nums");
+    if (nums.isArray()) {
+        if (const NumsIndex::Entries* e = nums_entries(cache, node, nums)) {
+            auto it = std::lower_bound(e->begin(), e->end(), key,
+                                       [](const auto& entry, std::int64_t k) { return entry.first < k; });
+            if (it != e->end() && it->first == key) found = nums.getArrayItem(it->second + 1);
+        } else {
+            int n = nums.getArrayNItems();
+            for (int i = 0; i + 1 < n; i += 2) {
+                Obj k = nums.getArrayItem(i);
+                if (k.isInteger() && k.getIntValue() == key) found = nums.getArrayItem(i + 1);   // last wins
+            }
+        }
+    }
+    return found;
+}
+
+bool integer_limit(const Obj& item, std::int64_t& out) {
+    if (!item.isInteger()) return false;
+    out = item.getIntValue();
+    return true;
+}
+
 // PDNumberTreeNode.getObject: Limits, /Nums before /Kids, the last duplicate wins, the first kid that has the key
 // decides, a node met again ends its list of kids (LoopedException). On an explicit stack: nesting has no limit.
-// With `cache`, a /Nums array is looked up through its index (the same result as the scan below).
+// With `cache`, a /Nums array is looked up through its index (the same result as the scan).
+// (StructTree::parent_tree_entry searches a plain tree through its TreeShape and comes here for any other.)
 Obj number_tree_lookup(const Obj& root, std::int64_t key, std::unordered_set<std::uint64_t>& visited,
                        NumsIndex* cache = nullptr) {
     struct Level {
@@ -313,20 +341,7 @@ Obj number_tree_lookup(const Obj& root, std::int64_t key, std::unordered_set<std
             if (key < limits.getArrayItem(0).getIntValue() || key > limits.getArrayItem(1).getIntValue()) return false;
         }
         if (const_cast<Obj&>(node).hasKey("/Nums")) {
-            Obj nums = const_cast<Obj&>(node).getKey("/Nums");
-            if (nums.isArray()) {
-                if (const NumsIndex::Entries* e = nums_entries(cache, node, nums)) {
-                    auto it = std::lower_bound(e->begin(), e->end(), key,
-                                               [](const auto& entry, std::int64_t k) { return entry.first < k; });
-                    if (it != e->end() && it->first == key) found = nums.getArrayItem(it->second + 1);
-                } else {
-                    int n = nums.getArrayNItems();
-                    for (int i = 0; i + 1 < n; i += 2) {
-                        Obj k = nums.getArrayItem(i);
-                        if (k.isInteger() && k.getIntValue() == key) found = nums.getArrayItem(i + 1);   // last wins
-                    }
-                }
-            }
+            found = nums_value(node, key, cache);
             return !found.isNull();
         }
         Obj kids = cos::get(node, "Kids");
@@ -357,9 +372,27 @@ Obj StructTree::parent_tree_entry(std::int64_t key) const {
     if (!parent_tree_.isDictionary()) return Obj::newNull();
     auto it = parent_tree_cache_.find(key);
     if (it != parent_tree_cache_.end()) return it->second;
-    std::unordered_set<std::uint64_t> visited;
-    if (parent_tree_.isIndirect()) visited.insert(ref_of(parent_tree_).key());
-    Obj r = number_tree_lookup(parent_tree_, key, visited, &parent_tree_nums_);
+    // A plain tree through its decoded shape (streams are no nodes here), any other by the walk over the objects.
+    if (!parent_tree_shape_) parent_tree_shape_ = std::make_unique<TreeShape<std::int64_t>>(parent_tree_, "Nums", &integer_limit, false);
+    Obj r = Obj::newNull();
+    Obj found = Obj::newNull();
+    const auto leaf = [&](const Obj& node, Obj& value) {
+        value = nums_value(node, key, &parent_tree_nums_);
+        return !value.isNull();
+    };
+    switch (parent_tree_shape_->find(key, leaf, found)) {
+        case TreeShape<std::int64_t>::Result::Found:
+            r = found;
+            break;
+        case TreeShape<std::int64_t>::Result::NotFound:
+            break;
+        case TreeShape<std::int64_t>::Result::NotPlain: {
+            std::unordered_set<std::uint64_t> visited;
+            if (parent_tree_.isIndirect()) visited.insert(ref_of(parent_tree_).key());
+            r = number_tree_lookup(parent_tree_, key, visited, &parent_tree_nums_);
+            break;
+        }
+    }
     parent_tree_cache_.emplace(key, r);
     return r;
 }
