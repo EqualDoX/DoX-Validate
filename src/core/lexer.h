@@ -58,10 +58,9 @@ public:
 
 private:
     bool parse_object(Operand& out, int depth);
-    bool read_token(std::string_view& tok, char& kind);
     void skip_ws();
-    std::string read_literal_string();
-    std::string read_hex_string();
+    void read_literal_string(std::string& s);
+    void read_hex_string(std::string& s);
     void error(const char* msg);
     bool read_inline_image(RawOp& out);
 
@@ -69,6 +68,10 @@ private:
     std::size_t p_ = 0;
     std::vector<Operand> stack_;
     std::vector<LexError> errors_;
+    // Storage of the last operators' longest string and largest array or dictionary, handed to the next operand that
+    // needs it: a stream of text-showing operators then parses without allocating.
+    std::string spare_s_;
+    std::vector<Operand> spare_items_;
 };
 
 }  // namespace eqx

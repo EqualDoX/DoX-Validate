@@ -9,12 +9,20 @@ namespace eqx {
 
 namespace {
 
-inline bool is_ws(char c) { return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == '\f' || c == '\0'; }
-inline bool is_delim(char c) {
-    return c == '(' || c == ')' || c == '<' || c == '>' || c == '[' || c == ']' || c == '{' || c == '}' ||
-           c == '/' || c == '%';
-}
-inline bool is_regular(char c) { return !is_ws(c) && !is_delim(c); }
+// Character classes of ISO 32000-2 7.2.3, one table lookup per byte.
+enum : unsigned char { kWs = 1, kDelim = 2, kLitSpecial = 4 };
+struct CharClass {
+    unsigned char of[256] = {};
+    constexpr CharClass() {
+        for (char c : {' ', '\n', '\r', '\t', '\f', '\0'}) of[static_cast<unsigned char>(c)] |= kWs;
+        for (char c : {'(', ')', '<', '>', '[', ']', '{', '}', '/', '%'}) of[static_cast<unsigned char>(c)] |= kDelim;
+        for (char c : {'(', ')', '\\', '\r'}) of[static_cast<unsigned char>(c)] |= kLitSpecial;   // inside ( ... )
+    }
+};
+constexpr CharClass kClass;
+inline bool is_ws(char c) { return (kClass.of[static_cast<unsigned char>(c)] & kWs) != 0; }
+inline bool is_delim(char c) { return (kClass.of[static_cast<unsigned char>(c)] & kDelim) != 0; }
+inline bool is_regular(char c) { return (kClass.of[static_cast<unsigned char>(c)] & (kWs | kDelim)) == 0; }
 inline int hexval(char c) {
     if (c >= '0' && c <= '9') return c - '0';
     if (c >= 'a' && c <= 'f') return c - 'a' + 10;
@@ -171,18 +179,23 @@ void ContentParser::skip_ws() {
     }
 }
 
-std::string ContentParser::read_literal_string() {
+// Appends the string at p_ to `s`.
+void ContentParser::read_literal_string(std::string& s) {
     // p_ at '('
-    std::string s;
     ++p_;
     int depth = 1;
     while (p_ < d_.size()) {
+        // the bytes that stand for themselves, in one piece
+        const std::size_t plain = p_;
+        while (p_ < d_.size() && (kClass.of[static_cast<unsigned char>(d_[p_])] & kLitSpecial) == 0) ++p_;
+        if (p_ > plain) s.append(d_.data() + plain, p_ - plain);
+        if (p_ >= d_.size()) break;
         char c = d_[p_++];
         if (c == '(') {
             ++depth;
             s.push_back(c);
         } else if (c == ')') {
-            if (--depth == 0) return s;
+            if (--depth == 0) return;
             s.push_back(c);
         } else if (c == '\\') {
             if (p_ >= d_.size()) break;
@@ -208,27 +221,24 @@ std::string ContentParser::read_literal_string() {
                         s.push_back(e);
                     }
             }
-        } else if (c == '\r') {
+        } else {   // '\r'
             if (p_ < d_.size() && d_[p_] == '\n') ++p_;
             s.push_back('\n');
-        } else {
-            s.push_back(c);
         }
     }
     error("unterminated literal string");
-    return s;
 }
 
-std::string ContentParser::read_hex_string() {
+// Appends the string at p_ to `s`.
+void ContentParser::read_hex_string(std::string& s) {
     // p_ at '<' (not '<<')
-    std::string s;
     ++p_;
     int hi = -1;
     while (p_ < d_.size()) {
         char c = d_[p_++];
         if (c == '>') {
             if (hi >= 0) s.push_back(static_cast<char>(hi << 4));
-            return s;
+            return;
         }
         if (is_ws(c)) continue;
         int v = hexval(c);
@@ -243,9 +253,10 @@ std::string ContentParser::read_hex_string() {
         }
     }
     error("unterminated hexadecimal string");
-    return s;
 }
 
+// An operand that is parsed into may have been used before (see spare_items_): everything in it is set anew, and only
+// the storage of its string and of its elements is kept.
 bool ContentParser::parse_object(Operand& out, int depth) {
     skip_ws();
     if (p_ >= d_.size()) return false;
@@ -255,9 +266,9 @@ bool ContentParser::parse_object(Operand& out, int depth) {
         return false;
     }
     char c = d_[p_];
-    out.items.clear();
     out.s.clear();
     if (c == '/') {
+        out.items.clear();
         ++p_;
         out.type = Operand::Name;
         while (p_ < d_.size() && is_regular(d_[p_])) {
@@ -272,69 +283,91 @@ bool ContentParser::parse_object(Operand& out, int depth) {
         }
         return true;
     }
-    if (c == '(') {
+    const bool dict = c == '<' && p_ + 1 < d_.size() && d_[p_ + 1] == '<';
+    if (c == '(' || (c == '<' && !dict)) {
+        out.items.clear();
         out.type = Operand::String;
-        out.s = read_literal_string();
+        if (depth == 0 && out.s.capacity() < spare_s_.capacity()) {
+            out.s.swap(spare_s_);
+            out.s.clear();
+        }
+        if (c == '(') read_literal_string(out.s);
+        else read_hex_string(out.s);
         return true;
     }
-    if (c == '<') {
-        if (p_ + 1 < d_.size() && d_[p_ + 1] == '<') {
+    if (dict || c == '[') {
+        if (depth == 0 && out.items.capacity() < spare_items_.capacity()) out.items.swap(spare_items_);
+        // out.items[0, n) are the elements parsed so far; what lies behind them is left over from an earlier use.
+        std::size_t n = 0;
+        const auto next_element = [&]() -> Operand& {
+            if (n == out.items.size()) return out.items.emplace_back();
+            Operand& e = out.items[n];
+            e.type = Operand::Null;
+            e.b = false;
+            e.i = 0;
+            e.r = 0;
+            return e;   // parse_object sets its string and its elements
+        };
+        const auto blank_element = [&]() {   // a null operand
+            Operand& e = next_element();
+            e.s.clear();
+            e.items.clear();
+        };
+        if (dict) {
             p_ += 2;
             out.type = Operand::Dict;
             while (true) {
                 skip_ws();
                 if (p_ >= d_.size()) {
                     error("unterminated dictionary");
-                    return true;
+                    break;
                 }
                 if (d_[p_] == '>' && p_ + 1 < d_.size() && d_[p_ + 1] == '>') {
                     p_ += 2;
-                    return true;
+                    break;
                 }
                 std::size_t before = p_;
-                if (!parse_object(out.items.emplace_back(), depth + 1)) {
-                    out.items.pop_back();
-                    return true;
-                }
-                if (out.items.back().type != Operand::Name) error("dictionary key is not a name");
+                if (!parse_object(next_element(), depth + 1)) break;
+                if (out.items[n].type != Operand::Name) error("dictionary key is not a name");
+                ++n;
                 skip_ws();
                 if (p_ < d_.size() && d_[p_] == '>' && p_ + 1 < d_.size() && d_[p_ + 1] == '>') {
                     error("dictionary key without value");
-                    out.items.emplace_back();
+                    blank_element();
+                    ++n;
                     continue;
                 }
-                if (!parse_object(out.items.emplace_back(), depth + 1)) {
-                    out.items.back() = Operand{};   // keep key/value pairing
-                    return true;
+                if (!parse_object(next_element(), depth + 1)) {
+                    blank_element();   // keep key/value pairing
+                    ++n;
+                    break;
                 }
+                ++n;
                 if (p_ == before) ++p_;   // no progress: avoid looping on garbage
             }
+        } else {
+            ++p_;
+            out.type = Operand::Array;
+            while (true) {
+                skip_ws();
+                if (p_ >= d_.size()) {
+                    error("unterminated array");
+                    break;
+                }
+                if (d_[p_] == ']') {
+                    ++p_;
+                    break;
+                }
+                std::size_t before = p_;
+                if (!parse_object(next_element(), depth + 1)) break;
+                ++n;
+                if (out.items[n - 1].type == Operand::Null && p_ == before) ++p_;
+            }
         }
-        out.type = Operand::String;
-        out.s = read_hex_string();
+        out.items.resize(n);
         return true;
     }
-    if (c == '[') {
-        ++p_;
-        out.type = Operand::Array;
-        while (true) {
-            skip_ws();
-            if (p_ >= d_.size()) {
-                error("unterminated array");
-                return true;
-            }
-            if (d_[p_] == ']') {
-                ++p_;
-                return true;
-            }
-            std::size_t before = p_;
-            if (!parse_object(out.items.emplace_back(), depth + 1)) {
-                out.items.pop_back();
-                return true;
-            }
-            if (out.items.back().type == Operand::Null && p_ == before) ++p_;
-        }
-    }
+    out.items.clear();
     if (c == ']' || c == '>' || c == ')' || c == '{' || c == '}') {
         ++p_;
         error("unexpected delimiter");
@@ -431,6 +464,10 @@ bool ContentParser::read_inline_image(RawOp& out) {
 }
 
 bool ContentParser::next(RawOp& out) {
+    for (Operand& o : stack_) {
+        if (o.items.capacity() > spare_items_.capacity()) o.items.swap(spare_items_);
+        if (o.s.capacity() > spare_s_.capacity()) o.s.swap(spare_s_);
+    }
     stack_.clear();
     out.inline_data = {};
     while (true) {
