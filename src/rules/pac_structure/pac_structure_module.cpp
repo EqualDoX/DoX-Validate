@@ -64,6 +64,32 @@ struct PageSet {
     }
 };
 
+// The (StructParents key, MCID) pairs met so far. The MCIDs of one page or form are small numbers that come in order:
+// those below 4096 are bits of their key's row, any other pair goes into a set.
+class SeenMcids {
+public:
+    // True when the pair is new (what set::insert(...).second says).
+    bool insert(std::int64_t key, std::int64_t mcid) {
+        if (mcid < 0 || mcid >= 4096) return other_.insert({key, mcid}).second;
+        if (!row_ || key != row_key_) {
+            row_ = &rows_[key];   // (a node of the map: stays where it is)
+            row_key_ = key;
+        }
+        const std::size_t word = static_cast<std::size_t>(mcid) >> 6;
+        const std::uint64_t bit = std::uint64_t(1) << (mcid & 63);
+        if (word >= row_->size()) row_->resize(word + 1, 0);
+        if ((*row_)[word] & bit) return false;
+        (*row_)[word] |= bit;
+        return true;
+    }
+
+private:
+    std::unordered_map<std::int64_t, std::vector<std::uint64_t>> rows_;
+    std::vector<std::uint64_t>* row_ = nullptr;   // the row of row_key_
+    std::int64_t row_key_ = 0;
+    std::set<std::pair<std::int64_t, std::int64_t>> other_;
+};
+
 struct SibInfo {
     int index = 0, count = 1, captions = 0, theads = 0, tfoots = 0, bad_kids = 0;
     bool has_row = false, has_group = false, group_first = true, group_last = true;
@@ -682,7 +708,8 @@ void Module::parent_tree(ValidationContext& ctx) {
 
     std::set<int> pages_flagged;
     std::set<std::int64_t> keys_flagged;
-    std::set<std::pair<std::int64_t, std::int64_t>> seen, reported, mcid_flagged;
+    SeenMcids seen;
+    std::set<std::pair<std::int64_t, std::int64_t>> reported, mcid_flagged;
     for (const auto& f : cm.frames) {
         if (!f.mcid || *f.mcid < 0 || f.stream < 0) continue;
         const StreamInstance& s = cm.streams[f.stream];
@@ -698,7 +725,7 @@ void Module::parent_tree(ValidationContext& ctx) {
             continue;
         }
         std::int64_t key = *s.struct_parents;
-        if (!seen.insert({key, *f.mcid}).second) continue;
+        if (!seen.insert(key, *f.mcid)) continue;
         Obj entry = st.parent_tree_entry(key);
         if (entry.isNull()) {
             if (keys_flagged.insert(key).second)
