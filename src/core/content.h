@@ -508,36 +508,19 @@ public:
     // run. Until end_run() the run reads as empty, so end_run() must also be called when the operator is abandoned
     // (it does not throw).
     void begin_run(int item, const content_detail::TextStyle& style);
-    void append(const char32_t* s, std::size_t n) {
-        if (n == 1 && *s < 0x100 && open_shift_ == 0 && end_ != cap_) {   // one narrow code point: nearly every glyph
+    [[gnu::always_inline]] inline void append(const char32_t* s, std::size_t n) {
+        if (n == 1 && *s < 0x100 && open_shift_ == 0 && end_ != cap_) [[likely]] {   // one narrow code point: nearly every glyph
             *end_++ = static_cast<unsigned char>(*s);
             ++open_len_;
             return;
         }
-        std::uint32_t all = 0;
-        for (std::size_t i = 0; i < n; ++i) all |= s[i];
-        const unsigned shift = all < 0x100 ? 0 : all < 0x10000 ? 1 : 2;
-        if (shift > open_shift_ || static_cast<std::size_t>(cap_ - end_) < (n << open_shift_)) make_room(n, shift);
-        store(end_, s, n, open_shift_);
-        end_ += n << open_shift_;
-        open_len_ += n;
+        append_any(s, n);
     }
     void end_run(std::uint32_t glyphs, std::uint32_t unmapped) noexcept;
 
 private:
     static constexpr std::uint32_t kStyleMask = (std::uint32_t(1) << 30) - 1;
-    static void store(unsigned char* to, const char32_t* s, std::size_t n, unsigned shift) {
-        if (shift == 0) {
-            for (std::size_t i = 0; i < n; ++i) to[i] = static_cast<unsigned char>(s[i]);
-        } else if (shift == 1) {
-            for (std::size_t i = 0; i < n; ++i) {
-                const std::uint16_t v = static_cast<std::uint16_t>(s[i]);
-                std::memcpy(to + 2 * i, &v, 2);
-            }
-        } else if (n) {
-            std::memcpy(to, s, n * 4);
-        }
-    }
+    void append_any(const char32_t* s, std::size_t n);
     void make_room(std::size_t n, unsigned shift);
     std::uint32_t intern(const content_detail::TextStyle& style);
     const content_detail::RunCounts& large_run(std::size_t run) const;

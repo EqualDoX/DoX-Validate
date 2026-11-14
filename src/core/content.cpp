@@ -141,6 +141,20 @@ void ContentTexts::end_run(std::uint32_t glyphs, std::uint32_t unmapped) noexcep
     }
 }
 
+void ContentTexts::append_any(const char32_t* s, std::size_t n) {
+    std::uint32_t all = 0;
+    for (std::size_t i = 0; i < n; ++i) all |= s[i];
+    const unsigned shift = all < 0x100 ? 0 : all < 0x10000 ? 1 : 2;
+    if (shift > open_shift_ || static_cast<std::size_t>(cap_ - end_) < (n << open_shift_)) make_room(n, shift);
+    if (open_shift_ == 2) {
+        if (n) std::memcpy(end_, s, n * 4);
+    } else {
+        for (std::size_t i = 0; i < n; ++i) store_code(end_ + (i << open_shift_), open_shift_, s[i]);
+    }
+    end_ += n << open_shift_;
+    open_len_ += n;
+}
+
 const content_detail::RunCounts& ContentTexts::large_run(std::size_t run) const {
     const auto pos = std::lower_bound(large_.begin(), large_.end(), run,
                                       [](const std::pair<std::uint32_t, content_detail::RunCounts>& e, std::size_t r) { return e.first < r; });

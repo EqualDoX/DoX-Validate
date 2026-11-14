@@ -463,6 +463,48 @@ bool ContentParser::read_inline_image(RawOp& out) {
     return true;
 }
 
+// The token at `b` when it is a number (the syntax of parse_number, up to a character that is not regular): pushed as
+// an operand, with the value parse_number gives it; returns the position after it. Returns `b` when the token is not
+// a number.
+std::size_t ContentParser::push_number(std::size_t b) {
+    const char* const d = d_.data();
+    const std::size_t n = d_.size();
+    std::size_t i = b;
+    bool neg = false;
+    if (d[i] == '+' || d[i] == '-') neg = d[i++] == '-';
+    std::int64_t ip = 0;
+    bool digits = false, dot = false, overflow = false;
+    double frac = 0, scale = 0.1;
+    for (; i < n; ++i) {
+        const char c = d[i];
+        if (c >= '0' && c <= '9') {
+            digits = true;
+            if (!dot) {
+                if (ip > (INT64_MAX - 9) / 10) overflow = true;
+                else ip = ip * 10 + (c - '0');
+            } else {
+                frac += (c - '0') * scale;
+                scale *= 0.1;
+            }
+        } else if (c == '.' && !dot) {
+            dot = true;
+        } else {
+            break;
+        }
+    }
+    if (!digits || (i < n && is_regular(d[i]))) return b;
+    Operand& o = stack_.emplace_back();
+    if (dot || overflow) {
+        o.type = Operand::Real;
+        o.r = (overflow ? std::strtod(std::string(d_.substr(b, i - b)).c_str(), nullptr) : (static_cast<double>(ip) + frac));
+        if (neg && !overflow) o.r = -o.r;
+    } else {
+        o.type = Operand::Int;
+        o.i = neg ? -ip : ip;
+    }
+    return i;
+}
+
 bool ContentParser::next(RawOp& out) {
     for (Operand& o : stack_) {
         if (o.items.capacity() > spare_items_.capacity()) o.items.swap(spare_items_);
@@ -479,17 +521,23 @@ bool ContentParser::next(RawOp& out) {
         char c = d_[p_];
         if (is_regular(c)) {
             std::size_t b = p_;
+            // A number, the most frequent token, is recognised and converted in one pass over its characters.
+            if ((c >= '0' && c <= '9') || c == '-' || c == '.' || c == '+') {
+                p_ = push_number(b);
+                if (p_ != b) continue;
+            }
             while (p_ < d_.size() && is_regular(d_[p_])) ++p_;
-            std::string_view t = d_.substr(b, p_ - b);
-            Operand& o = stack_.emplace_back();
-            if (parse_number(t, o)) continue;
+            std::string_view t = d_.substr(b, p_ - b);   // not a number
             if (t == "true" || t == "false") {
+                Operand& o = stack_.emplace_back();
                 o.type = Operand::Bool;
                 o.b = t == "true";
                 continue;
             }
-            if (t == "null") continue;
-            stack_.pop_back();
+            if (t == "null") {
+                stack_.emplace_back();
+                continue;
+            }
             out.offset = b;
             if (t == "BI") {
                 if (!stack_.empty()) error("operands before BI");

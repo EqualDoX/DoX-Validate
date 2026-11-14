@@ -58,6 +58,7 @@ public:
 
 private:
     bool parse_object(Operand& out, int depth);
+    std::size_t push_number(std::size_t b);
     void skip_ws();
     void read_literal_string(std::string& s);
     void read_hex_string(std::string& s);
