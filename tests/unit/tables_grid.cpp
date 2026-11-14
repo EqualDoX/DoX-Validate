@@ -176,3 +176,26 @@ EQX_TEST(tables_span_near_int64_max_stays_inside_grid) {
     auto c = check_table(table({{TD(), TD()}, {TD(), TD(1, big)}}));
     EXPECT(c.aborted);
 }
+
+// veraPDF 1.30.4 (GFSETable.hasHeaders, PDFUA_1 flavour): in a table with an unscoped TH, a TD is connected only
+// through its Headers; the scoped column header above it no longer counts. The positional search stays for PDF 2.0.
+// Shape of veraPDF's corpus file 7.5-t01-fail-c: a corner TD, column headers with Scope, row headers without.
+EQX_TEST(tables_ua1_headers_only_through_headers_attribute) {
+    auto rows = std::vector<std::vector<CellSpec>>{{TD(), TH("Column"), TH("Column")}, {TH(), TD(), TD()}, {TH(), TD(), TD()}};
+    TableSpec positional = table(rows);
+    auto old = check_table(positional);   // veraPDF 1.30.2 behaviour (default): the column headers connect every TD
+    EXPECT(!old.unconnected_td);
+    TableSpec ua1 = table(rows);
+    ua1.position_headers = false;
+    auto now = check_table(ua1);
+    EXPECT(now.unconnected_td && now.unconnected_td->row == 1 && now.unconnected_td->cell == 1);
+    // with Headers naming TH IDs the TDs stay connected
+    auto ided = std::vector<std::vector<CellSpec>>{{TD(), TH("Column", 1, 1, "c1"), TH("Column", 1, 1, "c2")},
+                                                   {TH(), TD(1, 1, {"c1"}), TD(1, 1, {"c2"})}};
+    TableSpec ua1_ids = table(ided);
+    ua1_ids.position_headers = false;
+    EXPECT(!check_table(ua1_ids).unconnected_td);
+    // PDF/UA-2 keeps the positional search
+    TableSpec ua2 = table(rows, true);
+    EXPECT(!check_table(ua2).unconnected_td);
+}

@@ -1,5 +1,5 @@
 // Tables module: table regularity and header association (tables/table_grid.h; PDF/UA-1 7.2-15, 7.2-41/42/43,
-// 7.5-1/2; PDF/UA-2 and WTPDF 8.2.5.26-1..6) with results compatible with veraPDF 1.30.2, and the PAC 26.1 table
+// 7.5-1/2; PDF/UA-2 and WTPDF 8.2.5.26-1..6) with results compatible with veraPDF 1.30.2 (7.5-1: 1.30.4), and the PAC 26.1 table
 // checks TablesAreRegular, THHasAssociatedCells and Quality CompleteTables.
 //
 // veraPDF evaluates checkTable once per SETable object (the first time a table property is read, i.e. when the
@@ -38,6 +38,7 @@ struct BuiltTable {
 BuiltTable build_table(const StructTree& st, const se::Attributes& attrs, const Obj& table, Flavor f) {
     BuiltTable b;
     b.spec.pdf20 = f == Flavor::Pdf20;
+    b.spec.position_headers = f == Flavor::Pdf20;   // veraPDF 1.30.4: no positional header search for PDF/UA-1
     std::vector<Obj> trs;
     // GFSETable.getTR
     for (const auto& child : se::significance_children(st, table, f, &b.ok)) {

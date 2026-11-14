@@ -185,11 +185,13 @@ public:
                 if (cell.th || cells_.top[id] != r || cells_.left[id] != c || (r == 0 && c == 0)) continue;
                 if (headers_known(cell)) continue;
                 bool found = false;
-                const std::int64_t col_end = std::int64_t(c) + wrap32(cell.colspan);
-                for (std::int64_t cc = c; cc < col_end && !found; ++cc) found = run_has_header[static_cast<std::size_t>(cc)];
-                const std::int64_t row_end = std::int64_t(r) + wrap32(cell.rowspan);
-                for (std::int64_t rr = r; rr < row_end && !found; ++rr)
-                    found = row_header[static_cast<std::size_t>(rr * ncols + c)];
+                if (t_.position_headers) {
+                    const std::int64_t col_end = std::int64_t(c) + wrap32(cell.colspan);
+                    for (std::int64_t cc = c; cc < col_end && !found; ++cc) found = run_has_header[static_cast<std::size_t>(cc)];
+                    const std::int64_t row_end = std::int64_t(r) + wrap32(cell.rowspan);
+                    for (std::int64_t rr = r; rr < row_end && !found; ++rr)
+                        found = row_header[static_cast<std::size_t>(rr * ncols + c)];
+                }
                 if (found) continue;
                 res.unconnected_td = cells_.ref[id];
                 res.unknown_headers = unknown_headers(cell);

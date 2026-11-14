@@ -403,6 +403,25 @@ void Module::figures(ValidationContext& ctx) {
             if (blank) ctx.report(alt_rule, -1, F[i].ref, "PAC: Figure /Alt holds white space only");
         }
     }
+    // A Figure by PAC's type that veraPDF's role mapping turns into another type: the standard type /Figure remapped in
+    // the RoleMap (7.1-7). veraPDF then checks it as that type and asks for no alternative text; PAC takes a standard /S
+    // as is (pac_type) and fails a Figure without /Alt and /ActualText (CheckFailFigureWithNoAltText). Inferred from
+    // PAC's type model (measured for other checks, e.g. FigureHasBBox above), not from a run of this condition. Figures
+    // that veraPDF maps to Figure are checked by its definition (structure_rules.cpp); white-space /Alt by the check above.
+    {
+        static const RuleIndex alt_rule = R("EQX-UA1-7.3-1");
+        const auto& F = ctx.st.elems();
+        for (std::size_t i = 0; i < F.size(); ++i) {
+            if (ty_[i] != "Figure") continue;
+            const std::string mapped = F[i].standard(Flavor::Pdf17);
+            if (mapped == "Figure" || cos::get(F[i].dict, "ActualText").isString()) continue;
+            Obj alt = cos::get(F[i].dict, "Alt");
+            if (alt.isString() && !alt.getStringValue().empty()) continue;
+            ctx.report(alt_rule, -1, F[i].ref,
+                       "PAC: Figure without Alt or ActualText (its type is role-mapped to " +
+                           (mapped.empty() ? std::string("a non-standard type") : "/" + mapped) + ")");
+        }
+    }
     // FigureHasBBox: a Figure whose content lies on at most one page and that has no Layout /BBox fails
     // (structcheck fig_no_bbox; U1-S01, U1-S02, U1-S03). Pages of MCID, MCR and OBJR kids, also of descendants.
     static const RuleIndex rule = R("EQX-PAC-FailFigureHasBBox");

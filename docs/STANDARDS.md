@@ -25,7 +25,7 @@ automated checks of two widely used reference validators. Neither tool is run by
 
 | Rule ids | Reproduce | Standard |
 |---|---|---|
-| `EQX-UA1-*` | veraPDF 1.30.2, PDF/UA-1 profile (`ua1`) | ISO 14289-1 (PDF/UA-1) |
+| `EQX-UA1-*` | veraPDF 1.30.2, PDF/UA-1 profile (`ua1`); 7.5-1 (table header association) as in veraPDF 1.30.4 | ISO 14289-1 (PDF/UA-1) |
 | `EQX-UA2-*` | veraPDF 1.30.2, PDF/UA-2 profile (`ua2`) | ISO 14289-2 (PDF/UA-2) |
 | `EQX-TS32005-*` | veraPDF 1.30.2, structure containment rules of the `ua2`, `wt1a` and `wt1r` profiles | ISO/TS 32005 (PDF 1.7 and 2.0 structure namespace inclusion), applied through PDF/UA-2 and WTPDF |
 | `EQX-WTPDF-*` | veraPDF 1.30.2, WTPDF profiles (`wt1a`, `wt1r`) | Well-Tagged PDF 1.0, accessibility and reuse levels |

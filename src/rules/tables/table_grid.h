@@ -20,8 +20,8 @@
 //  3. Completeness: the first row (up to the row count) with free slots is irregular, with wrong_column_span =
 //     the number of occupied slots of that row.
 //  4. Headers, only when some TH cell has no Scope: a TD (other than one anchored at the top-left slot) is
-//     connected when every entry of its Headers array names the ID of a TH, or when a header is found for one of
-//     its columns above it or for one of its rows to its left. Looking up a column from a slot, cells that are no
+//     connected when every entry of its Headers array names the ID of a TH, or (unless position_headers is off)
+//     when a header is found for one of its columns above it or for one of its rows to its left. Looking up a column from a slot, cells that are no
 //     TH are passed over until the first TH; the uninterrupted run of TH cells from there on decides: it is a
 //     header when one of them has Scope Column or Both (PDF 2.0: a TH without Scope counts as Column in the first
 //     row, Row in the first column, Both elsewhere and at the top-left slot). The same applies to the left with
@@ -53,6 +53,10 @@ struct TableSpec {
     std::vector<int> group_indexes;
     // PDF 2.0 reading: row-group boundary check and the default scope of a TH by position.
     bool pdf20 = false;
+    // Step 4 may connect a TD through the TH runs above it and to its left. veraPDF 1.30.4 turns that search off for
+    // PDF/UA-1 (GFSETable.hasHeaders returns false for the PDFUA_1 flavour): a TD of a table with an unscoped TH is
+    // then connected only through its Headers. PDF/UA-2 and WTPDF keep the search.
+    bool position_headers = true;
 };
 
 struct CellRef {

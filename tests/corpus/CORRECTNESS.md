@@ -68,10 +68,11 @@ Tally per suite:
 
 | suite | fail files detected | pass files without the finding | fail files not detected |
 |---|---|---|---|
-| PDF/UA-1, 297 files | 143 / 156 | 141 / 141 | 13 |
+| PDF/UA-1, 297 files | 144 / 156 | 141 / 141 | 12 |
 | PDF/UA-2, 138 files | 83 / 84 | 54 / 54 | 1 |
 
-On every one of these files, dox-validate's verdict equals that of veraPDF 1.30.2. A finding counts only when
+On every one of these files, dox-validate's verdict equals that of veraPDF 1.30.2, except `7.5-t01-fail-c`, where it
+follows veraPDF 1.30.4 (see below). A finding counts only when
 `non_pac_occurrences` > 0, so the veraPDF condition of a merged rule must have fired.
 
 The 14 undetected fail files break down as follows:
@@ -86,8 +87,10 @@ The 14 undetected fail files break down as follows:
   - UA-2 8.7-t02 as 8.7-1.
   
   The violation is found; only the test number differs.
-- **Version, 1 file: `7.5-t01-fail-c`** (classified **(c)**). veraPDF 1.30.4 reports 7.5-1; veraPDF 1.30.2 and
-  dox-validate report nothing. Adopting the 1.30.4 semantics would close it.
+- **Version, 1 file: `7.5-t01-fail-c`, resolved.** veraPDF 1.30.4 reports 7.5-1 and veraPDF 1.30.2 reports nothing.
+  dox-validate now follows 1.30.4 here. For PDF/UA-1, a TD of a table with a TH that has no Scope counts as connected
+  only through its `Headers`, with no search for headers by position (upstream `GFSETable.hasHeaders`). It reports this
+  file, and no other file of the corpus changed.
 - **Coverage, 4 files: 7.18.7-t01** (classified **(c)**). Clause 7.18.7 has no rule in the catalogue (and none in the
   veraPDF 1.30.2 profile), so nothing is reported. The files fail 7.11-1 instead, which both tools report.
 
@@ -104,6 +107,7 @@ and dox-validate does not.** dox-validate reports these extra failures:
 |---|---|---|---|
 | UA1 7.1-12, UA2 8.2.1-2 (no `/P`) | `structelem-no-parent` | The construction omits `/P`, which ISO 32000-1 Table 323 requires. veraPDF does not report it. | dox-validate correct; it differs from the claimed 1.30.2 semantics in the stricter direction |
 | UA1 7.21.5-1, UA2 8.4.5.6-1 (glyph width) | `govinfo-budget-2025-app` p. 1258 | `TimesNewRomanPSStd-Italic` (obj 9199): `/Widths` gives 250 for code 0x20, but the embedded CFF charstring for `space` is `endchar` without a width, so its advance is `defaultWidthX` = 500. The finding disappears with `--reference-dedup`: veraPDF checks a reused content stream only at its first use. | (b) reference-tool limitation; dox-validate correct |
+| UA1 7.3-1 through PAC's definition only (`non_pac_occurrences` 0) | `libreoffice-draw-guide-268` | The RoleMap remaps the standard type `/Figure` to `/P`, which 7.1-7 reports 1,092 times. veraPDF then checks the 1,090 Figures without `/Alt` or `/ActualText` as P and asks for no alternative text. PAC takes a standard `/S` as is, as dox-validate's PAC model does for its other Figure checks, so dox-validate reports them as PAC-equivalent findings. VellumPdf 2.3.3 and outloud 0.2.1 also report them. | PAC-equivalent scope; the veraPDF-definition count is unchanged |
 | UA2 8.10.3.5-1 (signature graphic without alternative text) | 3 govinfo documents | A visible `/FT /Sig` widget (GPO seal, `/F 132`) paints vector graphics; there is no structure and no `/Contents`. The source comment documents that veraPDF 1.30.2 can never fail this rule, so dox-validate evaluates ISO 14289-2 8.10.3.5 itself. | (c) designed scope difference; dox-validate is normatively stricter |
 
 ## 5. Suspected validator defects and reporting issues
