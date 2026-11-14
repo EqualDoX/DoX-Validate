@@ -10,8 +10,11 @@
 // first rule is a violation: an uncertain measurement or an exception that may apply is never reported as one.
 #pragma once
 
+#include <algorithm>
+#include <cstddef>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 #include "rules/module.h"
 
@@ -51,6 +54,60 @@ double contrast8(const unsigned char* a, const unsigned char* b);
 // ((c + 0.055) / 1.055) ^ 2.4, computed in double on the float's value), with the results of recent components kept.
 double srgb_channel(float c);
 std::string ratio_str(double r);   // two decimals, cut (never rounded up to a threshold)
+
+// std::sort(rs.begin(), rs.end(), before) with before(a, b) = a.base != b.base ? a.base < b.base : a.x0 < b.x0, the order
+// of a page's text runs for the WCAG 1.4.1 check, mostly without the sort. The runs of a page come in content order: line
+// after line down the page, each line left to right, column after column. By (base, x0) a column is its lines in reverse
+// order. So the runs are cut into stretches that strictly ascend (the lines); stretches of which each lies wholly below
+// the one before it form a block (a column), which is in order once its stretches are reversed; the few blocks are
+// merged. If the result strictly ascends, every key differs from every other, there is only one sorted order, and this
+// is it: what std::sort gives. Anything else (equal keys, a NaN coordinate, for which the comparison is no ordering,
+// more than a few blocks) is sorted by std::sort as before. `scratch` is working space.
+template <class Run>
+void sort_by_base_x0(std::vector<Run>& rs, std::vector<Run>& scratch) {
+    const auto before = [](const Run& a, const Run& b) { return a.base != b.base ? a.base < b.base : a.x0 < b.x0; };
+    const auto sort_all = [&] { std::sort(rs.begin(), rs.end(), before); };
+    constexpr std::size_t kMaxBlocks = 8;
+    const std::size_t n = rs.size();
+    if (n < 2) return;
+    std::vector<std::size_t> starts{0};   // where each stretch starts
+    for (std::size_t i = 0; i < n; ++i) {
+        if (rs[i].base != rs[i].base || rs[i].x0 != rs[i].x0) return sort_all();   // NaN
+        if (i == 0 || before(rs[i - 1], rs[i])) continue;                            // the stretch goes on
+        if (!before(rs[i], rs[i - 1])) return sort_all();                           // equal keys
+        starts.push_back(i);
+    }
+    if (starts.size() == 1) return;   // one stretch: in order already
+    const auto stretch_end = [&](std::size_t t) { return t + 1 < starts.size() ? starts[t + 1] : n; };
+    scratch.clear();
+    scratch.reserve(n);
+    std::vector<std::size_t> block_ends;   // in scratch
+    for (std::size_t j = 0; j < starts.size();) {
+        std::size_t k = j;   // the block is the stretches j .. k: the largest key of each (its last) below the smallest of the one before
+        while (k + 1 < starts.size() && before(rs[stretch_end(k + 1) - 1], rs[starts[k]])) ++k;
+        if (block_ends.size() == kMaxBlocks) return sort_all();
+        for (std::size_t t = k + 1; t-- > j;)   // its stretches from the last to the first, each in its own order
+            scratch.insert(scratch.end(), rs.begin() + std::ptrdiff_t(starts[t]), rs.begin() + std::ptrdiff_t(stretch_end(t)));
+        block_ends.push_back(scratch.size());
+        j = k + 1;
+    }
+    for (std::size_t b = 1; b < block_ends.size(); ++b)
+        std::inplace_merge(scratch.begin(), scratch.begin() + std::ptrdiff_t(block_ends[b - 1]), scratch.begin() + std::ptrdiff_t(block_ends[b]), before);
+    for (std::size_t i = 1; i < n; ++i)
+        if (!before(scratch[i - 1], scratch[i])) return sort_all();   // equal keys in different blocks
+    rs.swap(scratch);
+}
+
+// The keys alone, for the unit test of sort_by_base_x0.
+struct RunKey {
+    double base = 0, x0 = 0;
+    int id = 0;
+};
+inline bool run_key_before(const RunKey& a, const RunKey& b) { return a.base != b.base ? a.base < b.base : a.x0 < b.x0; }
+inline void sort_run_keys(std::vector<RunKey>& keys) {
+    std::vector<RunKey> scratch;
+    sort_by_base_x0(keys, scratch);
+}
 
 // Run after the interpretation (no rendering).
 void check_form_fields(ValidationContext& ctx);

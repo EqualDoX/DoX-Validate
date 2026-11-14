@@ -286,12 +286,24 @@ struct ColourRun {
 
 std::uint32_t colour_key(const unsigned char* c) { return std::uint32_t(c[0]) << 16 | std::uint32_t(c[1]) << 8 | c[2]; }
 
-void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>& rs, const std::vector<int>& thin) {
+void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>& rs, std::vector<ColourRun>& scratch,
+                 const std::vector<int>& thin) {
     static const RuleIndex rule = R("EQX-WCAG-1.4.1-UseOfColorReview");
     const ContentModel& cm = ctx.content;
     // the usual colour per font and size (letters), and the links of the page
     std::map<std::pair<int, long>, std::map<std::uint32_t, int>> usage;
-    auto style = [](const ColourRun& r) { return std::make_pair(r.font, std::lround(r.size * 10)); };
+    // (font, size in tenths of a point); the rounded size of the size asked last is kept: runs of one size come in rows
+    double style_size = 0;
+    long style_tenths = 0;
+    bool style_known = false;
+    auto style = [&](const ColourRun& r) {
+        if (!style_known || r.size != style_size) {
+            style_size = r.size;
+            style_tenths = std::lround(r.size * 10);
+            style_known = true;
+        }
+        return std::make_pair(r.font, style_tenths);
+    };
     for (const ColourRun& r : rs) usage[style(r)][colour_key(r.rgb)] += r.letters;
     std::map<std::pair<int, long>, std::uint32_t> usual;
     for (const auto& [k, m] : usage)
@@ -305,7 +317,7 @@ void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>&
         if (!cos::name_is(a, "Subtype", "Link")) continue;
         if (auto r = cos::rect(cos::get(a, "Rect"))) links.push_back({*r, border_width(a) > 0 && !cos::array_items(cos::get(a, "C")).empty()});
     }
-    std::sort(rs.begin(), rs.end(), [](const ColourRun& a, const ColourRun& b) { return a.base != b.base ? a.base < b.base : a.x0 < b.x0; });
+    sort_by_base_x0(rs, scratch);   // std::sort by (base, x0)
     std::vector<const ColourRun*> line;
     for (std::size_t a = 0; a < rs.size();) {
         std::size_t b = a + 1;
@@ -404,13 +416,15 @@ void colour_page(ValidationContext& ctx, std::size_t pi, std::vector<ColourRun>&
 void check_use_of_color(ValidationContext& ctx) {
     const ContentModel& cm = ctx.content;
     const std::size_t npages = ctx.doc.pages().size();
-    std::vector<ColourRun> runs;
+    std::vector<ColourRun> runs, scratch;
     std::vector<int> thin;   // painted paths: underline candidates
     std::map<std::string, int> font_ids;
     std::map<const Font*, int> font_of;
+    const Font* last_font = nullptr;
+    int last_font_id = 0;
     int page = -1;
     auto flush = [&]() {
-        if (page >= 0 && runs.size() >= 2) colour_page(ctx, std::size_t(page), runs, thin);
+        if (page >= 0 && runs.size() >= 2) colour_page(ctx, std::size_t(page), runs, scratch, thin);
         runs.clear();
         thin.clear();
     };
@@ -436,9 +450,13 @@ void check_use_of_color(ValidationContext& ctx) {
         int letters = 0;
         for (char32_t c : tr.text) letters += letter(c) ? 1 : 0;
         if (letters == 0) continue;
-        auto fo = font_of.find(tr.font);
-        if (fo == font_of.end()) fo = font_of.emplace(tr.font, font_ids.emplace(lower_name(tr.font), int(font_ids.size())).first->second).first;
-        ColourRun r{int(i), it.bbox.lly + 0.2 * tr.size_user, it.bbox.llx, it.bbox.urx, tr.size_user, fo->second, {}, letters};
+        if (tr.font != last_font) {   // the font of the run before: its id is at hand
+            auto fo = font_of.find(tr.font);
+            if (fo == font_of.end()) fo = font_of.emplace(tr.font, font_ids.emplace(lower_name(tr.font), int(font_ids.size())).first->second).first;
+            last_font = tr.font;
+            last_font_id = fo->second;
+        }
+        ColourRun r{int(i), it.bbox.lly + 0.2 * tr.size_user, it.bbox.llx, it.bbox.urx, tr.size_user, last_font_id, {}, letters};
         for (int k = 0; k < 3; ++k) r.rgb[k] = to8(tr.fill.rgb[k]);
         runs.push_back(r);
     }
