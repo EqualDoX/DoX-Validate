@@ -534,15 +534,48 @@ namespace {
 // What collect_kid reads from the dictionary of a /K item, found in one pass over its entries (keys as qpdf stores
 // them, with the slash): the values of the keys it asks for (nullptr for a key that is not there) and
 // StructElem::keys, the bits of the keys the dictionary holds.
+// A direct value that holds no further object: a scalar. (The type of a direct object is known without resolving
+// anything.)
+bool scalar(const Obj& direct) {
+    switch (direct.getTypeCode()) {
+        case ::ot_null:
+        case ::ot_boolean:
+        case ::ot_integer:
+        case ::ot_real:
+        case ::ot_string:
+        case ::ot_name:
+            return true;
+        default:
+            return false;
+    }
+}
+
 struct KidEntries {
     const Obj *type = nullptr, *s = nullptr, *ns = nullptr, *pg = nullptr, *p = nullptr, *k = nullptr, *mcid = nullptr,
               *stm = nullptr, *obj = nullptr;
     std::uint16_t bits = 0;
+    // StructElem::flat_dict for every entry but /K (whose items the traversal looks at one by one anyway)
+    bool flat = true;
+
+    // A reference, a scalar, or an array of references and scalars.
+    static bool flat_value(const Obj& value) {
+        if (value.isIndirect()) return true;
+        if (scalar(value)) return true;
+        if (value.getTypeCode() != ::ot_array) return false;
+        const int n = const_cast<Obj&>(value).getArrayNItems();
+        for (int i = 0; i < n; ++i) {
+            const Obj item = const_cast<Obj&>(value).getArrayItem(i);
+            if (!item.isIndirect() && !scalar(item)) return false;
+        }
+        return true;
+    }
 
     explicit KidEntries(const std::map<std::string, Obj>& entries) {
         for (const auto& item : entries) {
             const std::string& key = item.first;
             const Obj* value = &item.second;
+            const bool is_k = key.size() == 2 && key[0] == '/' && key[1] == 'K';
+            if (flat && !is_k && (!flat_value(*value) || key == "/Metadata")) flat = false;
             if (key.empty() || key[0] != '/') continue;
             switch (key.size()) {
                 case 2:
@@ -621,7 +654,7 @@ struct StructTree::Build {
 };
 
 int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b,
-                            std::uint64_t* out, Obj* kids_out) {
+                            std::uint64_t* out, Obj* kids_out, bool* flat_out) {
     // TaggedPDFHelper.getChildren: a dictionary whose /Type is absent or /StructElem is a structure
     // element; a dictionary or stream with /Type /MCR or /OBJR is a content item; an integer is an MCID.
     if (item.isDictionary()) {
@@ -672,6 +705,7 @@ int StructTree::collect_kid(const Obj& item, int elem_index, std::uint32_t inher
             e.page = pg;
             e.inherited_page = pages_[pg].valid() ? pg : inherited_page;
             e.keys = in.bits;
+            *flat_out = in.flat;
             // /P naming the node this element is reached from (the handle is compared, nothing is resolved)
             if (in.p && in.p->isIndirect()) {
                 const ObjRef from = elem_index >= 0 ? elems_[static_cast<std::size_t>(elem_index)].ref : root_ref_;
@@ -853,6 +887,8 @@ void StructTree::build(Document& doc) {
         std::size_t next = 0;
         std::size_t first_kid = 0;   // where the node's kid words start in Build::scratch
         std::size_t n_kids = 0;
+        // StructElem::flat_dict so far: the entries other than /K (collect_kid), and the items of /K up to `next`
+        bool flat = false;
     };
     // The items of a node's /K (`k`: the value as the dictionary holds it, an uninitialised handle when it has none;
     // a null value is no item, as for cos::get).
@@ -870,17 +906,19 @@ void StructTree::build(Document& doc) {
     pages_.push_back(ObjRef{});
     b.page_ids.emplace(Build::full_key(ObjRef{}), 0);
     std::vector<Frame> stack;
-    auto open = [&](int elem, const Obj& k) {
-        Frame f{elem, items_of(k), 0, b.scratch.size(), 0};
+    auto open = [&](int elem, const Obj& k, bool flat) {
+        // a direct /K that is no array is a single item below; an array's items are looked at one by one
+        Frame f{elem, items_of(k), 0, b.scratch.size(), 0, flat};
         b.scratch.resize(f.first_kid + f.items.size());
         stack.push_back(std::move(f));
     };
     try {
-        open(-1, cos::get(root_, "K"));
+        open(-1, cos::get(root_, "K"), false);
         while (!stack.empty()) {
             Frame& f = stack.back();
             if (f.next >= f.items.size()) {
                 seal_kids(f.elem, b.scratch.data() + f.first_kid, f.n_kids, f.n_kids == f.items.size());
+                if (f.flat && f.elem >= 0) elems_[static_cast<std::size_t>(f.elem)].flags |= kFlatDict;
                 b.scratch.resize(f.first_kid);
                 stack.pop_back();
                 continue;
@@ -889,10 +927,13 @@ void StructTree::build(Document& doc) {
             int parent = f.elem;
             const std::uint32_t ip = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].inherited_page : 0;
             int depth = parent >= 0 ? elems_[static_cast<std::size_t>(parent)].depth + 1 : 0;
+            // an item of /K that is a direct dictionary or array: the node's dictionary is not flat
+            if (f.flat && !item.isIndirect() && !scalar(item)) f.flat = false;
             Obj k;   // /K of a new element
-            int idx = collect_kid(item, parent, ip, depth, b, &b.scratch[f.first_kid + f.n_kids], &k);
+            bool flat = false;   // ... and whether its entries other than /K are flat
+            int idx = collect_kid(item, parent, ip, depth, b, &b.scratch[f.first_kid + f.n_kids], &k, &flat);
             if (idx >= -1) ++f.n_kids;
-            if (idx >= 0) open(idx, k);   // invalidates f
+            if (idx >= 0) open(idx, k, flat);   // invalidates f
         }
     } catch (...) {
         // The traversal failed (a damaged object). The caller notes it and goes on with the tree as far as it got:

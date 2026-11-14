@@ -463,7 +463,16 @@ private:
             };
             std::stable_sort(objs.begin(), objs.end(), [&](const Obj& a, const Obj& b) { return bucket(a) < bucket(b); });
         }
-        for (auto& o : objs) visit(o);
+        // Most indirect objects of a tagged document are structure elements, and of most of these the tree knows that
+        // the dictionary has no /Metadata and holds no direct dictionary or nested array (StructElem::flat_dict). Such
+        // an object has nothing for this walk: it is no file specification (an element's /Type is absent or
+        // /StructElem), it has no metadata, and its direct values are scalars and arrays of scalars and references.
+        const StructTree& st = ctx_->st;
+        for (auto& o : objs) {
+            if (st.present())
+                if (const int i = st.find(ref_of(o)); i >= 0 && st.elem(i).flat_dict) continue;
+            visit(o);
+        }
     }
 
     // ----------------------------------------------------------------------------------- embedded files

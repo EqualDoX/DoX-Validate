@@ -295,6 +295,22 @@ void expect_same_tree(const StructTree& st, const PlainTree& plain) {
         const Obj k = cos::get(w.dict, "K");
         const std::size_t items = k.isArray() ? static_cast<std::size_t>(const_cast<Obj&>(k).getArrayNItems()) : k.isNull() ? 0 : 1;
         EXPECT_EQ(e.k_is_kids, items == w.kids.size());
+        // flat_dict: no /Metadata, and every value a reference, a scalar or an array of references and scalars
+        const auto is_scalar = [](const Obj& o) {
+            return !o.isIndirect() && (o.isNull() || o.isBool() || o.isInteger() || o.isReal() || o.isString() || o.isName());
+        };
+        const auto dict_entries = const_cast<Obj&>(w.dict).getDictAsMap();
+        bool flat = dict_entries.count("/Metadata") == 0;
+        for (const auto& [key, value] : dict_entries) {
+            if (value.isIndirect() || is_scalar(value)) continue;
+            if (!value.isArray()) {
+                flat = false;
+                continue;
+            }
+            for (const Obj& item : cos::array_items(value))
+                if (!item.isIndirect() && !is_scalar(item)) flat = false;
+        }
+        EXPECT_EQ(e.flat_dict, flat);
         // the key bits against the dictionary itself
         const auto entries = const_cast<Obj&>(w.dict).getDictAsMap();
         const std::pair<StructElem::Key, const char*> keys[] = {
@@ -385,6 +401,10 @@ void build_mixed_tree(QPDF& q) {
     para2.replaceKey("/P", P("<< /S /Sect >>"));
     chain.replaceKey("/P", q.makeIndirectObject(P("[ 1 2 ]")));
     loop.replaceKey("/P", sect1);
+    para1.replaceKey("/Metadata", q.makeIndirectObject(P("<< /Type /Other >>")));
+    in_pdf2_a.replaceKey("/A", P("<< /O /Layout /Placement /Block >>"));
+    in_pdf2_b.replaceKey("/A", P("[ 1 2 (three) /four ]"));
+    in_pdf2_title.replaceKey("/C", P("[ /one [ /two ] ]"));
     in_other2.replaceKey("/P", in_other);
     cyclic.replaceKey("/P", inside_cycle);   // hangs from sect2
     inside_cycle.replaceKey("/P", cyclic);
@@ -444,8 +464,12 @@ EQX_TEST(structure_storage_views_match_plain_records) {
         by_p += e.p_is_parent;
         other_p += e.has_key(StructElem::kP) && !e.p_is_parent;
     }
-    std::size_t stray = 0;
-    for (const StructElem& e : st.elems()) stray += !e.k_is_kids;
+    std::size_t stray = 0, flat = 0;
+    for (const StructElem& e : st.elems()) {
+        stray += !e.k_is_kids;
+        flat += e.flat_dict;
+    }
+    EXPECT(flat >= 10 && flat + 8 <= st.elems().size());   // both kinds
     EXPECT_EQ(stray, std::size_t(2));     // chain (a stream that is no kid), unknown (a name, a string, ...)
     EXPECT_EQ(by_p, std::size_t(6));      // doc, sect1, para1, loop, in_other2, inside_cycle
     EXPECT_EQ(other_p, std::size_t(5));   // sect2, shared, para2, chain, cyclic

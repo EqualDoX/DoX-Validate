@@ -138,6 +138,9 @@ struct StructElem {
     bool p_is_parent;
     // Every item of /K is one of `kids`: none was passed over (a name, a string, a dictionary of another /Type, ...).
     bool k_is_kids;
+    // The dictionary holds nothing but references, scalars and arrays of these, and has no /Metadata: no direct
+    // dictionary and no nested array is inside it (seen as the dictionary stood when the element was collected).
+    bool flat_dict;
     ObjRef page;                        // own /Pg
     ObjRef inherited_page;              // own /Pg, else nearest ancestor's /Pg
 
@@ -289,9 +292,9 @@ private:
         const std::uint64_t* block = nullptr;
         std::uint32_t n_struct = 0;
         std::uint16_t keys = 0;
-        std::uint8_t flags = 0;             // kChecked, kShared, kParentByP, kAllKids
+        std::uint8_t flags = 0;             // kChecked, kShared, kParentByP, kAllKids, kFlatDict
     };
-    enum : std::uint8_t { kChecked = 1, kShared = 2, kParentByP = 4, kAllKids = 8 };
+    enum : std::uint8_t { kChecked = 1, kShared = 2, kParentByP = 4, kAllKids = 8, kFlatDict = 16 };
     struct TypeFacts {
         std::optional<std::string> S;
         SType type;
@@ -328,10 +331,11 @@ private:
     mutable bool truncated_ = false;
     struct Build;   // what only the traversal needs (structure.cpp)
     // Records one /K item of a node (elem_index -1 = StructTreeRoot) as a kid word in *out. Returns the index of a
-    // newly created element (to be expanded next; the /K value its dictionary holds, if any, in *kids_out), -1 for any other kid,
+    // newly created element (to be expanded next; the /K value its dictionary holds, if any, in *kids_out, and whether
+    // its other entries are flat, StructElem::flat_dict, in *flat_out), -1 for any other kid,
     // -2 when the item is no kid (nothing written).
     int collect_kid(const Obj& item, int elem_index, std::uint32_t inherited_page, int depth, Build& b, std::uint64_t* out,
-                    Obj* kids_out);
+                    Obj* kids_out, bool* flat_out);
     // Gives a node (elem_index -1 = StructTreeRoot) its kids: `n` words. `all_items`: every item of its /K is among them.
     void seal_kids(int elem_index, const std::uint64_t* words, std::size_t n, bool all_items);
     void simulate_verapdf_visits();
@@ -404,7 +408,8 @@ inline StructElem StructTree::elem(int i) const {
     const ObjRef inherited = pages_[r.inherited_page];
     return {i,       r.parent, r.depth, r.dict, r.ref, t.S, t.type, t.std17, t.std20, r.type,
             StructKids(this, r.block, r.n_kids, inherited), elems_of(r), struct_kids_of(r), (r.flags & kChecked) != 0,
-            r.keys,  (r.flags & kParentByP) != 0, (r.flags & kAllKids) != 0, pages_[r.page], inherited};
+            r.keys,  (r.flags & kParentByP) != 0, (r.flags & kAllKids) != 0, (r.flags & kFlatDict) != 0, pages_[r.page],
+            inherited};
 }
 
 inline StructKid StructKids::operator[](std::size_t i) const { return tree_->kid_view(words_[i], page_); }
