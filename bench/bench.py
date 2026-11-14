@@ -43,6 +43,8 @@ DOX = ROOT / "build-bench" / "dox-validate"
 RUSAGE_EXEC = TOOLS / "rusage_exec"
 CPDF = TOOLS / "cpdf-2.9.3" / "cpdf"
 VERAPDF = {"1.30.4": TOOLS / "verapdf-1.30.4" / "verapdf", "1.30.2": TOOLS / "verapdf-1.30.2" / "verapdf"}
+VELLUM = TOOLS / "vellum-2.3.3" / "vellum-preflight"
+OUTLOUD = TOOLS / "outloud-0.2.1" / "bin" / "outloud"
 CLK_TCK = os.sysconf("SC_CLK_TCK")
 PAGE = os.sysconf("SC_PAGE_SIZE")
 
@@ -57,6 +59,12 @@ def argv_for(variant: str, files: list[str], workers: int = 1) -> list[str]:
     if variant == "cpdf-ua1":       # secondary competitor: cpdf's partial Matterhorn (PDF/UA-1) verifier, one file per run
         assert len(files) <= 1 and workers == 1
         return [str(CPDF), "-verify", "PDF/UA-1(matterhorn)", "-json", *files]
+    if variant == "vellum-ua1":     # VellumPdf.Cli: its PDF/UA-1 profile (own engine); several files in one process
+        assert workers == 1
+        return [str(VELLUM), "-p", "ua1", "-f", "json", *files]
+    if variant == "outloud-conf":   # outloud: its PDF/UA-1 conformance layer (the semantic layer is not a PDF/UA check)
+        assert workers == 1
+        return [str(OUTLOUD), "--layer", "conformance", "-q", "--json", "-", *files]
     m = re.fullmatch(r"vp(\d+\.\d+\.\d+)?-(ua1|ua2|wt1a|wt1r)", variant)
     if m:
         exe = VERAPDF[m.group(1) or "1.30.4"]
@@ -128,7 +136,27 @@ def check_cpdf(out: Path, expected: int, exit_code: int, path: str) -> tuple[lis
     return [(path, "ok" if ok else f"failed:exit{exit_code}", None)], ""
 
 
+def check_results_list(variant: str, out: Path, expected: int) -> tuple[list[tuple[str, str, float | None]], str]:
+    """vellum-preflight (one report, or {"results": [...]}) and outloud ({"results": [...]}): one entry per file."""
+    rows = []
+    try:
+        d = json.loads(out.read_bytes())
+        for it in d["results"] if "results" in d else [d]:
+            if variant == "vellum-ua1":
+                st = "ok" if isinstance(it.get("conformant"), bool) else "failed:" + str(it.get("error") or "no_result")[:60]
+                rows.append((it.get("file", ""), st, None))
+            else:
+                st = "ok" if not it.get("error") else "failed:" + str(it["error"])[:60]
+                ms = it["seconds"] * 1000 if isinstance(it.get("seconds"), (int, float)) else None
+                rows.append((it.get("path", ""), st, ms))
+    except (OSError, ValueError, KeyError, TypeError) as e:
+        return rows, f"report unreadable: {e!r}"[:200]
+    return rows, "" if len(rows) == expected else f"{len(rows)} of {expected} reports"
+
+
 def check(variant: str, out: Path, expected: int, exit_code: int = 0, files: list[str] | None = None):
+    if variant in ("vellum-ua1", "outloud-conf"):
+        return check_results_list(variant, out, expected)
     if variant.startswith("cpdf"):
         return check_cpdf(out, expected, exit_code, (files or [""])[0])
     return (check_dox if variant.startswith("dox") else check_verapdf)(out, expected)

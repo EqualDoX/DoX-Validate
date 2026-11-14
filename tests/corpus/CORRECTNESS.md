@@ -207,7 +207,65 @@ Exit statuses were always 0, 1 or 2, every report validated against the schema, 
 - **Missing reference suite:** the PDF Association PDF/UA Reference Suite could not be downloaded non-interactively
   (HTTP 403 bot challenge), so it is not part of the corpus.
 
-## 7. Reproducing
+## 7. Comparison with VellumPdf 2.3.3 and outloud 0.2.1
+
+Both tools are PDF/UA-1 checkers with engines of their own:
+
+- **VellumPdf.Cli** (`vellum-preflight -p ua1`) has 106 rules that mirror veraPDF's PDF/UA-1 profile.
+- **outloud** has a conformance layer and a heuristic "semantic" layer.
+
+They ran on the 554 files of `build_corpus.py --suites` next to dox-validate (2026-11-14). Every error class that
+either tool reports and dox-validate does not was examined against the standard and the PDF structure.
+
+veraPDF PDF/UA-1 test suite, with the verdict taken from the file name. outloud is matched at clause level, because
+its rule ids are its own.
+
+| tool | fail files detected | pass files flagged |
+|---|---|---|
+| dox-validate | 144 / 156 | 0 / 140 |
+| VellumPdf 2.3.3 | 128 / 156 | 20 / 140 |
+| outloud 0.2.1 | 76 / 156 | 33 / 140 |
+
+None of the suite fail files that dox-validate misses is detected by either tool under its expected test, except the
+two cases below.
+
+**Adopted**
+
+- **Remapped Figures.** A Figure whose standard type the RoleMap remaps is now checked for alternative text through
+  PAC's definition of 7.3-1. The case is `libreoffice-draw-guide-268`, which has 1,090 Figures; VellumPdf and outloud
+  report them too. See section 4.
+- **7.5-1 as in veraPDF 1.30.4.** VellumPdf misses `7.5-t01-fail-c`; outloud reports it. See section 3.
+
+**Not adopted, with the reasons**
+
+- **VellumPdf 7.2-41/42/43.** VellumPdf reports all three rules for every irregular table. dox-validate and veraPDF
+  report the one variant that applies; the tables are the same (23 of 23 in `nist-sp800-53r5`).
+- **VellumPdf 7.5-1, 895 times in `nist-sp800-53r5`.** These TDs are in tables that have no TH at all. veraPDF 1.30.2
+  and 1.30.4 report nothing.
+- **VellumPdf 7.18.1-3 on two US government forms.** veraPDF reports nothing, and VellumPdf also flags the suite's
+  7.18.1-t03 pass files.
+- **VellumPdf 7.1-5 next to 7.1-6 for a circular role map.** This is one defect reported twice. veraPDF reports 7.1-6,
+  as dox-validate does.
+- **VellumPdf missing language on an untagged scan.** dox-validate reports it through PAC's definition of 7.2-29 and
+  through UA-2 8.4.4-1.
+- **outloud DOC-012.** outloud checks PDF/UA-1 only, so it fails `pdfuaid:part` 2.
+- **outloud LNK-004 (Print flag) and DOC-015 (Info /Title vs XMP).** These are PDF/A requirements, not PDF/UA ones.
+- **outloud DOC-021.** It flags XFA, but both files carry static XFA, which ISO 14289-1 7.15 allows.
+- **outloud TXT-003, FRM-001, LNK-002, MATH-001.** These fire on suite pass files and on `field-alt-instead-of-tu`.
+- **outloud table and list nesting (TBL-003/004/005, LST-001/003/004).** dox-validate reports the same defects
+  under the 7.2-x containment rules.
+
+**outloud's semantic layer.** These are heuristics, not PDF/UA conformance checks.
+
+- **Already covered by dox-validate's PAC Quality equivalents:** a title that is a file name, prose marked as an
+  artifact, URLs without a link, missing bookmarks, and whitespace-only text.
+- **Not covered, candidates for review-only rules:** empty structure elements, headings that are paragraphs,
+  image-only pages, placeholder alternative text, private-use Unicode mappings, references that point nowhere, and Link
+  elements without text.
+- **Too noisy on this corpus:** ruled grids without a Table (739 hits, mostly form boxes), the paint-order heuristic,
+  and "shredded" header cells.
+
+## 8. Reproducing
 
 ```sh
 python3 tests/corpus/build_corpus.py --suites --out /tmp/corpus     # 554 files

@@ -2,7 +2,7 @@
 # Downloads and installs the pinned competitor tools for the benchmark into bench/.tools/ (gitignored),
 # and builds the dox-validate binary used by the benchmark into build-bench/.
 #
-#   bench/setup_tools.sh            # JRE + veraPDF 1.30.4 + veraPDF 1.30.2 + cpdf + helper + dox-validate
+#   bench/setup_tools.sh            # JRE + veraPDF 1.30.4 + 1.30.2 + cpdf + VellumPdf + outloud + helper + dox-validate
 #   bench/setup_tools.sh --no-build # skip the dox-validate build
 #
 # Every download is verified against a pinned SHA-256 before it is unpacked or executed.
@@ -82,6 +82,22 @@ if [[ ! -x "$TOOLS/cpdf-$CPDF_VERSION/cpdf" ]]; then
   rm -rf "$TOOLS/cpdf.unpack"
 fi
 "$TOOLS/cpdf-$CPDF_VERSION/cpdf" -version | head -1
+
+# --- VellumPdf.Cli (vellum-preflight, Apache-2.0; PDF/UA-1 validator with its own engine): release binary, linux x64
+VELLUM_VERSION="2.3.3"
+VELLUM_URL="https://github.com/Tim81/VellumPDF/releases/download/v$VELLUM_VERSION/vellum-preflight-$VELLUM_VERSION-linux-x64"
+VELLUM_SHA256="518e31d029109c839dac55b34e5c4deffc5bb1dfcbd6dc1698ca02c5046ac790"
+fetch "$VELLUM_URL" "$DL/vellum-preflight-$VELLUM_VERSION" "$VELLUM_SHA256"
+install -D -m 755 "$DL/vellum-preflight-$VELLUM_VERSION" "$TOOLS/vellum-$VELLUM_VERSION/vellum-preflight"
+"$TOOLS/vellum-$VELLUM_VERSION/vellum-preflight" --version
+
+# --- outloud (Apache-2.0; PDF/UA-1 conformance layer plus heuristic checks, Python): its own virtual environment
+OUTLOUD_VERSION="0.2.1"
+if [[ ! -x "$TOOLS/outloud-$OUTLOUD_VERSION/bin/outloud" ]]; then
+  python3 -m venv "$TOOLS/outloud-$OUTLOUD_VERSION"
+  "$TOOLS/outloud-$OUTLOUD_VERSION/bin/pip" install --quiet "outloud==$OUTLOUD_VERSION"
+fi
+"$TOOLS/outloud-$OUTLOUD_VERSION/bin/outloud" --version
 
 # --- measurement helper (wall time, CPU time and peak RSS of one tool process; see bench/rusage_exec.c)
 cc -O2 -Wall -o "$TOOLS/rusage_exec" "$HERE/rusage_exec.c"

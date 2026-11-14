@@ -231,13 +231,28 @@ How to read these numbers:
   long-running process, the per-document validation times of the two tools differ by about 3.9×.
 - **cpdf is comparable on small files.** Its PDF/UA-1 verifier, which covers only part of PDF/UA-1, is about as fast
   as dox-validate there.
+- **Other PDF/UA-1 checkers** were compared in a separate run (2026-11-14, same corpus and method, one process per
+  document), together with their accuracy on veraPDF's PDF/UA-1 test suite:
+
+  | | dox-validate | VellumPdf 2.3.3 | outloud 0.2.1 |
+  |---|---|---|---|
+  | median per document: small / medium / large | 6.3 ms / 74 ms / 1.29 s | 4.4 ms / 224 ms / 1.51 s | 393 ms / 837 ms / 4.30 s |
+  | throughput, one process per file | 852 pages/s | 280 pages/s | 88 pages/s |
+  | peak memory: median / maximum | 21 MB / 722 MB | 13 MB / 241 MB | 88 MB / 546 MB |
+  | suite: fail files detected, pass files flagged | 144/156, 0/140 | 128/156, 20/140 | 76/156, 33/140 |
+
+  VellumPdf is faster on small files and uses less memory. dox-validate is faster on medium and large files, and
+  checks PDF/UA-2, WTPDF and WCAG in the same run. Details:
+  [docs/BENCHMARKS.md](docs/BENCHMARKS.md#pdfua-1-validators-vellumpdf-and-outloud).
 - **PAC was not benchmarked.** PAC is a Windows-only GUI with no command-line or batch interface, and no Windows
   machine was available. A run under Wine would not measure PAC as distributed. The details, and what a valid
   comparison would need, are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md#pac-pdf-accessibility-checker).
 - **Speed is not validation quality.** Correctness is tested separately, against expectations that do not come from
   any tool ([tests/corpus/CORRECTNESS.md](tests/corpus/CORRECTNESS.md)).
-- **Measured commit.** The benchmark ran on commit `f37a695`. The published 0.2.0 gives the same exit codes and
-  findings on every corpus file, with run times within 0.4%.
+- **Measured commits.** The veraPDF comparison ran on commit `f37a695`. The published 0.2.0 (`5ae7da2`) gave the same
+  exit codes and findings on every corpus file, with run times within 0.4%. The PDF/UA-1 comparison ran on `f75a2b3`,
+  which adds the alternative-text check for remapped Figures and the veraPDF 1.30.4 reading of 7.5-1; that changes the
+  findings of two corpus files.
 
 ## Reproducing the benchmarks
 

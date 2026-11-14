@@ -1,9 +1,10 @@
 # Performance benchmark: dox-validate vs. veraPDF (and cpdf)
 
 The scripts in this directory measure dox-validate against veraPDF, the main open-source competitor, and against
-cpdf's PDF/UA-1 verifier as a second tool. They run on the frozen test corpus in `tests/corpus/`. The method,
-environment, results and caveats are in [`docs/BENCHMARKS.md`](../docs/BENCHMARKS.md). The raw measurements are in
-`results/`.
+cpdf's PDF/UA-1 verifier as a second tool. A separate cold-start comparison covers two further PDF/UA-1 checkers
+with engines of their own, VellumPdf.Cli and outloud. They run on the frozen test corpus in `tests/corpus/`. The
+method, environment, results and caveats are in [`docs/BENCHMARKS.md`](../docs/BENCHMARKS.md). The raw measurements
+are in `results/`.
 
 Faster execution does not mean the validation is equivalent. The tools check different rule sets (see
 docs/BENCHMARKS.md, "Scope"). Correctness and coverage are analysed separately.
@@ -12,12 +13,13 @@ docs/BENCHMARKS.md, "Scope"). Correctness and coverage are analysed separately.
 
 | file | purpose |
 |---|---|
-| `setup_tools.sh` | Downloads and installs the pinned tools into `.tools/` (gitignored), verifying every download by SHA-256: Temurin JRE 21.0.13+9, veraPDF 1.30.4 and 1.30.2 (greenfield), cpdf 2.9.3. It also builds `rusage_exec` and the Release binary `build-bench/dox-validate`. |
+| `setup_tools.sh` | Downloads and installs the pinned tools into `.tools/` (gitignored), verifying every download by SHA-256: Temurin JRE 21.0.13+9, veraPDF 1.30.4 and 1.30.2 (greenfield), cpdf 2.9.3, VellumPdf.Cli 2.3.3 (release binary), outloud 0.2.1 (from PyPI into its own virtual environment; pip resolves its dependencies). It also builds `rusage_exec` and the Release binary `build-bench/dox-validate`. |
 | `rusage_exec.c` | Small helper that runs one tool process and reports its wall time, user/sys CPU time and peak RSS (from `wait4`). |
 | `bench.py` | Measurement harness, Python standard library only. Blocks: `env startup cold batch parallel`. |
 | `ab_dox.py` | A/B of two dox-validate binaries, one process per document and alternating order, on selected or all (`--all`) corpus documents. It compares exit codes and findings (rule ids and occurrence counts). |
 | `analyze.py` | Turns `results/*.csv` into `results/summary.json`, `results/tables.md` and `results/chart.svg`. |
-| `results/` | Raw measurements (CSV, one row per tool process), `env.json`, `corpus.csv`, `load.jsonl`, and the derived summary. |
+| `analyze_ua1_tools.py` | Tables of the PDF/UA-1 tool comparison from a cold block: writes `tables.md` into the results directory it is given. |
+| `results/` | Raw measurements (CSV, one row per tool process), `env.json`, `corpus.csv`, `load.jsonl`, and the derived summary. `results/ua1-tools-2026-11-14/` holds the PDF/UA-1 tool comparison. |
 
 ## Reproduce
 
@@ -44,6 +46,11 @@ python3 -I bench/ab_dox.py build-bench/dox-validate OTHER_BUILD/dox-validate --a
 
 # 5. Aggregation (writes results/summary.json, results/tables.md, results/chart.svg)
 python3 -I bench/analyze.py
+
+# 6. PDF/UA-1 tool comparison, cold block only (about 20 min on the reference host), in its own results directory
+python3 -I bench/bench.py env cold --cpus 0-7 --sample-cpu 16 \
+    --cold-variants dox,dox-ua1rules,vellum-ua1,outloud-conf --results bench/results/ua1-tools-NEW
+python3 -I bench/analyze_ua1_tools.py bench/results/ua1-tools-NEW
 ```
 
 Each block can be run on its own, for example `python3 -I bench/bench.py env cold`. A block overwrites its own CSV
@@ -65,12 +72,16 @@ checks or failures; dox-validate always evaluates its whole catalogue.
 | `vp-ua1`, `vp-ua2`, `vp-wt1a`, `vp-wt1r` | `.tools/verapdf-1.30.4/verapdf -f PROFILE --format json [--processes N] FILE...` with `JAVA_HOME=.tools/jre-21.0.13+9` |
 | `vp1.30.2-ua1` | the same with veraPDF 1.30.2 |
 | `cpdf-ua1` | `.tools/cpdf-2.9.3/cpdf -verify "PDF/UA-1(matterhorn)" -json FILE` (one file per process; cpdf has no batch mode) |
+| `vellum-ua1` | `.tools/vellum-2.3.3/vellum-preflight -p ua1 -f json FILE...` |
+| `outloud-conf` | `.tools/outloud-0.2.1/bin/outloud --layer conformance -q --json - FILE...` (its semantic layer is not run) |
 
 Every tool process is pinned to the CPU set through the spawning thread's affinity. A file counts as processed if:
 
 - dox-validate: a report with `processed: true`;
 - veraPDF: a job with a `validationResult` whose `jobEndStatus` is `normal`;
-- cpdf: exit status 0 and a JSON array.
+- cpdf: exit status 0 and a JSON array;
+- VellumPdf: a report entry with a boolean `conformant`;
+- outloud: a result entry without `error`.
 
 Anything else is recorded as a failure and excluded from the timing statistics.
 

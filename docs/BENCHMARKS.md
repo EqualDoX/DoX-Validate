@@ -43,6 +43,10 @@ The supplementary measurements:
 - cpdf took about as long as dox-validate per small document (5.0 ms). On two documents (132 and 350 pages) it did
   not finish within the 120 s timeout.
 - veraPDF 1.30.2 performed like 1.30.4 (within 2% in the batch run).
+- In a separate run (2026-11-14), VellumPdf 2.3.3 and outloud 0.2.1 were measured. Both are PDF/UA-1 checkers with
+  engines of their own. VellumPdf was faster than dox-validate on small documents and used less memory; dox-validate
+  was faster on medium and large documents. outloud took 6 to 60 times as long. See
+  [PDF/UA-1 validators: VellumPdf and outloud](#pdfua-1-validators-vellumpdf-and-outloud).
 
 ## Scope of the comparison
 
@@ -94,7 +98,6 @@ checked and excluded. No numbers are reported for them.
 | iText Core `pdfua` module | Apryse/iText | Java library that checks conformance while a document is being created. No CLI for validating existing files; using it would need custom glue code. |
 | Apryse SDK accessibility | Apryse | Auto-tagging and conversion, not a validator. Commercial. |
 | pdf_oxide 0.3.78 | open source (MIT/Apache-2.0) | The PDF/UA checks exist only in the library API. The released CLI (`pdf-oxide`) has no `validate` command (checked). Coverage unverified. |
-| outloud | open source (Apache-2.0) | Young project (no tagged release; about 10 commits). PDF/UA-1 and WCAG 2.2 with 91 self-reported rules. Not pinnable to a release. A candidate for a future comparison. |
 | pdfua (PyPI), pdfa11y | open source | Triage tools with 16 and 9 checks respectively, not comparable validators. |
 | pdf-a11y (PyPI), PDF4WCAG | — | Remediation tools or front ends that use veraPDF for validation. |
 | Apache PDFBox Preflight, qpdf `--check`, pdfcpu `validate` | open source | Not accessibility validators (PDF/A-1b or syntax checks only). |
@@ -438,6 +441,60 @@ had the most foreign CPU time on the benchmark CPUs (14% of their capacity), mos
 repetition holds the slowest veraPDF runs: 1.30.2 took 198 s against a 168 s median, with 524 s of foreign CPU time,
 and `wt1r` took 246 s against 176 s, with 1152 s of foreign CPU time (`foreign_cpu_s` in `batch.csv`). The medians
 are robust to such single disturbed repetitions.
+
+## PDF/UA-1 validators: VellumPdf and outloud
+
+Two open-source PDF/UA-1 checkers with engines of their own were added after a competitor search on 2026-11-14:
+
+- **VellumPdf.Cli 2.3.3** (`vellum-preflight`, Apache-2.0) is a .NET program shipped as a native Linux release
+  binary. Its `ua1` profile has 106 rules that mirror veraPDF's PDF/UA-1 profile. It ran as
+  `vellum-preflight -p ua1 -f json FILE`.
+- **outloud 0.2.1** (Apache-2.0) is written in Python on pikepdf. It ran with `--layer conformance`, its rules
+  calibrated against veraPDF's PDF/UA-1 profile (about 90). Its semantic layer, heuristics outside PDF/UA, was not
+  run.
+
+Both are pinned in [`bench/setup_tools.sh`](../bench/setup_tools.sh) and wired into
+[`bench/bench.py`](../bench/bench.py) as the variants `vellum-ua1` and `outloud-conf`. dox-validate was measured at
+commit `f75a2b3`, with the full catalogue and with `--rules EQX-UA1-` (the 106 rules that mirror veraPDF's PDF/UA-1
+profile).
+
+**Method.** This used the same harness and corpus as above, on CPU set 0–7, in a separate run (2026-11-14) that
+started once the machine had been quiet for 10 minutes.
+
+- Only the cold block is reported: one process per document, 5 interleaved repetitions, and the 148 documents that
+  every variant processed. Foreign CPU on the set was 5.3 %.
+- The batch and parallel blocks were run too, but under 31 % and 14 % foreign CPU from other jobs. That load hit the
+  longer-running tools harder, so those blocks are not reported.
+- dox-validate's own times differ slightly from the earlier run because the conditions differ. Compare tools within a
+  run.
+
+Raw data: [`bench/results/ua1-tools-2026-11-14/`](../bench/results/ua1-tools-2026-11-14/). The tables come from
+[`bench/analyze_ua1_tools.py`](../bench/analyze_ua1_tools.py).
+
+| measure (one process per document) | dox-validate (full) | dox-validate `--rules EQX-UA1-` | VellumPdf 2.3.3 `-p ua1` | outloud 0.2.1 (conformance) |
+|---|---|---|---|---|
+| median per document: small / medium / large | 6.34 ms / 74.3 ms / 1.29 s | 6.21 ms / 61.2 ms / 893 ms | 4.38 ms / 224 ms / 1.51 s | 393 ms / 837 ms / 4.30 s |
+| time ÷ dox-validate (full), median of per-document ratios: small / medium / large | 1 | 0.98× / 0.77× / 0.70× | 0.70× / 2.67× / 1.47× | 59.5× / 11.2× / 6.34× |
+| sequential, whole corpus: documents/s, pages/s | 9.01, 852 | 12.9, 1,223 | 2.96, 280 | 0.93, 88 |
+| peak RSS per process: median / maximum | 20.6 MB / 722 MB | 20.0 MB / 689 MB | 12.9 MB / 241 MB | 87.5 MB / 546 MB |
+
+**Reading.**
+
+- **Small files.** VellumPdf is faster than dox-validate on small files (median ratio 0.70×) and uses less memory. Its
+  native, self-contained binary starts quickly. dox-validate spends about 2–3 ms per process on dynamic linking and
+  qpdf's GnuTLS initialisation (see the open opportunities below).
+- **Medium and large files.** dox-validate is faster, with the full catalogue as well as with the PDF/UA-1 rules only.
+  Over the whole corpus it processes about three times as many pages per second as VellumPdf.
+- **outloud** takes 6 to 60 times as long as the full dox-validate run.
+- **Scope.** Each dox-validate run also covers PDF/UA-2, WTPDF, the PAC-equivalent checks and WCAG; neither of the
+  other tools does.
+- **Correctness differs as well.** On veraPDF's PDF/UA-1 test suite, the share of fail files detected and the share
+  of pass files wrongly flagged were:
+  - dox-validate: 144 of 156 detected, 0 of 140 flagged;
+  - VellumPdf: 128 detected, 20 flagged;
+  - outloud: 76 detected, 33 flagged.
+
+  See [`tests/corpus/CORRECTNESS.md`](../tests/corpus/CORRECTNESS.md), section 7.
 
 ## Performance observations on dox-validate
 
