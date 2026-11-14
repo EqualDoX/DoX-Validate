@@ -147,6 +147,8 @@ private:
     // --- veraPDF helpers ---------------------------------------------------------------------------
     std::optional<std::string> std_type(const Obj& d, Flavor f) const;
     bool is_artifact20(const Obj& parent) const;
+    // is_artifact20 for a chain that starts at an element of the tree: 0 = not asked yet, 1 = no, 2 = yes.
+    mutable std::vector<char> artifact_chain_;
     Obj parent_tree_entry(const Obj& owner);
     bool contains_lbl(const Obj& parent) const;
     std::optional<std::uint64_t> structure_destination_key(const Annot& a);
@@ -197,15 +199,57 @@ std::optional<std::string> Pass::std_type(const Obj& d, Flavor f) const {
 
 bool Pass::is_artifact20(const Obj& parent) const {
     // GFPDAnnot.getisArtifact: the parent and its /P chain (loops end the walk; veraPDF would not stop).
+    //
+    // The answer is "some object on the chain is an Artifact", so it belongs to every object of the chain: it is kept
+    // for the elements of the tree the walk passes, and a walk ends at the first element already answered. An element
+    // of the tree has its standard type in its record (what std_type reads from the dictionary), and where its /P
+    // names the element it hangs from (StructElem::p_is_parent) the step is taken without reading /P.
+    const auto& elems = st_.elems();
+    if (artifact_chain_.size() != elems.size()) artifact_chain_.assign(elems.size(), 0);
     std::unordered_set<std::uint64_t> seen;
+    std::vector<int> passed;   // the elements of this walk
+    bool result = false;
     Obj e = parent;
-    while (!e.isNull()) {
-        if (e.isIndirect() && !seen.insert(ref_of(e).key()).second) break;
-        auto t = std_type(e, Flavor::Pdf20);
-        if (t && *t == "Artifact") return true;
-        e = cos::get(e, "P");
+    int node = -1;             // the element of the tree that the walk stands on (then `e` is not used), or -1
+    for (;;) {
+        if (node < 0) {
+            if (e.isNull()) break;
+            if (e.isIndirect()) {
+                const ObjRef r = ref_of(e);
+                if (!seen.insert(r.key()).second) break;
+                node = st_.find(r);
+            }
+        } else if (!seen.insert(elems[node].ref.key()).second) {
+            break;
+        }
+        if (node >= 0) {
+            const StructElem at = elems[node];
+            if (artifact_chain_[node] != 0) {
+                result = artifact_chain_[node] == 2;
+                break;
+            }
+            passed.push_back(node);
+            if (at.std20 && at.std20->type == "Artifact") {
+                result = true;
+                break;
+            }
+            if (at.p_is_parent && at.parent >= 0) {
+                node = at.parent;   // an indirect element: p_is_parent says its object is what /P names
+            } else {
+                e = at.p_is_parent ? st_.root() : cos::get(at.dict, "P");
+                node = -1;
+            }
+        } else {
+            auto t = std_type(e, Flavor::Pdf20);
+            if (t && *t == "Artifact") {
+                result = true;
+                break;
+            }
+            e = cos::get(e, "P");
+        }
     }
-    return false;
+    for (int i : passed) artifact_chain_[i] = result ? 2 : 1;
+    return result;
 }
 
 Obj Pass::parent_tree_entry(const Obj& owner) {
