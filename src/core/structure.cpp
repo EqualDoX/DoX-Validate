@@ -763,15 +763,20 @@ void StructTree::simulate_verapdf_visits() {
     // object whose id is already registered is not pushed. Element id: "N G obj <type> <S>" for indirect
     // elements (unique), "0 0 obj <S>" for direct elements with a name /S, none otherwise.
     // (Every element starts without kChecked.)
-    std::unordered_set<std::string> ids;
+    // The id of an indirect element is its own: no other element has its object (by_ref_), so "registered" is a mark
+    // on the element. The ids of direct elements are their /S names.
+    std::vector<char> registered(elems_.size(), 0);
+    std::unordered_set<std::string> direct_ids;
     std::vector<int> stack;
     auto push_kids = [&](std::span<const int> kids) {
         for (auto it = kids.rbegin(); it != kids.rend(); ++it) {
             const Rec& k = elems_[static_cast<std::size_t>(*it)];
             if (k.ref.valid()) {
-                if (!ids.insert("R" + std::to_string(k.ref.key())).second) continue;
+                char& mark = registered[static_cast<std::size_t>(*it)];
+                if (mark) continue;
+                mark = 1;
             } else if (const auto& s = types_[k.type].S) {
-                if (!ids.insert("D" + *s).second) continue;
+                if (!direct_ids.insert(*s).second) continue;
             }
             stack.push_back(*it);
         }
