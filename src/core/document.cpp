@@ -10,6 +10,7 @@
 #include <unordered_set>
 
 #include "core/recover.h"
+#include "core/source_file.h"
 #include "util/unread.h"
 
 namespace eqx {
@@ -54,9 +55,14 @@ bool Document::table_rebuilt() {
 // file through an image with a complete table; the warnings stay, so the verdict stays open.
 bool Document::read_recovered(bool have_first_reading) {
     recovered_ = true;
-    std::ifstream in(path_, std::ios::binary);
-    if (!in) return false;
-    std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    std::string bytes;
+    if (source_) {
+        bytes = source_->read_all();
+    } else {
+        std::ifstream in(path_, std::ios::binary);
+        if (!in) return false;
+        bytes.assign((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    }
     QPDFObjectHandle trailer = QPDFObjectHandle::newNull();
     if (have_first_reading) trailer = qpdf_->getTrailer();
     warnings();  // keeps what the first reading reported
@@ -78,10 +84,17 @@ template <class ReadModel>
 void Document::read_hidden_objects(ReadModel&& read_model) {
     QPDFObjectHandle trailer = qpdf_->getTrailer();
     if (!trailer.hasKey("/XRefStm") && !trailer.hasKey("/Prev")) return;
-    std::ifstream in(path_, std::ios::binary);
-    if (!in) return;
-    std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    if (bytes.find("/XRefStm") == std::string::npos) return;
+    std::string bytes;
+    if (source_) {
+        // Most files with a /Prev chain (every linearized file) have no /XRefStm: the file is searched, not loaded.
+        if (!source_->contains("/XRefStm")) return;
+        bytes = source_->read_all();
+    } else {
+        std::ifstream in(path_, std::ios::binary);
+        if (!in) return;
+        bytes.assign((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        if (bytes.find("/XRefStm") == std::string::npos) return;
+    }
     std::string image = hidden_objects_image(bytes, trailer, qpdf_->getXRefTable());
     if (image.empty()) return;
     warnings();
@@ -102,11 +115,18 @@ void Document::read_hidden_objects(ReadModel&& read_model) {
     }
 }
 
-std::unique_ptr<Document> Document::open(const std::string& path, OpenStatus* status, std::string* error, bool recover) {
+std::unique_ptr<Document> Document::open(const std::string& path, OpenStatus* status, std::string* error, bool recover,
+                                         std::shared_ptr<SourceFile> source) {
     std::unique_ptr<Document> d(new Document());
     d->path_ = path;
-    d->head_ = read_head(path, &d->file_size_);
-    if (d->file_size_ == 0 && d->head_.empty()) {
+    d->source_ = source ? std::move(source) : SourceFile::open(path);
+    if (d->source_) {
+        d->file_size_ = d->source_->size();
+        d->head_ = d->source_->bytes_at(0, 4096);
+    } else {
+        d->head_ = read_head(path, &d->file_size_);
+    }
+    if (!d->source_ && d->file_size_ == 0 && d->head_.empty()) {
         std::FILE* f = std::fopen(path.c_str(), "rb");
         if (!f) {
             *status = OpenStatus::NotFound;
@@ -130,7 +150,8 @@ std::unique_ptr<Document> Document::open(const std::string& path, OpenStatus* st
     bool opened = true;
     std::string open_error;
     try {
-        d->qpdf_->processFile(path.c_str(), nullptr);
+        if (d->source_) d->qpdf_->processInputSource(d->source_, nullptr);
+        else d->qpdf_->processFile(path.c_str(), nullptr);
     } catch (QPDFExc& e) {
         if (e.getErrorCode() == qpdf_e_password) {
             *status = OpenStatus::PasswordRequired;
@@ -200,7 +221,10 @@ std::unique_ptr<Document> Document::open(const std::string& path, OpenStatus* st
     }
     if (!d->recovered_) d->read_hidden_objects(read_model);
     d->retired_.reset();
-    if (!startxref_at_end(path, d->file_size_)) note_unread("no startxref in the last 1024 bytes of the file");
+    const bool startxref = d->source_ ? d->source_->bytes_at(d->file_size_ - std::min<std::uint64_t>(d->file_size_, 1024), 1024)
+                                                .find("startxref") != std::string::npos
+                                      : startxref_at_end(path, d->file_size_);
+    if (!startxref) note_unread("no startxref in the last 1024 bytes of the file");
     *status = OpenStatus::Ok;
     return d;
 }

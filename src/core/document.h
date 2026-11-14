@@ -12,6 +12,8 @@
 
 namespace eqx {
 
+class SourceFile;
+
 struct Page {
     int index = 0;            // 0-based; reports use index + 1
     Obj dict;
@@ -34,7 +36,9 @@ class Document {
 public:
     // Opens and parses the file structure. On failure returns nullptr and sets status/error.
     // `recover`: read through the recovered view from the start (validate_file, after qpdf rebuilt the table only late).
-    static std::unique_ptr<Document> open(const std::string& path, OpenStatus* status, std::string* error, bool recover = false);
+    // `source`: the file when the caller has it open already (SourceFile::open of the same path).
+    static std::unique_ptr<Document> open(const std::string& path, OpenStatus* status, std::string* error, bool recover = false,
+                                          std::shared_ptr<SourceFile> source = nullptr);
 
     QPDF& qpdf() { return *qpdf_; }
     const std::string& path() const { return path_; }
@@ -74,6 +78,7 @@ private:
     template <class ReadModel>
     void read_hidden_objects(ReadModel&& read_model);
 
+    std::shared_ptr<SourceFile> source_;   // null: the file is read by path
     std::string image_;   // the recovered view; qpdf_ reads from it. Declared first: it outlives both instances.
     std::unique_ptr<QPDF> retired_;
     std::unique_ptr<QPDF> qpdf_;

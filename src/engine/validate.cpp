@@ -18,6 +18,7 @@
 
 #include "core/content.h"
 #include "core/document.h"
+#include "core/source_file.h"
 #include "core/structure.h"
 #include "fonts/font.h"
 #include "rules/module.h"
@@ -103,12 +104,15 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
     res.incomplete.assign(cat.size(), false);
     res.rule_prefix = opt.rule_prefix;
     res.selected = rule_selection(opt.rule_prefix);
-    res.sha256 = sha256_file(path);
+    // One open file serves the hash and the parser (core/source_file.h); what is no readable regular file goes
+    // through stdio as before.
+    std::shared_ptr<SourceFile> source = SourceFile::open(path);
+    res.sha256 = source ? source->sha256_hex() : sha256_file(path);
     res.hash_ms = ms_since(t0);
 
     OpenStatus status;
     std::string error;
-    std::unique_ptr<Document> doc = Document::open(path, &status, &error, recover);
+    std::unique_ptr<Document> doc = Document::open(path, &status, &error, recover, std::move(source));
     res.parse_ms = ms_since(t0);
     if (!doc) {
         res.processed = false;
