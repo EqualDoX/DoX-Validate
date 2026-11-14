@@ -42,6 +42,8 @@ const FontCase kCases[] = {
     {"F11", "[500 /Name 700 800]", nullptr, {500, 0, 700, 800}},
     {"F12", "[-0.0 600 700 800]", nullptr, {-0.0, 600, 700, 800}},
     {"F13", "[0.0 600 700 800]", nullptr, {0.0, 600, 700, 800}},
+    {"F14", "[500 null 700 800]", nullptr, {500, 0, 700, 800}},          // a null among the numbers
+    {"F15", "[500 null 700 800]", nullptr, {500, 0, 700, 800}},
 };
 
 std::string make_document() {
@@ -107,11 +109,12 @@ EQX_TEST(fonts_with_equal_widths_share_one_array) {
     EXPECT(widths_of("F2").isSameObjectAs(widths_of("F1")));
     EXPECT(widths_of("F9").isSameObjectAs(widths_of("F1")));
     // everything else keeps its own array
-    for (const char* other : {"F3", "F4", "F5", "F6", "F7", "F8", "F10", "F12", "F13"})
+    for (const char* other : {"F3", "F4", "F5", "F6", "F7", "F8", "F10", "F12", "F13", "F14"})
         EXPECT(!widths_of(other).isSameObjectAs(widths_of("F1")));
     EXPECT(!widths_of("F8").isSameObjectAs(widths_of("F7")));     // different integers behind the same double
     EXPECT(!widths_of("F11").isSameObjectAs(widths_of("F10")));   // not made of integers only
     EXPECT(!widths_of("F13").isSameObjectAs(widths_of("F12")));
+    EXPECT(!widths_of("F15").isSameObjectAs(widths_of("F14")));
     // a second registry over the same document finds the shared arrays and the same widths
     FontRegistry again(*doc);
     for (std::size_t i = 0; i < std::size(kCases); ++i) {

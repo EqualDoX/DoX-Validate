@@ -303,3 +303,40 @@ EQX_TEST(cos_sparse_and_nested_arrays) {
     Obj nested = QPDFObjectHandle::parse("[[1 2] << /A [3] >> (s) /N 1.5 true null]");
     SAME(cos::array_items(nested), ref::array_items(nested), "nested array");
 }
+
+EQX_TEST(cos_array_items_keep_identity_and_nulls) {
+    // The items are the array's own objects, and nulls are what getArrayItem makes of them: the same pattern of
+    // "is the same object" among the items and against getArrayItem, for every kind of array.
+    Doc a;
+    Obj shared = QPDFObjectHandle::newInteger(7);
+    Obj null_object = QPDFObjectHandle::newNull();
+    Obj built = QPDFObjectHandle::newArray({shared, null_object, shared, null_object, QPDFObjectHandle::newName("/N")});
+    const std::vector<Obj> arrays = {
+        QPDFObjectHandle::parse("[1 2 3]"),
+        QPDFObjectHandle::parse("[1 null 3 null]"),
+        QPDFObjectHandle::parse("[null]"),
+        QPDFObjectHandle::parse("[null null null null null null null null null null null null null null null null null null "
+                                "null null null null null null null null null null null null null null null null 5 null]"),
+        QPDFObjectHandle::parse("[[1 null] << /A null >> null (s)]"),
+        built,
+        QPDFObjectHandle::newArray(),
+        a.q.getRoot().getKey("/Arr"),      // direct numbers, a name, a string, null, references (also dangling), an array
+        a.q.getRoot().getKey("/IndBox"),   // an indirect array
+        a.q.getRoot().getKey("/Int"),      // no array
+    };
+    for (std::size_t k = 0; k < arrays.size(); ++k) {
+        const Obj& arr = arrays[k];
+        const std::vector<Obj> items = cos::array_items(arr), expected = ref::array_items(arr);
+        SAME(items, expected, "array " + std::to_string(k));
+        if (items.size() != expected.size()) continue;
+        for (std::size_t i = 0; i < items.size(); ++i) {
+            EXPECT_EQ(items[i].isSameObjectAs(const_cast<Obj&>(arr).getArrayItem(static_cast<int>(i))),
+                      expected[i].isSameObjectAs(const_cast<Obj&>(arr).getArrayItem(static_cast<int>(i))));
+            EXPECT_EQ(items[i].isIndirect(), expected[i].isIndirect());
+            for (std::size_t j = 0; j < items.size(); ++j)
+                EXPECT_EQ(items[i].isSameObjectAs(items[j]), expected[i].isSameObjectAs(expected[j]));
+        }
+    }
+    // nothing was resolved by listing the items: the dangling reference is still only a reference
+    EXPECT(warnings(a.q).empty());
+}

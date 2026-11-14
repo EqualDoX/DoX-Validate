@@ -163,9 +163,24 @@ std::optional<std::string> text(const Obj& h, std::string_view key) {
 std::vector<Obj> array_items(const Obj& h) {
     std::vector<Obj> out;
     if (!h.isArray()) return out;
-    int n = const_cast<Obj&>(h).getArrayNItems();
-    out.reserve(n);
-    for (int i = 0; i < n; ++i) out.push_back(const_cast<Obj&>(h).getArrayItem(i));
+    // The handles in one call: getArrayItem costs about 125 instructions per item (it builds an array handle and checks
+    // the bounds each time). What the two differ in is nulls, which stay exactly as getArrayItem gives them:
+    //   - a null the parser left as an empty slot comes back uninitialized here; getArrayItem makes a null object;
+    //   - a null object stored in the array (a sparse array, an array built in memory): the items are fetched one
+    //     by one as before, so each keeps the identity getArrayItem gives it.
+    // Indirect items are not looked at: asking an indirect object for its type would resolve it.
+    out = const_cast<Obj&>(h).getArrayAsVector();
+    for (Obj& item : out) {
+        if (!item.isInitialized()) {
+            item = Obj::newNull();
+        } else if (!item.isIndirect() && item.isNull()) {
+            const int n = const_cast<Obj&>(h).getArrayNItems();
+            out.clear();
+            out.reserve(static_cast<std::size_t>(n));
+            for (int i = 0; i < n; ++i) out.push_back(const_cast<Obj&>(h).getArrayItem(i));
+            break;
+        }
+    }
     return out;
 }
 
