@@ -393,7 +393,8 @@ void parse_type1(CffReader& r, CffData& d, std::int64_t tb, std::int64_t te) {
     d.default_widths = {s.default_width};
     d.nominal_widths = {s.nominal_width};
     d.use_fd_select = false;
-    d.facts.charset_names = d.charset_order;
+    d.facts.charset_names = std::move(d.charset_order);   // its only reader
+    d.charset_order = {};
 }
 
 std::array<float, 6> multiply(const std::array<float, 6>& a, const std::array<float, 6>& b) {
@@ -575,6 +576,12 @@ std::shared_ptr<CffData> parse_cff(std::string_view data, bool is_subset) {
             d->general_widths.clear();
             d->subset_widths = std::move(w);
             d->is_subset = true;
+            // The width of every glyph is known now, and width_from_gid answers from subset_widths: nothing reads
+            // the charstrings, the subroutines or the string index again. The copy of the program is given back
+            // (the glyph counts and the tables built above stay).
+            d->bytes = std::string();
+            for (CffIndex* ix : {&d->charstrings, &d->global_subrs, &d->defined_names}) ix->data = {};
+            for (CffIndex& ix : d->local_subrs) ix.data = {};
         }
         d->parsed = true;
     } catch (std::exception&) {
