@@ -205,30 +205,38 @@ struct UnmappedCodes final : ContentObserver {
     std::vector<Hit> hits;
     std::uint64_t last = ~std::uint64_t(0);
     std::unordered_map<const Font*, int> kind;   // 0 not applicable, 1 WinAnsi, 2 MacRoman
+    const Font* last_font = nullptr;             // the font of the last glyph and its kind (glyphs come in runs of one font)
+    int last_kind = 0;
     void on_glyph(const ContentModel&, const GlyphEvent& g) override {
+        if (g.font == last_font && last_kind == 0) return;   // no font, or the font of the glyph before, which is not applicable
         if (!g.font || !g.real_content || hits.size() >= 10000) return;
-        auto [it, fresh] = kind.emplace(g.font, 0);
-        if (fresh) {
-            const Obj& d = g.font->dict;
-            const auto sub = cos::name(d, "Subtype").value_or("");
-            if ((sub == "TrueType" || sub == "Type1" || sub == "MMType1") && !cos::has(d, "ToUnicode")) {
-                Obj enc = cos::get(d, "Encoding");
-                if (enc.isDictionary()) enc = cos::get(enc, "BaseEncoding");
-                const auto n = cos::name(enc).value_or("");
-                it->second = n == "WinAnsiEncoding" ? 1 : n == "MacRomanEncoding" ? 2 : 0;
-                // a /Differences array may define the code: the fonts module decides those
-                if (cos::get(cos::get(d, "Encoding"), "Differences").isArray()) it->second = 0;
+        if (g.font != last_font) {
+            auto [it, fresh] = kind.emplace(g.font, 0);
+            if (fresh) {
+                const Obj& d = g.font->dict;
+                const auto sub = cos::name(d, "Subtype").value_or("");
+                if ((sub == "TrueType" || sub == "Type1" || sub == "MMType1") && !cos::has(d, "ToUnicode")) {
+                    Obj enc = cos::get(d, "Encoding");
+                    if (enc.isDictionary()) enc = cos::get(enc, "BaseEncoding");
+                    const auto n = cos::name(enc).value_or("");
+                    it->second = n == "WinAnsiEncoding" ? 1 : n == "MacRomanEncoding" ? 2 : 0;
+                    // a /Differences array may define the code: the fonts module decides those
+                    if (cos::get(cos::get(d, "Encoding"), "Differences").isArray()) it->second = 0;
+                }
             }
+            last_font = g.font;
+            last_kind = it->second;
         }
-        if (it->second == 0) return;
+        const int font_kind = last_kind;
+        if (font_kind == 0) return;
         const std::uint32_t c = std::uint32_t(g.code.code);
-        const bool undefined = c < 0x20 || (it->second == 2 && (c == 0x7F || c == 0xF0));
+        const bool undefined = c < 0x20 || (font_kind == 2 && (c == 0x7F || c == 0xF0));
         if (!undefined) return;
         const std::uint64_t key = (std::uint64_t(std::uint32_t(g.stream)) << 32) | g.op_index;
         if (key == last) return;
         last = key;
         char buf[120];
-        std::snprintf(buf, sizeof buf, "PAC: character code 0x%02X has no Unicode mapping (no ToUnicode, not defined by %s)", c, it->second == 1 ? "WinAnsiEncoding" : "MacRomanEncoding");
+        std::snprintf(buf, sizeof buf, "PAC: character code 0x%02X has no Unicode mapping (no ToUnicode, not defined by %s)", c, font_kind == 1 ? "WinAnsiEncoding" : "MacRomanEncoding");
         hits.push_back({g.stream, g.op_index, buf});
     }
 };
