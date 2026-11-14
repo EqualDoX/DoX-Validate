@@ -11,6 +11,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
+#include <deque>
 #include <functional>
 #include <optional>
 #include <unordered_map>
@@ -1781,7 +1782,7 @@ public:
     void on_glyph(const ContentModel& cm, const GlyphEvent& ev) override;
 
     std::vector<ContrastMeasure> findings;
-    std::vector<std::string> finding_texts;   // ContrastMeasure::text
+    std::deque<std::string> finding_texts;    // ContrastMeasure::text (a deque: the texts stay where they are)
     std::uint64_t findings_counted = 0;       // contrast_findings_counted
     std::vector<ArtifactTextPiece> artifact_pieces;
     std::vector<ContrastFinding> missing_res;   // PAC closes such a document
@@ -1807,10 +1808,12 @@ private:
     std::size_t code_text_npages_ = 0;
 
     // A finding: the measure goes into `findings` with the text of its run. The findings are reported in that order,
-    // each at (page, obj, detail): once max_locations different ones are in `findings`, the record of the rule is
+    // each at (page, obj, detail), and the detail ends with the text: findings that differ in page, object or text
+    // are different locations of the rule's record. Once max_locations of them differ in that way, the record is
     // full when any later one is reported, whatever it held before, and a later one is only counted.
     void add_finding(ContrastMeasure& m, const RunText& text);
-    std::unordered_map<std::string, std::uint32_t> finding_keys_;   // location as the record keys it -> finding_texts
+    std::unordered_map<std::string_view, std::uint32_t> finding_text_index_;   // text (in finding_texts) -> its index
+    std::unordered_set<std::size_t> finding_places_;                      // (page, obj, text) seen, hashed
     bool findings_full_ = false;
 
     StreamState* state_for(const ContentModel& cm, int si);
@@ -3976,15 +3979,20 @@ void ContrastEngine::add_finding(ContrastMeasure& m, const RunText& text) {
     }
     std::string run = to_utf8(text);
     if (run.size() > 40) run = run.substr(0, 40) + "...";
-    // the key of the location in the rule's record (Findings::add): page number, object, detail
-    std::string key = std::to_string(page_number(m.page)) + '|' + m.obj.str() + '|' + m.detail(run);
-    const auto [pos, fresh] = finding_keys_.emplace(std::move(key), std::uint32_t(finding_texts.size()));
-    if (fresh) finding_texts.push_back(std::move(run));
+    // (two places that hash alike count once: the record then is full a little before this says so)
+    finding_places_.insert((std::hash<std::string>()(run) * 0x9E3779B97F4A7C15ull) ^ (std::size_t(m.obj.key()) * 0xC2B2AE3D27D4EB4Full) ^
+                           std::size_t(std::uint32_t(m.page)));
+    auto pos = finding_text_index_.find(std::string_view(run));
+    if (pos == finding_text_index_.end()) {
+        finding_texts.push_back(std::move(run));
+        pos = finding_text_index_.emplace(std::string_view(finding_texts.back()), std::uint32_t(finding_texts.size() - 1)).first;
+    }
     m.text = pos->second;
     findings.push_back(m);
-    if (finding_keys_.size() >= ctx_.findings.max_locations()) {
+    if (finding_places_.size() >= ctx_.findings.max_locations()) {
         findings_full_ = true;
-        finding_keys_ = {};
+        finding_text_index_ = {};
+        finding_places_ = {};
     }
 }
 
