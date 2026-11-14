@@ -8,6 +8,11 @@
 #define EQX_QPDF_LIMIT_ERRORS 1
 #endif
 
+#if __has_include(<sys/single_threaded.h>)
+#include <sys/single_threaded.h>   // glibc >= 2.32
+#define EQX_SINGLE_THREADED __libc_single_threaded
+#endif
+
 #include <chrono>
 #include <cstring>
 #include <exception>
@@ -36,8 +41,12 @@ double ms_since(std::chrono::steady_clock::time_point t0) {
 // qpdf initialises process-wide state lazily and without synchronisation (its crypto provider, used for hashing
 // and decryption, and objects created by the first QPDF instance). With --jobs several threads hit that first use
 // at once; ThreadSanitizer reported the races and they could corrupt the heap. The first use happens here, once,
-// before any validation of this process proceeds.
+// before any validation of this process proceeds. A process that never had a second thread has no such race and
+// skips it (the dummy document costs more than 1 % of a small document's run).
 void init_qpdf_once() {
+#ifdef EQX_SINGLE_THREADED
+    if (EQX_SINGLE_THREADED) return;
+#endif
     static std::once_flag once;
     std::call_once(once, [] {
         auto impl = QPDFCryptoProvider::getImpl();
@@ -72,8 +81,28 @@ bool harmless_qpdf_warning(const std::string& w) {
 }  // namespace
 
 namespace {
+
+// Everything one validation builds. Members are destroyed in reverse order: modules, content, fonts, structure,
+// document.
+struct Models {
+    std::unique_ptr<Document> doc;
+    StructTree st;
+    std::optional<FontRegistry> fonts;
+    ContentModel content;
+    std::vector<std::unique_ptr<RuleModule>> modules;
+};
+
+// Ends a validation: destroys the models, unless the process exits right after it (Options::process_exits_after).
+struct ModelsEnd {
+    bool abandon = false;
+    void operator()(Models* m) const {
+        if (!abandon) delete m;
+    }
+};
+
 Result validate_once(const std::string& path, const Options& opt, bool recover, bool* again);
-}
+
+}  // namespace
 
 std::vector<bool> rule_selection(const std::string& prefix) {
     if (prefix.empty()) return {};
@@ -112,7 +141,9 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
 
     OpenStatus status;
     std::string error;
-    std::unique_ptr<Document> doc = Document::open(path, &status, &error, recover, std::move(source));
+    std::unique_ptr<Models, ModelsEnd> models(new Models());
+    std::unique_ptr<Document>& doc = models->doc;
+    doc = Document::open(path, &status, &error, recover, std::move(source));
     res.parse_ms = ms_since(t0);
     if (!doc) {
         res.processed = false;
@@ -141,14 +172,15 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
         return res;
     }
 
-    StructTree st;
-    FontRegistry fonts(*doc);
-    ContentModel content;
+    StructTree& st = models->st;
+    FontRegistry& fonts = models->fonts.emplace(*doc);
+    ContentModel& content = models->content;
     const std::string version = doc->effective_version();
     ValidationContext ctx{*doc, st, fonts, content, res.findings, {}, opt.reference_dedup,
                           version.empty() || version[0] < '2', res.selected, {}};
     auto tcm = std::chrono::steady_clock::now();
-    std::vector<std::unique_ptr<RuleModule>> modules = create_modules();
+    std::vector<std::unique_ptr<RuleModule>>& modules = models->modules;
+    modules = create_modules();
     if (!res.selected.empty()) {   // only the modules that own a selected rule
         std::erase_if(modules, [&](const std::unique_ptr<RuleModule>& m) {
             for (RuleIndex r : owned_rules(m->name()))
@@ -311,6 +343,7 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
     res.assess_ms = ms_since(ta);
     res.total_ms = ms_since(t0);
     *again = !doc->recovered() && doc->table_rebuilt();
+    models.get_deleter().abandon = opt.process_exits_after && !*again;
     return res;
 }
 

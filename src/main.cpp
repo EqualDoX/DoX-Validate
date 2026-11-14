@@ -192,7 +192,7 @@ static int real_main(int argc, char** argv) {
     Pl_Flate::memory_limit(kMaxDecodedStreamBytes);
     Pl_RunLength::setMemoryLimit(kMaxDecodedStreamBytes);
     bool json = false, pretty = false, verbose = false;
-    unsigned jobs = std::max(1u, std::thread::hardware_concurrency());
+    unsigned jobs = 0;   // 0: not given, the CPU count (looked up only when there are several files)
     unsigned long max_memory_mb = 4096;
     Options opt;
     std::vector<std::string> files;
@@ -278,6 +278,9 @@ static int real_main(int argc, char** argv) {
     ResultBasis basis;
     if (basis_option) basis = *basis_option;
     else if (legacy_name || !opt.rule_prefix.empty()) basis.mode = ResultBasis::Mode::Any;
+    if (jobs == 0) jobs = files.size() > 1 ? std::max(1u, std::thread::hardware_concurrency()) : 1;
+    // A one-file run ends with this file's report: nothing has to be torn down before the process exits.
+    opt.process_exits_after = files.size() == 1 && !kSanitized;
     std::vector<std::unique_ptr<Result>> results(files.size());
     std::atomic<std::size_t> next{0};
     auto worker = [&]() {
@@ -320,7 +323,15 @@ static int real_main(int argc, char** argv) {
     }
     if (std::fflush(stdout) != 0 || !written) {
         std::fprintf(stderr, "dox-validate: the report could not be written\n");
-        return 4;
+        status = 4;
+    }
+    // The reports are written and the exit status is known. What is left is giving memory back piece by piece (the
+    // results, and with one file the document's models, see Options::process_exits_after) and the destructors of
+    // static objects; the operating system does that at once. Sanitizer builds return normally, so that their leak
+    // check sees every object released.
+    if (!kSanitized) {
+        std::fflush(stderr);
+        std::_Exit(status);
     }
     return status;
 }

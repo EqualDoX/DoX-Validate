@@ -27,6 +27,10 @@ struct Options {
     std::string rule_prefix;
     // More pages than this: the file is not processed ("too many pages"); 0 = no limit.
     int max_pages = 0;
+    // The process exits as soon as this file is reported (a one-file run): the document, its models and qpdf's
+    // objects are then left to the operating system instead of being destroyed one by one, which takes about a
+    // tenth of the run on a large document. Never set when another validation follows, or in sanitizer builds.
+    bool process_exits_after = false;
 };
 
 // The rules a validation evaluates: every rule (empty) or those whose id starts with `prefix`.
