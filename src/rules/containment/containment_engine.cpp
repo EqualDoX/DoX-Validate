@@ -37,6 +37,7 @@
 
 #include "rules/containment/containment.h"
 #include "rules/containment/containment_rules.h"
+#include "util/chunked_vector.h"
 
 namespace eqx::containment {
 
@@ -531,16 +532,22 @@ private:
     const Obj root_dict_;
     Types T_;
     std::vector<char> own_content_;      // per node: MCID / MCR / OBJR directly in /K (TaggedPDFHelper.isContentItem)
-    std::vector<char> root_type_;        // per element: /Type /StructTreeRoot
     std::vector<int> root_kids_;
     // state of the flavour being evaluated
     std::vector<StdInfo> std_;                             // per node
     std::unordered_map<std::uint64_t, StdInfo> std_memo_;   // /P targets that are no element of the tree
+    // resolve_parent's answer for a chain that starts at an object: per element of the tree, and by object key for
+    // any other indirect object.
+    static constexpr int kNoAnswer = -3;
+    std::vector<int> parent_memo_elem_;
     std::unordered_map<std::uint64_t, int> parent_memo_;
     std::vector<int> pst_state_;                            // 0 new, 1 in progress, 2 done
     std::vector<int> pst_index_;
-    std::vector<Summary> psums_;
+    ChunkedVector<Summary, 256> psums_;                     // chunks: no copy of the summaries as their number grows
     std::unordered_set<std::size_t> incomplete_;
+    // The rules of a group that a node with a given parent standard type has to evaluate, in table order
+    // (check_group); by group and parent.
+    std::unordered_map<std::uint64_t, std::vector<std::uint16_t>> rules_for_parent_;
 
     // -- tree (core StructTree: struct_kids = veraPDF getStructChildren, shared kids listed in every parent) --
     // Every struct child of a node in /K order, shared/revisited ones included.
@@ -549,15 +556,10 @@ private:
 
     void build_nodes() {
         own_content_.assign(elems_.size() + 1, 0);
-        root_type_.assign(elems_.size(), 0);
         for (std::size_t i = 0; i < elems_.size(); ++i) {
-            for (const StructKid& k : elems_[i].kids)
-                if (k.kind != StructKid::Kind::Elem) {
-                    own_content_[i] = 1;
-                    break;
-                }
-            // the same for both flavours: read once, in element order
-            root_type_[i] = cos::name_is(elems_[i].dict, "Type", "StructTreeRoot");
+            // a kid that is no element: the kids outnumber the element kids
+            const StructElem& e = elems_[i];
+            own_content_[i] = e.kids.size() != e.struct_kids.size();
         }
         for (const StructKid& k : st_.root_kids()) {
             if (k.kind != StructKid::Kind::Elem) own_content_[root_] = 1;
@@ -596,43 +598,83 @@ private:
         return s;
     }
 
-    // GFPDStructElem.getparentStandardType, starting at the element's /P value. -1 = null, kCycle = the
-    // reference loops forever (pass-through /P cycle).
-    int resolve_parent(Obj cur, int f) {
+    // GFPDStructElem.getparentStandardType of element n: the chain that starts at its /P value. -1 = null, kCycle =
+    // the reference loops forever (pass-through /P cycle).
+    //
+    // A step of the chain is an object: an element of the tree (`node`, its index) or anything else (`cur`). The tree
+    // knows of most elements that /P names the element they hang from (StructElem::p_is_parent): such a step goes
+    // from index to index, and neither /P nor the object is looked up. The answer is kept per object on the way.
+    int resolve_parent(int n, int f) {
+        const StructElem& e = elems_[n];
+        if (!e.has_key(StructElem::kP)) return -1;   // no /P: a null handle
+        Obj cur;
+        int node = -1;
+        if (!e.p_is_parent) cur = cos::get(e.dict, "P");
+        else if (e.parent >= 0) node = e.parent;
+        else cur = root_dict_;
         // The objects on the way: a short chain is searched as it is, a long one through a set.
+        struct Step {
+            std::uint64_t key;
+            int node;
+        };
         constexpr std::size_t kLinear = 16;
-        std::uint64_t first[kLinear];
+        Step first[kLinear];
         std::size_t n_first = 0;
-        std::vector<std::uint64_t> more;
+        std::vector<Step> more;
         std::unordered_set<std::uint64_t> seen;
         int res = -1;
         for (;;) {
-            if (cur.isNull()) { res = -1; break; }
-            ObjRef r = ref_of(cur);
+            ObjRef r;
+            if (node < 0) {
+                if (cur.isNull()) { res = -1; break; }
+                r = ref_of(cur);
+                if (r.valid()) node = st_.find(r);   // an element of the tree is handled as one
+            }
+            if (node >= 0) r = elems_[node].ref;
             if (r.valid()) {
                 const std::uint64_t key = r.key();
-                auto it = parent_memo_.find(key);
-                if (it != parent_memo_.end()) { res = it->second; break; }
+                if (node >= 0) {
+                    if (parent_memo_elem_[node] != kNoAnswer) { res = parent_memo_elem_[node]; break; }
+                } else {
+                    auto it = parent_memo_.find(key);
+                    if (it != parent_memo_.end()) { res = it->second; break; }
+                }
                 bool again = false;
                 if (n_first < kLinear) {
-                    again = std::find(first, first + n_first, key) != first + n_first;
-                    if (!again) first[n_first++] = key;
+                    again = std::find_if(first, first + n_first, [key](const Step& s) { return s.key == key; }) != first + n_first;
+                    if (!again) first[n_first++] = {key, node};
                 } else {
-                    if (seen.empty()) seen.insert(first, first + n_first);
+                    if (seen.empty())
+                        for (std::size_t i = 0; i < n_first; ++i) seen.insert(first[i].key);
                     again = !seen.insert(key).second;
-                    if (!again) more.push_back(key);
+                    if (!again) more.push_back({key, node});
                 }
                 if (again) { res = kCycle; break; }
             }
-            StdInfo s = std_of_obj(cur, f);
+            const StdInfo s = node >= 0 ? std_[node] : std_of_obj(cur, f);
             if (!s.name_pt) {
                 res = s.root_type ? C_.tok_root : s.math ? C_.tok_mathml : s.tok;
                 break;
             }
-            cur = cos::get(cur, "P");
+            // the next object: /P of this one
+            if (node >= 0) {
+                const StructElem& at = elems_[node];
+                if (at.p_is_parent && at.parent >= 0) {
+                    node = at.parent;
+                } else {
+                    cur = at.p_is_parent ? root_dict_ : cos::get(at.dict, "P");
+                    node = -1;
+                }
+            } else {
+                cur = cos::get(cur, "P");
+            }
         }
-        for (std::size_t i = 0; i < n_first; ++i) parent_memo_[first[i]] = res;
-        for (auto k : more) parent_memo_[k] = res;
+        const auto keep = [&](const Step& s) {
+            if (s.node >= 0) parent_memo_elem_[s.node] = res;
+            else parent_memo_[s.key] = res;
+        };
+        for (std::size_t i = 0; i < n_first; ++i) keep(first[i]);
+        for (const Step& s : more) keep(s);
         return res;
     }
 
@@ -778,14 +820,25 @@ private:
     }
 
     // The rules of one group on a node, in table order.
+    // Nine rules in ten test nothing but "the parent is not X": such a rule passes unless the parent is X (a /P chain
+    // that does not terminate goes through check(), which reports the rule incomplete). Which rules of the group are
+    // left for a parent is the same for every node with that parent: the list is made once per group and parent.
     void check_group(const Group& g, int n, int f, const Summary& kids, int parent) {
-        for (std::uint16_t i = g.first; i < g.last; ++i) {
-            const CRule& r = C_.rules[C_.order[i]];
-            // Nine rules in ten test nothing but "the parent is not X": such a rule passes unless the parent is X
-            // (a /P chain that does not terminate goes through check(), which reports the rule incomplete).
-            if (r.only_parent_ne && parent != kCycle && parent != r.atoms[0].tok) continue;
-            check(r, n, f, false, &kids, parent);
+        if (g.first == g.last) return;
+        if (parent == kCycle) {
+            for (std::uint16_t i = g.first; i < g.last; ++i) check(C_.rules[C_.order[i]], n, f, false, &kids, parent);
+            return;
         }
+        const std::uint64_t key = (static_cast<std::uint64_t>(g.first) << 32) | static_cast<std::uint32_t>(parent);
+        auto [it, added] = rules_for_parent_.try_emplace(key);
+        std::vector<std::uint16_t>& rules = it->second;
+        if (added)
+            for (std::uint16_t i = g.first; i < g.last; ++i) {
+                const CRule& r = C_.rules[C_.order[i]];
+                if (r.only_parent_ne && parent != r.atoms[0].tok) continue;
+                rules.push_back(C_.order[i]);
+            }
+        for (std::uint16_t rule : rules) check(C_.rules[rule], n, f, false, &kids, parent);
     }
 
     // Element n: the rules of every element, of its standard type, and the Hn rules; kidsStandardTypes and
@@ -798,7 +851,7 @@ private:
         const std::uint8_t needs = star.needs | (typed ? typed->needs : 0) | (hn ? hn->needs : 0);
         Summary kids;
         if (needs & NEED_KIDS) kids = node_summary(n);
-        const int parent = (needs & NEED_PARENT) ? resolve_parent(cos::get(elems_[n].dict, "P"), f) : -1;
+        const int parent = (needs & NEED_PARENT) ? resolve_parent(n, f) : -1;
         check_group(star, n, f, kids, parent);
         if (typed) check_group(*typed, n, f, kids, parent);
         if (hn) check_group(*hn, n, f, kids, parent);
@@ -808,24 +861,33 @@ private:
         std_.assign(elems_.size() + 1, StdInfo{});
         std_memo_.clear();
         parent_memo_.clear();
+        parent_memo_elem_.assign(elems_.size(), kNoAnswer);
         pst_state_.clear();
         pst_index_.clear();
         psums_.clear();
+        // The standard type of an element is a fact of its type: worked out for the first element of each type record
+        // of the tree (in element order, as the names get their tokens in the order of their first use). An element
+        // of the tree is never typed /StructTreeRoot: its /Type is absent or /StructElem (StructTree).
+        std::vector<StdInfo> of_type(st_.type_count());
+        std::vector<char> type_known(st_.type_count(), 0);
         for (std::size_t i = 0; i < elems_.size(); ++i) {
             const StructElem& e = elems_[i];
-            StdInfo s;
-            s.root_type = root_type_[i] != 0;
-            if (f == 0) {
-                if (e.std17) {
-                    s.tok = T_.id(*e.std17);
-                    s.name_pt = (T_.flags(s.tok) & TF_PT) != 0;
+            if (!type_known[e.type_id]) {
+                StdInfo s;
+                if (f == 0) {
+                    if (e.std17) {
+                        s.tok = T_.id(*e.std17);
+                        s.name_pt = (T_.flags(s.tok) & TF_PT) != 0;
+                    }
+                } else if (e.std20) {
+                    s.math = in_mathml_namespace(*e.std20);
+                    s.name_pt = (flags_of(e.std20->type) & TF_PT) != 0;
+                    s.tok = s.math ? C_.tok_mathml : T_.id(e.std20->type);
                 }
-            } else if (e.std20) {
-                s.math = in_mathml_namespace(*e.std20);
-                s.name_pt = (flags_of(e.std20->type) & TF_PT) != 0;
-                s.tok = s.math ? C_.tok_mathml : T_.id(e.std20->type);
+                of_type[e.type_id] = s;
+                type_known[e.type_id] = 1;
             }
-            std_[i] = s;
+            std_[i] = of_type[e.type_id];
         }
 
         // Elements whose rules are evaluated. Default: every element of the tree (each indirect element once,
