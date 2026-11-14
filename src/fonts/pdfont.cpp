@@ -74,9 +74,9 @@ const std::shared_ptr<const WidthValues>& no_widths() {
 // over the whole object graph of the document module only looks for dictionaries inside arrays). An indirect array,
 // or one with a real number or any other object in it, is left alone.
 std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& font, const Obj& w) {
-    const std::vector<Obj> items = cos::array_items(w);
+    const int count = w.getArrayNItems();
     WidthValues values;
-    values.reserve(items.size());
+    values.reserve(static_cast<std::size_t>(count));
     bool integers = !w.isIndirect() && font.isDictionary();
     std::uint64_t hash = 1469598103934665603ull;
     const auto same_bits = [](const std::optional<double>& a, const std::optional<double>& b) {
@@ -84,9 +84,16 @@ std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& fon
         if (!a) return true;
         return std::memcmp(&*a, &*b, sizeof(double)) == 0;   // -0.0 and 0.0 are different widths to print
     };
-    for (const Obj& x : items) {
-        const std::optional<double> v = real_value(x);
-        integers = integers && x.isInteger() && !x.isIndirect();
+    for (int i = 0; i < count; ++i) {
+        const Obj x = w.getArrayItem(i);
+        std::optional<double> v;   // real_value(x), noting on the way whether x is a direct integer
+        if (x.isInteger()) {
+            v = static_cast<double>(x.getIntValue());
+            integers = integers && !x.isIndirect();
+        } else {
+            integers = false;
+            if (x.isReal()) v = x.getNumericValue();
+        }
         std::uint64_t bits = 0x7ff8dead00000000ull;   // no number
         if (v) std::memcpy(&bits, &*v, sizeof bits);
         hash = (hash ^ bits) * 1099511628211ull;
@@ -103,9 +110,9 @@ std::shared_ptr<const WidthValues> shared_widths(DocCache& cache, const Obj& fon
                 known_widths.array = w;   // the first array of this kind that others can refer to
             } else if (!known_widths.array.isSameObjectAs(w)) {
                 // equal as doubles: equal as integers too? (integers beyond 2^53 can differ)
-                bool same = known_widths.array.getArrayNItems() == static_cast<int>(items.size());
-                for (int i = 0; same && i < static_cast<int>(items.size()); ++i)
-                    same = known_widths.array.getArrayItem(i).getIntValue() == items[static_cast<std::size_t>(i)].getIntValue();
+                bool same = known_widths.array.getArrayNItems() == count;
+                for (int i = 0; same && i < count; ++i)
+                    same = known_widths.array.getArrayItem(i).getIntValue() == w.getArrayItem(i).getIntValue();
                 if (same) Obj(font).replaceKey("/Widths", known_widths.array);
             }
         }
