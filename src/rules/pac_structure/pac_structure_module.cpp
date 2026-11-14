@@ -84,18 +84,32 @@ private:
     void parent_tree(ValidationContext& ctx);
     void irregular_rows(ValidationContext& ctx);
 
-    std::vector<std::string> ty_;   // PAC type per element ("" = not a standard type)
+    // What the model says about a type: facts of /S alone, so one entry per type record of the tree
+    // (StructElem::type_id), filled at the first element of the type.
+    struct TypeInfo {
+        std::string name;                // PAC type ("" = not a standard type)
+        bool transparent = false;        // NonStruct, Private
+        bool figure = false;
+        bool reads_layout = false;       // Figure, Formula, inline-level: the Layout attributes count
+        bool unmapped = false;           // not standard, and its RoleMap entry does not reach a standard type
+        pac::ContentPos content = pac::ContentPos::Ok;   // own marked content
+        int heading = -1;                // 0 for H, the level for a numbered heading, -1 otherwise
+    };
+    const StructTree* st_ = nullptr;
+    std::vector<TypeInfo> types_;
     std::vector<int> eff_;          // effective parent per element (-1 = StructTreeRoot)
+
+    const TypeInfo& info(std::size_t i) const { return types_[st_->elem(static_cast<int>(i)).type_id]; }
+    // PAC type of an element ("" = not a standard type)
+    const std::string& ty(std::size_t i) const { return info(i).name; }
+    std::string_view type_name(int idx) const { return idx < 0 ? pac::kRoot : std::string_view(ty(static_cast<std::size_t>(idx))); }
+    std::string display(int idx) const {
+        if (idx < 0) return "StructTreeRoot";
+        if (!ty(static_cast<std::size_t>(idx)).empty()) return ty(static_cast<std::size_t>(idx));
+        const auto& s = st_->elem(idx).S;
+        return s ? *s : std::string("(no /S)");
+    }
 };
-
-std::string_view type_name(const std::vector<std::string>& ty, int idx) { return idx < 0 ? pac::kRoot : ty[idx]; }
-
-std::string display(const StructTree& st, const std::vector<std::string>& ty, int idx) {
-    if (idx < 0) return "StructTreeRoot";
-    if (!ty[idx].empty()) return ty[idx];
-    const auto& s = st.elem(idx).S;
-    return s ? *s : std::string("(no /S)");
-}
 
 RuleIndex find_rule(const std::string& id) {
     if (id.empty()) return kNoRule;
@@ -148,23 +162,44 @@ void Module::run(ValidationContext& ctx) {
     // PAC types: a standard /S is used as is (U1-S02: the standard type Quote remapped to Span still counts as
     // a Quote), a non-standard /S through the RoleMap (PDF 1.7 semantics, also for PDF 2.0 files).
     const auto& E = st.elems();
-    ty_.assign(E.size(), std::string());
+    st_ = &st;
+    types_.assign(st.type_count(), TypeInfo{});
+    std::vector<char> type_known(st.type_count(), 0);
     eff_.assign(E.size(), -1);
+    bool any_unmapped = false;
     for (std::size_t i = 0; i < E.size(); ++i) {
         const auto& e = E[i];
-        if (e.S) {
-            if (pac::is_pdf17_type(*e.S)) ty_[i] = *e.S;
-            else if (auto s = st.standard_type17(*e.S)) ty_[i] = *s;
+        if (!type_known[e.type_id]) {
+            type_known[e.type_id] = 1;
+            TypeInfo& t = types_[e.type_id];
+            if (e.S) {
+                if (pac::is_pdf17_type(*e.S)) t.name = *e.S;
+                else if (auto s = st.standard_type17(*e.S)) t.name = *s;
+            }
+            t.transparent = pac::is_transparent(t.name);
+            t.figure = t.name == "Figure";
+            t.reads_layout = t.figure || t.name == "Formula" || pac::is_inline(t.name);
+            t.unmapped = e.S && !StructTree::is_standard17(*e.S) && !st.standard_type17(*e.S) && st.role_map().count(*e.S);
+            any_unmapped = any_unmapped || t.unmapped;
+            t.content = pac::own_content(t.name);
+            t.heading = pac::heading_level(t.name);
+            // H7 and deeper count by their name, whatever the RoleMap says (ISO 14289-1 7.4.2 names them; d_hd_h7: H1, then H7 mapped to P fails; d_hx_h7_p_after_h6 passes).
+            if (e.S && e.S->size() >= 2 && (*e.S)[0] == 'H' && !pac::is_pdf17_type(*e.S)) {
+                const std::string& nm = *e.S;
+                bool digits = true;
+                for (std::size_t k = 1; k < nm.size(); ++k) digits = digits && nm[k] >= '0' && nm[k] <= '9';
+                if (digits && nm.size() <= 4 && std::stoi(nm.substr(1)) >= 7) t.heading = std::stoi(nm.substr(1));
+            }
         }
         int p = e.parent;   // parents precede their kids in the traversal order
-        eff_[i] = (p >= 0 && pac::is_transparent(ty_[p])) ? eff_[p] : p;
+        eff_[i] = (p >= 0 && types_[E[p].type_id].transparent) ? eff_[p] : p;
     }
     // An element whose type never reaches a standard type although the map holds it (/Foo -> /Foo): PAC also says "neither mapped" for the used type (p_rn_used_self).
-    {
+    if (any_unmapped) {
         static const RuleIndex unmapped = R("EQX-UA1-7.1-5");
         std::set<std::string> done;
         for (const auto& e : E)
-            if (e.S && !StructTree::is_standard17(*e.S) && !st.standard_type17(*e.S) && st.role_map().count(*e.S) && done.insert(*e.S).second)
+            if (types_[e.type_id].unmapped && done.insert(*e.S).second)
                 ctx.report(unmapped, -1, e.ref, "PAC: /" + *e.S + " used, its RoleMap entry does not reach a standard type");
     }
     structure_tree(ctx);
@@ -189,16 +224,16 @@ void Module::irregular_rows(ValidationContext& ctx) {
     std::vector<ObjRef> rows_found;
     std::vector<int> rows, stack;
     for (std::size_t t = 0; t < E.size(); ++t) {
-        if (ty_[t] != "Table") continue;
+        if (ty(t) != "Table") continue;
         rows.clear();
         stack.assign(E[t].elems.rbegin(), E[t].elems.rend());
         while (!stack.empty() && rows.size() < 100000) {
             const int k = stack.back();
             stack.pop_back();
-            const std::string& ty = ty_[k];
-            if (ty == "TR") {
+            const std::string& kt = ty(k);
+            if (kt == "TR") {
                 rows.push_back(k);
-            } else if (ty == "THead" || ty == "TBody" || ty == "TFoot" || ty == "NonStruct" || ty == "Private" || ty == "Part" || ty == "Div") {
+            } else if (kt == "THead" || kt == "TBody" || kt == "TFoot" || kt == "NonStruct" || kt == "Private" || kt == "Part" || kt == "Div") {
                 for (auto it = E[k].elems.rbegin(); it != E[k].elems.rend(); ++it) stack.push_back(*it);
             }
         }
@@ -207,7 +242,7 @@ void Module::irregular_rows(ValidationContext& ctx) {
         for (std::size_t r = 0; r < rows.size(); ++r) {
             std::int64_t width = carried[r];
             for (int c : E[rows[r]].elems) {
-                if (ty_[c] != "TD" && ty_[c] != "TH") continue;
+                if (ty(c) != "TD" && ty(c) != "TH") continue;
                 const std::int64_t cs = std::max<std::int64_t>(1, attrs.integer(E[c].dict, "ColSpan", "Table", 1));
                 const std::int64_t rs = std::clamp<std::int64_t>(attrs.integer(E[c].dict, "RowSpan", "Table", 1), 1, 100000);
                 width += cs;
@@ -226,18 +261,20 @@ void Module::irregular_rows(ValidationContext& ctx) {
 void Module::structure_tree(ValidationContext& ctx) {
     const StructTree& st = ctx.st;
     const auto& E = st.elems();
-    // Sibling positions inside Table / L / TOC (kids flattened through NonStruct / Private).
-    std::vector<SibInfo> sib(E.size());
+    // Sibling positions inside Table / L / TOC (kids flattened through NonStruct / Private): for the kids of such
+    // parents only; sib_at is the place of an element's entry in sib, -1 for every other element (default positions).
+    std::vector<int> sib_at(E.size(), -1);
+    std::vector<SibInfo> sib;
     std::vector<int> flat, stack;
     for (std::size_t p = 0; p < E.size(); ++p) {
-        const std::string& pt = ty_[p];
+        const std::string& pt = ty(p);
         if (pt != "Table" && pt != "L" && pt != "TOC" && pt != "THead" && pt != "TBody" && pt != "TFoot") continue;
         flat.clear();
         stack.assign(E[p].elems.rbegin(), E[p].elems.rend());
         while (!stack.empty()) {
             int k = stack.back();
             stack.pop_back();
-            if (pac::is_transparent(ty_[k]) && flat.size() + stack.size() < 1000000) {
+            if (pac::is_transparent(ty(k)) && flat.size() + stack.size() < 1000000) {
                 for (auto it = E[k].elems.rbegin(); it != E[k].elems.rend(); ++it) stack.push_back(*it);
                 continue;
             }
@@ -246,19 +283,19 @@ void Module::structure_tree(ValidationContext& ctx) {
         SibInfo base;
         base.count = static_cast<int>(flat.size());
         for (int k : flat) {
-            base.captions += ty_[k] == "Caption";
-            base.theads += ty_[k] == "THead";
-            base.tfoots += ty_[k] == "TFoot";
+            base.captions += ty(k) == "Caption";
+            base.theads += ty(k) == "THead";
+            base.tfoots += ty(k) == "TFoot";
         }
         // Kids the parent does not allow, and a Caption of a Table not at its first or last place.
         for (std::size_t j = 0; j < flat.size(); ++j) {
-            const std::string& kt = ty_[flat[j]];
+            const std::string& kt = ty(flat[j]);
             if (kt.empty()) continue;
             if (!pac::strict_allows(pt, kt) || (pt == "Table" && kt == "Caption" && (base.captions > 1 || (j != 0 && j + 1 != flat.size())))) ++base.bad_kids;
         }
         int first_group = -1, last_group = -1;
         for (std::size_t j = 0; j < flat.size(); ++j) {
-            const std::string& kt = ty_[flat[j]];
+            const std::string& kt = ty(flat[j]);
             base.has_row = base.has_row || kt == "TR";
             base.has_group = base.has_group || kt == "THead" || kt == "TBody" || kt == "TFoot";
             if (kt != "Caption") {
@@ -268,15 +305,15 @@ void Module::structure_tree(ValidationContext& ctx) {
         }
         int theads = 0, tbodies = 0, tfoots = 0;
         for (std::size_t j = 0; j < flat.size(); ++j) {
-            SibInfo& si = sib[flat[j]];
-            si = base;
+            sib_at[flat[j]] = static_cast<int>(sib.size());
+            SibInfo& si = sib.emplace_back(base);
             si.index = static_cast<int>(j);
             si.group_first = static_cast<int>(j) == first_group;
             si.group_last = static_cast<int>(j) == last_group;
             si.theads_before = theads;
             si.tbodies_before = tbodies;
             si.tfoots_before = tfoots;
-            const std::string& kt = ty_[flat[j]];
+            const std::string& kt = ty(flat[j]);
             theads += kt == "THead";
             tbodies += kt == "TBody";
             tfoots += kt == "TFoot";
@@ -285,32 +322,64 @@ void Module::structure_tree(ValidationContext& ctx) {
 
     static const RuleIndex warn_mc = R("EQX-PAC-WarnMarkedContentIsInLegalPosition");
     static const RuleIndex fail_mc = R("EQX-PAC-FailMarkedContentIsInLegalPosition");
+    static const RuleIndex parsable = R("EQX-PAC-FailPDFParsable");
+    // (nothing below reports this rule: asked once)
+    const bool parent_from_p = !ctx.findings.has(parsable);
+    const ObjRef root_ref = st.root_ref();
+    // The outcome of an element depends on its type, the types around it, its Placement and its place among its
+    // siblings. Most elements have no Placement and the default place: for them the outcome is kept per combination
+    // of the four types (type records of the tree; one more number for the StructTreeRoot).
+    const std::uint64_t root_id = types_.size();
+    const bool memo_fits = root_id < 0xffff;
+    std::unordered_map<std::uint64_t, pac::Outcome> outcomes;
+    const SibInfo default_sib;
     for (std::size_t i = 0; i < E.size(); ++i) {
         const auto& e = E[i];
-        const std::string& t = ty_[i];
+        const TypeInfo& type = types_[e.type_id];
+        const std::string& t = type.name;
         if (t.empty()) continue;
-        pac::Context c;
-        c.type = t;
-        c.parent = type_name(ty_, e.parent);
-        c.eff_parent = type_name(ty_, eff_[i]);
-        c.eff_grandparent = eff_[i] >= 0 ? type_name(ty_, eff_[eff_[i]]) : pac::kRoot;
         // PAC takes the parent from /P: without one, or naming the StructTreeRoot, the element counts as a root element wherever /K places it (d_cr_se_no_p, d_cr_se_p_wrong: "P used as root element").
         // A content syntax error masks this warning (U1-X01: same element, Structure tree passes).
-        static const RuleIndex parsable = R("EQX-PAC-FailPDFParsable");
-        if (!ctx.findings.has(parsable)) {
-            Obj up = e.get(StructElem::kP, "P");
-            if (up.isNull() || (up.isDictionary() && st.root_ref().valid() && ref_of(up) == st.root_ref())) {
-                c.parent = pac::kRoot;
-                c.eff_parent = pac::kRoot;
-                c.eff_grandparent = pac::kRoot;
+        bool as_root = false;
+        if (parent_from_p) {
+            if (e.p_is_parent) {
+                // /P is the object the element hangs from: a dictionary, the StructTreeRoot or not
+                as_root = root_ref.valid() && (e.parent >= 0 ? E[e.parent].ref : root_ref) == root_ref;
+            } else {
+                Obj up = e.get(StructElem::kP, "P");
+                as_root = up.isNull() || (up.isDictionary() && root_ref.valid() && ref_of(up) == root_ref);
             }
         }
+        const int eff = eff_[i];
         Layout lay;
-        if (t == "Figure" || t == "Formula" || pac::is_inline(t)) {
-            lay = layout_of(e.dict);
-            if (lay.placement) c.placement = *lay.placement;
+        if (type.reads_layout) lay = layout_of(e.dict);
+        const int place = sib_at[i];
+        const bool keep = memo_fits && place < 0 && !lay.placement;
+        std::uint64_t key = 0;
+        const pac::Outcome* known = nullptr;
+        if (keep) {
+            const std::uint64_t parent_id = as_root || e.parent < 0 ? root_id : E[e.parent].type_id;
+            const std::uint64_t eff_id = as_root || eff < 0 ? root_id : E[eff].type_id;
+            const std::uint64_t grand_id = as_root || eff < 0 || eff_[eff] < 0 ? root_id : E[eff_[eff]].type_id;
+            key = e.type_id | (parent_id << 16) | (eff_id << 32) | (grand_id << 48);
+            if (auto it = outcomes.find(key); it != outcomes.end()) known = &it->second;
         }
-        const SibInfo& s = sib[i];
+        pac::Outcome o;
+        if (known) {
+            o = *known;
+        } else {
+        pac::Context c;
+        c.type = t;
+        c.parent = type_name(e.parent);
+        c.eff_parent = type_name(eff);
+        c.eff_grandparent = eff >= 0 ? type_name(eff_[eff]) : pac::kRoot;
+        if (as_root) {
+            c.parent = pac::kRoot;
+            c.eff_parent = pac::kRoot;
+            c.eff_grandparent = pac::kRoot;
+        }
+        if (lay.placement) c.placement = *lay.placement;
+        const SibInfo& s = place >= 0 ? sib[static_cast<std::size_t>(place)] : default_sib;
         c.index = s.index;
         c.count = s.count;
         c.captions = s.captions;
@@ -324,12 +393,14 @@ void Module::structure_tree(ValidationContext& ctx) {
         c.theads_before = s.theads_before;
         c.tbodies_before = s.tbodies_before;
         c.tfoots_before = s.tfoots_before;
-        pac::Outcome o = pac::classify(c);
+        o = pac::classify(c);
+        if (keep) outcomes.emplace(key, o);
+        }
         if (o.cond != Cond::None) {
             RuleIndex r = find_rule(pac::rule_id(t, o.cond));
             if (r != kNoRule) {
-                std::string detail = t + " in " + display(st, ty_, e.parent);
-                if (eff_[i] != e.parent) detail += " (context " + display(st, ty_, eff_[i]) + ")";
+                std::string detail = t + " in " + display(e.parent);
+                if (eff_[i] != e.parent) detail += " (context " + display(eff_[i]) + ")";
                 if (lay.placement) detail += ", Placement " + *lay.placement;
                 detail += ": ";
                 detail += o.reason;
@@ -338,8 +409,8 @@ void Module::structure_tree(ValidationContext& ctx) {
         }
         // MarkedContentIsInLegalPosition: one finding per element holding marked content directly (U1-S04:
         // 7 elements with one MCID each, U1-C01: Document; structcheck counted per element).
-        pac::ContentPos cp = pac::own_content(t);
-        if (cp != pac::ContentPos::Ok) {
+        pac::ContentPos cp = type.content;
+        if (cp != pac::ContentPos::Ok && e.kids.size() != e.struct_kids.size()) {   // with a kid that is no element
             int n = 0;
             for (const auto& k : e.kids)
                 if (k.kind == StructKid::Kind::MCID || k.kind == StructKid::Kind::MCR) ++n;
@@ -358,14 +429,7 @@ void Module::headings(ValidationContext& ctx) {
     const auto& E = ctx.st.elems();
     int first_h = -1, first_hn = -1, prev = 0;
     for (std::size_t i = 0; i < E.size(); ++i) {
-        int lvl = pac::heading_level(ty_[i]);
-        // H7 and deeper count by their name, whatever the RoleMap says (ISO 14289-1 7.4.2 names them; d_hd_h7: H1, then H7 mapped to P fails; d_hx_h7_p_after_h6 passes).
-        if (E[i].S && E[i].S->size() >= 2 && (*E[i].S)[0] == 'H' && !pac::is_pdf17_type(*E[i].S)) {
-            const std::string& nm = *E[i].S;
-            bool digits = true;
-            for (std::size_t k = 1; k < nm.size(); ++k) digits = digits && nm[k] >= '0' && nm[k] <= '9';
-            if (digits && nm.size() <= 4 && std::stoi(nm.substr(1)) >= 7) lvl = std::stoi(nm.substr(1));
-        }
+        const int lvl = info(i).heading;   // by the PAC type; H7 and deeper by their name (TypeInfo)
         if (lvl < 0) continue;
         if (lvl == 0) {
             if (first_h < 0) first_h = static_cast<int>(i);
@@ -384,7 +448,7 @@ void Module::headings(ValidationContext& ctx) {
     }
     // One failure per document using both H and Hn (U1-H02 / U1-S01 / U1-S03 / U1-S04: 1 each).
     if (first_h >= 0 && first_hn >= 0)
-        ctx.report(mixed, -1, E[first_h].ref, "H used together with " + ty_[first_hn]);
+        ctx.report(mixed, -1, E[first_h].ref, "H used together with " + ty(first_hn));
 }
 
 // -------------------------------------------------------------------------------------------------- figures
@@ -394,7 +458,7 @@ void Module::figures(ValidationContext& ctx) {
         static const RuleIndex alt_rule = R("EQX-UA1-7.3-1");
         const auto& F = ctx.st.elems();
         for (std::size_t i = 0; i < F.size(); ++i) {
-            if (ty_[i] != "Figure" || cos::get(F[i].dict, "ActualText").isString()) continue;
+            if (!info(i).figure || cos::get(F[i].dict, "ActualText").isString()) continue;
             Obj alt = cos::get(F[i].dict, "Alt");
             if (!alt.isString()) continue;
             const std::u32string text = pdf_text_to_u32(alt.getStringValue());
@@ -412,7 +476,7 @@ void Module::figures(ValidationContext& ctx) {
         static const RuleIndex alt_rule = R("EQX-UA1-7.3-1");
         const auto& F = ctx.st.elems();
         for (std::size_t i = 0; i < F.size(); ++i) {
-            if (ty_[i] != "Figure") continue;
+            if (!info(i).figure) continue;
             const std::string mapped = F[i].standard(Flavor::Pdf17);
             if (mapped == "Figure" || cos::get(F[i].dict, "ActualText").isString()) continue;
             Obj alt = cos::get(F[i].dict, "Alt");
@@ -426,6 +490,9 @@ void Module::figures(ValidationContext& ctx) {
     // (structcheck fig_no_bbox; U1-S01, U1-S02, U1-S03). Pages of MCID, MCR and OBJR kids, also of descendants.
     static const RuleIndex rule = R("EQX-PAC-FailFigureHasBBox");
     const auto& E = ctx.st.elems();
+    bool any_figure = false;
+    for (const TypeInfo& t : types_) any_figure = any_figure || t.figure;
+    if (!any_figure) return;   // only Figures are judged below
     std::vector<PageSet> pages(E.size());
     for (std::size_t j = E.size(); j-- > 0;) {
         const auto& e = E[j];
@@ -436,7 +503,7 @@ void Module::figures(ValidationContext& ctx) {
         }
         for (int k : e.elems)
             for (int x = 0; x < pages[k].n; ++x) ps.add(pages[k].v[x]);
-        if (ty_[j] == "Figure" && ps.n <= 1 && !layout_of(e.dict).bbox)
+        if (info(j).figure && ps.n <= 1 && !layout_of(e.dict).bbox)
             ctx.report(rule, -1, e.ref, "Figure without Layout BBox");
     }
 }
@@ -455,7 +522,10 @@ void Module::parent_keys(ValidationContext& ctx) {
             if (k.kind == StructKid::Kind::Elem && k.revisit && k.elem >= 0) extra[k.elem].push_back(parent);
     };
     note_shared(st.root_kids(), -1);
-    for (std::size_t i = 0; i < E.size(); ++i) note_shared(E[i].kids, static_cast<int>(i));
+    for (std::size_t i = 0; i < E.size(); ++i) {
+        const auto& e = E[i];
+        if (e.elems.size() != e.struct_kids.size()) note_shared(e.kids, static_cast<int>(i));   // it has a revisited kid
+    }
     auto same = [&](const Obj& p, int parent) {
         Obj actual = parent >= 0 ? E[parent].dict : st.root();
         // A direct parent dictionary cannot be referenced by /P: undecidable, never reported.
@@ -463,6 +533,8 @@ void Module::parent_keys(ValidationContext& ctx) {
         return p.isIndirect() && ref_of(p) == ref_of(actual);
     };
     for (std::size_t i = 0; i < E.size(); ++i) {
+        // /P names the object the element hangs from, and no other parent lists it: nothing to report
+        if (E[i].p_is_parent && (extra.empty() || extra.find(static_cast<int>(i)) == extra.end())) continue;
         Obj p = E[i].get(StructElem::kP, "P");
         if (p.isNull()) continue;
         // Also when another parent's /K lists the element: /P names only one of them, the other fails (d_ow_elem_two_parents).
@@ -471,9 +543,9 @@ void Module::parent_keys(ValidationContext& ctx) {
             for (int q : it->second)
                 if (!same(p, q)) ok = false;
         if (ok) continue;
-        std::string detail = display(st, ty_, static_cast<int>(i)) + ": /P ";
+        std::string detail = display(static_cast<int>(i)) + ": /P ";
         detail += p.isIndirect() ? ref_of(p).str() : std::string("(direct object)");
-        detail += ", actual parent " + display(st, ty_, E[i].parent);
+        detail += ", actual parent " + display(E[i].parent);
         ObjRef ar = E[i].parent >= 0 ? E[E[i].parent].ref : st.root_ref();
         if (ar.valid()) detail += " " + ar.str();
         ctx.report(rule, -1, E[i].ref, std::move(detail));
@@ -561,7 +633,20 @@ void Module::corrupt_elements(ValidationContext& ctx) {
         }
     };
     scan(st.root(), st.root_ref());
-    for (const auto& e : st.elems()) scan(e.dict, e.ref);
+    // The tree knows the /K of most elements to hold nothing the scan reports: every item is a kid, each an MCID that
+    // is not negative or an indirect element with a name /S (the case the scan passes over first).
+    const auto& E = st.elems();
+    for (const auto& e : E) {
+        bool clean = e.k_is_kids;
+        if (clean)
+            for (const auto& k : e.kids) {
+                if (k.kind == StructKid::Kind::MCID) clean = k.mcid >= 0;
+                else if (k.kind == StructKid::Kind::Elem) clean = E[k.elem].ref.valid() && E[k.elem].S.has_value();
+                else clean = false;
+                if (!clean) break;
+            }
+        if (!clean) scan(e.dict, e.ref);
+    }
 }
 
 // ------------------------------------------------------------------------------------------- parent tree
@@ -581,9 +666,10 @@ void Module::parent_tree(ValidationContext& ctx) {
     bool content_items = false;
     for (const auto& k : st.root_kids())
         if (k.kind != StructKid::Kind::Elem) content_items = true;
-    for (const auto& e : E)
-        for (const auto& k : e.kids)
-            if (k.kind != StructKid::Kind::Elem) content_items = true;
+    for (std::size_t i = 0; i < E.size() && !content_items; ++i) {
+        const auto& e = E[i];
+        content_items = e.kids.size() != e.struct_kids.size();   // a kid that is no element
+    }
     // Not applicable without content items and without a ParentTree (PAC release notes 24.4.3); a missing
     // ParentTree is the only condition reported then (U1-X03).
     if (!st.has_parent_tree()) {
@@ -642,12 +728,14 @@ void Module::parent_tree(ValidationContext& ctx) {
     // An integer MCID needs /Pg on its element or an ancestor: PAC refuses the file as corrupted (ow_int_mcid_no_pg).
     {
         static const RuleIndex parsable = R("EQX-PAC-FailPDFParsable");
-        for (std::size_t i = 0; i < E.size(); ++i)
+        for (std::size_t i = 0; i < E.size(); ++i) {
+            if (E[i].inherited_page.valid()) continue;   // the page of every MCID kid of the element
             for (const auto& k : E[i].kids)
                 if (k.kind == StructKid::Kind::MCID && !k.page.valid()) {
                     ctx.report(parsable, -1, E[i].ref, "PAC: MCID without a page: no /Pg on the element or its ancestors (PAC refuses the file)");
                     break;
                 }
+        }
     }
     // The other direction: every MCID kid of an element against the ParentTree entry of its page. PAC: StructuralParentTreeInvalidReference for each kid whose entry names another element (two
     // elements claim one sequence: two real-world samples, 4 and 21 kids, measured exactly; both invisible before,
