@@ -74,6 +74,28 @@ EQX_TEST(pac_quality_packed_text) {
         EXPECT(q.str() == t + t);
         EXPECT_EQ(p.all_of([](char32_t c) { return is_whitespace(c); }), whitespace_only(t));
     }
+    // texts appended in the form a text run stores them: every order of narrow, wide and widest pieces
+    {
+        const unsigned char narrow[] = {'a', 0xE4, 'z'};
+        const std::uint16_t wide[] = {0x20AC, 0x41, 0xD800};
+        const std::uint32_t widest[] = {0x1F600, 0x42};
+        const std::u32string tn = {'a', 0xE4, 'z'}, tw = {0x20AC, 0x41, 0xD800}, tx = {0x1F600, 0x42};
+        const int orders[6][3] = {{0, 1, 2}, {0, 2, 1}, {1, 0, 2}, {1, 2, 0}, {2, 0, 1}, {2, 1, 0}};
+        for (const auto& order : orders) {
+            PackedText q;
+            std::u32string expect_q;
+            for (int repeat = 0; repeat < 2; ++repeat)
+                for (int which : order) {
+                    if (which == 0) q.append_packed(narrow, 3, 0), expect_q += tn;
+                    if (which == 1) q.append_packed(reinterpret_cast<const unsigned char*>(wide), 3, 1), expect_q += tw;
+                    if (which == 2) q.append_packed(reinterpret_cast<const unsigned char*>(widest), 2, 2), expect_q += tx;
+                    q.append_packed(narrow, 0, 0);
+                    EXPECT(q.str() == expect_q);
+                }
+            q.push_back(U' ');
+            EXPECT(q.back() == U' ' && q.size() == expect_q.size() + 1);
+        }
+    }
     // widening keeps what was stored narrow, at every step
     PackedText p;
     std::u32string expect;

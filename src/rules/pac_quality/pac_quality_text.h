@@ -52,10 +52,43 @@ public:
     void append(const Range& r) {
         for (char32_t c : r) push_back(c);
     }
+    // Appends `n` code points stored with (1 << shift) bytes each, the narrowest width that holds them all (the
+    // form a text run keeps its text in).
+    void append_packed(const unsigned char* data, std::size_t n, unsigned shift) {
+        if (n == 0) return;
+        if (shift > shift_) widen(shift);
+        if (shift == shift_) {
+            bytes_.append(reinterpret_cast<const char*>(data), n << shift);
+            return;
+        }
+        for (std::size_t i = 0; i < n; ++i) {   // narrower than this text
+            char32_t c;
+            if (shift == 0) {
+                c = data[i];
+            } else {
+                std::uint16_t v;
+                std::memcpy(&v, data + 2 * i, 2);
+                c = v;
+            }
+            push_back(c);
+        }
+    }
     void append_to(std::u32string& out) const {
         const std::size_t n = size(), at = out.size();
         out.resize(at + n);
-        for (std::size_t i = 0; i < n; ++i) out[at + i] = (*this)[i];
+        char32_t* o = out.data() + at;
+        if (shift_ == 0) {
+            const unsigned char* p = reinterpret_cast<const unsigned char*>(bytes_.data());
+            for (std::size_t i = 0; i < n; ++i) o[i] = p[i];
+        } else if (shift_ == 1) {
+            for (std::size_t i = 0; i < n; ++i) {
+                std::uint16_t v;
+                std::memcpy(&v, bytes_.data() + 2 * i, 2);
+                o[i] = v;
+            }
+        } else if (n) {
+            std::memcpy(o, bytes_.data(), n * 4);
+        }
     }
     std::u32string str() const {
         std::u32string out;

@@ -138,7 +138,7 @@ struct McContent {
             bool gap = r.bbox.llx - last.urx > 0.25 * h;
             if (new_line || gap) text.push_back(U' ');
         }
-        text.append(r.text);
+        text.append_packed(r.text.data(), r.text.size(), r.text.shift());
         last = r.bbox;
         has_last = true;
     }

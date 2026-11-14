@@ -468,6 +468,17 @@ void ContentColours::take(const ContentModel& cm, const Document& doc, std::size
 
 void ContentColours::State::take_painters(const ContentModel& cm, const Document& doc, std::size_t begin, std::size_t end) {
     const auto& pages = doc.pages();
+    if (begin >= end) return;
+    // The items of a page follow each other: when the first and the last item are of one page, all are, and a page
+    // that cannot hold a field needs no look at its items.
+    const int first_page = cm.streams[std::size_t(cm.items[begin].stream)].page;
+    if (first_page == cm.streams[std::size_t(cm.items[end - 1].stream)].page && first_page >= 0 && std::size_t(first_page) < pages.size()) {
+        if (first_page != asked_page) {
+            asked_page = first_page;
+            asked_wanted = may_hold_fields(pages[std::size_t(first_page)]);
+        }
+        if (!asked_wanted) return;
+    }
     for (std::size_t i = begin; i < end; ++i) {
         const ContentItem& it = cm.items[i];
         const StreamInstance& s = cm.streams[std::size_t(it.stream)];

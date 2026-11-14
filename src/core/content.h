@@ -160,6 +160,9 @@ public:
     char32_t operator[](std::size_t i) const { return load(p_ + (i << shift_), shift_); }
     char32_t front() const { return (*this)[0]; }
     char32_t back() const { return (*this)[n_ - 1]; }
+    // The code points as they are stored: size() of them, (1 << shift()) bytes each.
+    const unsigned char* data() const { return p_; }
+    unsigned shift() const { return shift_; }
 
     class const_iterator {
     public:
@@ -437,6 +440,8 @@ public:
         if (i < live_begin_) [[unlikely]] content_detail::throw_released("content item", i);
         return recs_[i];
     }
+    // The record of the item of a text run that is not released (ContentTexts): the item is not released either.
+    const content_detail::ItemRecord& record_of_live_run(std::size_t i) const { return recs_[i]; }
     // Gives the items below `n` back (n <= size()). The first item that can still be read is live_begin().
     void release_before(std::size_t n) {
         if (n <= live_begin_) return;
@@ -483,7 +488,7 @@ public:
         if (i < live_begin_) [[unlikely]] content_detail::throw_released("text run", i);
         const content_detail::TextRecord& r = recs_[i];
         const content_detail::TextStyle& s = styles_[r.style_shift & kStyleMask];
-        const content_detail::ItemRecord& it = items_->record(r.item);
+        const content_detail::ItemRecord& it = items_->record_of_live_run(r.item);
         content_detail::RunCounts n{it.glyphs, it.unmapped, it.len};
         if (it.flags & 16) [[unlikely]] n = large_run(i);
         return TextRun{static_cast<int>(r.item),
