@@ -486,6 +486,10 @@ private:
         double need = large ? 3.0 : 4.5;
         if (ratio + 1e-9 >= need) return;
         const StreamInstance& s = cm.streams[it.stream];
+        if (ctx.findings.saturated(rc)) {   // only counted: the record is full, the detail would be dropped
+            ctx.report(rc, s.page, s.ref);
+            return;
+        }
         char buf[200];
         std::snprintf(buf, sizeof buf, "contrast %.2f:1 (text %s on %s, %.1f pt%s), needs %.1f:1", ratio,
                       hex(fg).c_str(), hex(bg).c_str(), tr.size_user, large ? ", large" : "", need);

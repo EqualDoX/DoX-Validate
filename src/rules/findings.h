@@ -38,6 +38,12 @@ public:
         add(rule, Location{page1, obj, std::move(detail)});
     }
     bool has(RuleIndex rule) const { return by_rule_.count(rule) > 0; }
+    // True when the record of `rule` holds max_locations locations: add() then only counts (the occurrence, and whether
+    // the detail starts with "PAC:"), so a caller may pass an empty detail instead of building one that is dropped.
+    bool saturated(RuleIndex rule) const {
+        auto it = by_rule_.find(rule);
+        return it != by_rule_.end() && it->second.locations.size() >= max_locations_;
+    }
     void erase(RuleIndex rule) { by_rule_.erase(rule); }
 
     // Records sorted by catalogue order (rule index).

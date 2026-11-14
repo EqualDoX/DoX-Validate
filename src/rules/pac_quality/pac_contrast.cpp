@@ -2796,7 +2796,9 @@ void ContrastEngine::wcag_text(const ContentModel& cm, const ContentItem& it, co
     const wcag::TextJudgement j = wcag::judge_text(f);
     if (j.verdict == wcag::Verdict::Pass) return;
     const StreamInstance& s = cm.streams[std::size_t(it.stream)];
-    ctx_.report(j.verdict == wcag::Verdict::Violation ? rc : rr, s.page, s.ref, wcag::text_detail(f, j, box, to_utf8(tr.text)));
+    const RuleIndex rule = j.verdict == wcag::Verdict::Violation ? rc : rr;
+    if (ctx_.findings.saturated(rule)) ctx_.report(rule, s.page, s.ref);   // only counted: the detail would be dropped
+    else ctx_.report(rule, s.page, s.ref, wcag::text_detail(f, j, box, to_utf8(tr.text)));
 }
 
 // What the engine could not measure leaves the WCAG rules open (never a silent pass).
