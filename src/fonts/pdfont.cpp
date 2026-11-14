@@ -623,7 +623,19 @@ void read_descriptor(VeraFont& f, const Obj& dict) {
                             cos::get(f.descriptor, "FontFile3").isStream();
     for (const char* key : {"FontFile", "FontFile2", "FontFile3"}) {
         Obj ff = cos::get(f.descriptor, key);
-        if (ff.isStream() && flate_data_error(ff)) f.program_stream_damaged = true;
+        if (!ff.isStream()) continue;
+        // The answer belongs to the stream, and a document with a subset font per page has thousands of font
+        // dictionaries over a few programs: each program is inflated for this test once, not once per dictionary.
+        const ObjRef r = ref_of(ff);
+        bool damaged = false;
+        if (auto known_answer = r.valid() ? f.cache->flate_damaged.find(r.key()) : f.cache->flate_damaged.end();
+            known_answer != f.cache->flate_damaged.end()) {
+            damaged = known_answer->second;
+        } else {
+            damaged = flate_data_error(ff);
+            if (r.valid()) f.cache->flate_damaged.emplace(r.key(), damaged);
+        }
+        if (damaged) f.program_stream_damaged = true;
     }
     f.impl->missing_width_known = known(f.descriptor, "MissingWidth");
     f.impl->missing_width = real_value(cos::get(f.descriptor, "MissingWidth")).value_or(0);

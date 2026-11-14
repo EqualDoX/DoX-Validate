@@ -39,6 +39,7 @@ struct DocCache {
     std::unordered_map<std::uint64_t, std::shared_ptr<const Type1Data>> type1;
     std::unordered_map<std::string, std::shared_ptr<FontProgram>> programs;   // FontProgramIDGenerator ids
     std::unordered_map<std::uint64_t, std::shared_ptr<const CMap>> merged;    // CMap streams with /UseCMap
+    std::unordered_map<std::uint64_t, bool> flate_damaged;   // font program streams: their Flate data fails (pdfont.cpp)
 };
 
 // veraPDF PDCMap over a COS object (name, stream or anything else).
