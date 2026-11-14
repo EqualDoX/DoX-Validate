@@ -772,7 +772,7 @@ private:
     std::string label(int n, int f, bool is_root) {
         if (is_root) return "StructTreeRoot";
         std::string s;
-        if (auto S = cos::name(dict_of(n), "S")) s = *S;
+        if (const auto& S = elems_[n].S) s = *S;   // /S when it is a name
         else s = "(no /S name)";
         int tok = std_[n].tok;
         s += " [standard type ";
@@ -807,6 +807,12 @@ private:
             return v && *v == '1';
         }();
         if (eval_rule(r, C_.pool.ids.data(), kids ? *kids : empty, parent, own, T_, clause && !reference_dedup_)) return;
+        if (sink_.saturated && sink_.saturated(r.gen)) {
+            // only counted: the detail starts with the element's /S, or with "StructTreeRoot"
+            const bool pac = !is_root && elems_[n].S && elems_[n].S->rfind("PAC:", 0) == 0;
+            sink_.violation(r.gen, is_root ? st_.root_ref() : elems_[n].ref, pac ? "PAC:" : "");
+            return;
+        }
         std::string detail = label(n, f, is_root);
         if (r.kids) {
             detail += ": kids [" + kid_text(*kids) + "]";

@@ -216,3 +216,77 @@ EQX_TEST(containment_engine_matches_the_model_on_random_trees) {
     EXPECT(shared > 30);
     EXPECT(failures > 2000);
 }
+
+EQX_TEST(containment_engine_saturated_rules_get_no_detail) {
+    // A receiver that only counts further violations of a rule (Sink::saturated) gets the same violations in the same
+    // order, with "PAC:" in place of a detail that starts with it and nothing in place of any other.
+    QPDF q;
+    q.emptyPDF();
+    q.addPage(q.makeIndirectObject(P("<< /Type /Page /MediaBox [0 0 612 792] >>")), true);
+    Obj root = q.makeIndirectObject(P("<< /Type /StructTreeRoot /RoleMap << /PAC:Odd /P >> >>"));
+    Obj doc = q.makeIndirectObject(P("<< /S /Document >>"));
+    Obj span = q.makeIndirectObject(P("<< /S /Span >>"));
+    doc.replaceKey("/P", root);
+    span.replaceKey("/P", doc);
+    Obj kids = QPDFObjectHandle::newArray();
+    for (int i = 0; i < 60; ++i) {
+        Obj p = q.makeIndirectObject(P(i % 3 == 0 ? "<< /S /PAC:Odd >>" : "<< /S /P >>"));
+        p.replaceKey("/P", span);
+        kids.appendItem(p);
+    }
+    span.replaceKey("/K", kids);
+    doc.replaceKey("/K", span);
+    root.replaceKey("/K", doc);
+    q.getRoot().replaceKey("/StructTreeRoot", root);
+    auto path = std::filesystem::temp_directory_path() / ("eqx_containment_saturated_" + std::to_string(::getpid()) + ".pdf");
+    {
+        QPDFWriter w(q, path.string().c_str());
+        w.setStaticID(true);
+        w.write();
+    }
+    OpenStatus status;
+    std::string err;
+    auto document = Document::open(path.string(), &status, &err);
+    std::filesystem::remove(path);
+    EXPECT(document != nullptr);
+    if (!document) return;
+    StructTree st;
+    st.build(*document);
+    struct Seen {
+        std::size_t gen;
+        std::string obj, detail;
+    };
+    const auto run_with = [&](std::size_t limit) {
+        std::vector<Seen> seen;
+        std::map<std::size_t, std::size_t> count;
+        Sink sink;
+        sink.violation = [&](std::size_t gen, ObjRef obj, std::string detail) {
+            seen.push_back({gen, obj.str(), std::move(detail)});
+            ++count[gen];
+        };
+        sink.incomplete = [](std::size_t, std::string) {};
+        if (limit) sink.saturated = [&count, limit](std::size_t gen) { return count[gen] >= limit; };
+        evaluate(st, sink, false);
+        return seen;
+    };
+    const std::vector<Seen> full = run_with(0), capped = run_with(5);
+    EXPECT(full.size() >= 60);
+    EXPECT_EQ(capped.size(), full.size());
+    if (capped.size() != full.size()) return;
+    std::map<std::size_t, std::size_t> count;
+    std::size_t dropped = 0, pac = 0;
+    for (std::size_t i = 0; i < full.size(); ++i) {
+        EXPECT_EQ(capped[i].gen, full[i].gen);
+        EXPECT_EQ(capped[i].obj, full[i].obj);
+        const bool pac_detail = full[i].detail.rfind("PAC:", 0) == 0;
+        if (count[full[i].gen]++ < 5) {
+            EXPECT_EQ(capped[i].detail, full[i].detail);
+        } else {
+            EXPECT_EQ(capped[i].detail, std::string(pac_detail ? "PAC:" : ""));
+            ++dropped;
+            pac += pac_detail;
+        }
+    }
+    EXPECT(dropped > 50);
+    EXPECT(pac > 10 && pac < dropped);
+}

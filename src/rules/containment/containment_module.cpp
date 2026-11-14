@@ -44,6 +44,7 @@ public:
         sink.incomplete = [&](std::size_t gen, std::string reason) {
             ctx.mark_incomplete(gen_to_rule[gen], std::move(reason));
         };
+        sink.saturated = [&](std::size_t gen) { return ctx.findings.saturated(gen_to_rule[gen]); };
         containment::evaluate(ctx.st, sink, ctx.reference_dedup);
     }
 };

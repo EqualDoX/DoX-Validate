@@ -80,6 +80,10 @@ struct Sink {
     std::function<void(std::size_t gen, ObjRef obj, std::string detail)> violation;
     // Rule `gen` cannot be decided on this document (reference semantics do not terminate).
     std::function<void(std::size_t gen, std::string reason)> incomplete;
+    // Optional: true when a further violation of rule `gen` is only counted, its detail dropped (the record of the
+    // rule is full). The detail is then not built: `violation` gets "PAC:" when the detail would start with it (a
+    // structure type of that name; the receiver counts such details apart) and "" otherwise.
+    std::function<bool(std::size_t gen)> saturated;
 };
 // reference_dedup = false (default): every element of the tree is evaluated (each indirect element once,
 // every direct element). true: exactly the elements veraPDF validates (StructTree::verapdf_order).
