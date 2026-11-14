@@ -214,6 +214,11 @@ Result validate_once(const std::string& path, const Options& opt, bool recover, 
     }
     auto tc = std::chrono::steady_clock::now();
     bool content_failed = false;
+    // The rule modules that read content items and text runs (content, pac_quality) take what they need of a page
+    // when its content stream ends, in observers; no other module reads them. So the content model keeps the items and
+    // runs of one page at a time, not those of the document. (A module that read a released item would fail, and
+    // its rules would be incomplete: ContentModel::release_consumed.)
+    content.release_consumed = true;
     try {
         interpret_document(*doc, st, fonts, content, observers);
     } catch (std::exception& e) {

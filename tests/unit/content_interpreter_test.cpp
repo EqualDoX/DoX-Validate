@@ -189,3 +189,99 @@ EQX_TEST(content_interpreter_long_text_operator) {
     EXPECT_EQ(small.glyphs - small.unmapped, static_cast<std::uint32_t>(small.text.size()));
     EXPECT(small.text.front() == U'b');
 }
+
+namespace {
+
+// Reads the items and runs of each page when the page's content stream ends, the way the rule modules do.
+struct PageReader : ContentObserver {
+    std::vector<std::string> page_texts;     // per page: the texts of its runs
+    std::size_t taken = 0;
+    int released_reads = 0;                  // reads of an earlier page that did not throw
+    void on_stream_end(const ContentModel& cm, int si) override {
+        if (cm.streams[static_cast<std::size_t>(si)].kind != StreamInstance::Kind::Page) return;
+        std::string text;
+        for (std::size_t i = taken; i < cm.items.size(); ++i) {
+            const ContentItem& it = cm.items[i];
+            if (it.text >= 0) text += to_utf8(cm.texts[static_cast<std::size_t>(it.text)].text) + "|";
+            else text += "path|";
+        }
+        if (taken > 0) {   // the page before was released when its stream had ended and every observer was told
+            try {
+                (void)cm.items[taken - 1];
+                ++released_reads;
+            } catch (const std::logic_error&) {
+            }
+            try {
+                (void)cm.texts[0];
+                ++released_reads;
+            } catch (const std::logic_error&) {
+            }
+        }
+        taken = cm.items.size();
+        page_texts.push_back(text);
+    }
+};
+
+std::string write_pages_pdf(const std::vector<std::string>& contents) {
+    static int counter = 0;
+    QPDF q;
+    q.emptyPDF();
+    Obj font = q.makeIndirectObject(
+        QPDFObjectHandle::parse("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>"));
+    for (const std::string& content : contents) {
+        Obj page = q.makeIndirectObject(QPDFObjectHandle::parse("<< /Type /Page /MediaBox [0 0 612 792] >>"));
+        Obj fonts = QPDFObjectHandle::newDictionary();
+        fonts.replaceKey("/F1", font);
+        Obj resources = QPDFObjectHandle::newDictionary();
+        resources.replaceKey("/Font", fonts);
+        page.replaceKey("/Resources", resources);
+        page.replaceKey("/Contents", q.newStream(content));
+        q.addPage(page, false);
+    }
+    auto path = std::filesystem::temp_directory_path() /
+                ("eqx_content_pages_" + std::to_string(::getpid()) + "_" + std::to_string(counter++) + ".pdf");
+    QPDFWriter w(q, path.string().c_str());
+    w.setStaticID(true);
+    w.write();
+    return path.string();
+}
+
+}  // namespace
+
+EQX_TEST(content_interpreter_releases_a_page_after_its_observers) {
+    std::vector<std::string> contents, expect;
+    for (int p = 0; p < 40; ++p) {
+        std::string c = "BT /F1 10 Tf 50 700 Td ", e;
+        for (int k = 0; k <= p % 7; ++k) {
+            const std::string word = "p" + std::to_string(p) + "w" + std::to_string(k);
+            c += "(" + word + ") Tj ";
+            e += word + "|";
+        }
+        c += "ET 0 0 10 10 re f\n";
+        e += "path|";
+        contents.push_back(c);
+        expect.push_back(e);
+    }
+    for (bool release : {false, true}) {
+        const std::string path = write_pages_pdf(contents);
+        OpenStatus status;
+        std::string err;
+        auto doc = Document::open(path, &status, &err);
+        std::filesystem::remove(path);
+        EXPECT(doc != nullptr);
+        if (!doc) return;
+        StructTree st;
+        st.build(*doc);
+        FontRegistry fonts(*doc);
+        ContentModel cm;
+        cm.release_consumed = release;
+        PageReader reader;
+        interpret_document(*doc, st, fonts, cm, {&reader});
+        EXPECT(reader.page_texts == expect);                      // every page was read whole at its end, either way
+        EXPECT_EQ(reader.released_reads, release ? 0 : 2 * 39);   // and is gone afterwards only when asked for
+        EXPECT_EQ(cm.items.size(), reader.taken);                 // the counts are those of the document
+        EXPECT_EQ(cm.items.live_begin(), release ? cm.items.size() : std::size_t(0));
+        EXPECT_EQ(cm.texts.live_begin(), release ? cm.texts.size() : std::size_t(0));
+        EXPECT_EQ(cm.streams.size(), std::size_t(40));
+    }
+}
