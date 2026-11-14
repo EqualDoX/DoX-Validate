@@ -161,3 +161,31 @@ EQX_TEST(content_interpreter_observers_and_model) {
     EXPECT(line.kind == ContentItem::Kind::LineArt && line.paint == 2 && !line.exact_rect);
     EXPECT(line.bbox.llx == 5 && line.bbox.lly == 5 && line.bbox.urx == 10 && line.bbox.ury == 10);
 }
+
+EQX_TEST(content_interpreter_long_text_operator) {
+    // More glyphs in one operator than an item record counts itself, then an ordinary operator.
+    const std::size_t n = 70000;
+    std::string content = "BT /F1 10 Tf 0 0 Td (" + std::string(n, 'a') + ") Tj (b\\200c) Tj ET\n";
+    const std::string path = write_page_pdf(content);
+    OpenStatus status;
+    std::string err;
+    auto doc = Document::open(path, &status, &err);
+    std::filesystem::remove(path);
+    EXPECT(doc != nullptr);
+    if (!doc) return;
+    StructTree st;
+    st.build(*doc);
+    FontRegistry fonts(*doc);
+    ContentModel cm;
+    interpret_document(*doc, st, fonts, cm, {});
+    EXPECT_EQ(cm.texts.size(), std::size_t(2));
+    const TextRun& big = cm.texts[0];
+    EXPECT_EQ(big.glyphs, static_cast<std::uint32_t>(n));
+    EXPECT_EQ(big.unmapped, 0u);
+    EXPECT_EQ(big.text.size(), n);
+    EXPECT(big.text.front() == U'a' && big.text.back() == U'a');
+    const TextRun& small = cm.texts[1];
+    EXPECT_EQ(small.glyphs, 3u);
+    EXPECT_EQ(small.glyphs - small.unmapped, static_cast<std::uint32_t>(small.text.size()));
+    EXPECT(small.text.front() == U'b');
+}

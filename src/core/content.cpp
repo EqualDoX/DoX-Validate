@@ -106,28 +106,55 @@ std::uint32_t ContentTexts::intern(const TextStyle& style) {
     return last_style_ = index;
 }
 
-TextRecord& ContentTexts::begin_run(int item, const TextStyle& style) {
+void ContentTexts::begin_run(int item, const TextStyle& style) {
     const std::uint32_t style_index = intern(style);
+    if (large_.size() == large_.capacity()) large_.reserve(large_.empty() ? 4 : 2 * large_.size());
     TextRecord& r = recs_.emplace_back();
-    r.text = end_;
     r.style_shift = style_index;
     r.item = static_cast<std::uint32_t>(item);
-    items_->record(static_cast<std::size_t>(item)).aux = static_cast<std::uint32_t>(recs_.size() - 1);
-    open_ = &r;
+    content_detail::ItemRecord& it = items_->record(static_cast<std::size_t>(item));
+    it.aux = static_cast<std::uint32_t>(recs_.size() - 1);
+    it.flags |= 32;
+    open_text_ = end_;
+    open_len_ = 0;
     open_shift_ = 0;
+    open_ = true;
     open_alone_ = false;
-    return r;
+}
+
+void ContentTexts::end_run(std::uint32_t glyphs, std::uint32_t unmapped) noexcept {
+    if (!open_) return;
+    open_ = false;
+    const std::size_t run = recs_.size() - 1;
+    TextRecord& r = recs_[run];
+    r.text = open_text_;
+    r.style_shift = (r.style_shift & kStyleMask) | (open_shift_ << 30);
+    content_detail::ItemRecord& it = items_->record(r.item);
+    const std::uint32_t len = static_cast<std::uint32_t>(open_len_);   // make_room keeps it below 2^32
+    if (glyphs <= content_detail::kSmallCount && unmapped <= content_detail::kSmallCount && len <= content_detail::kSmallCount) {
+        it.glyphs = static_cast<std::uint16_t>(glyphs);
+        it.unmapped = static_cast<std::uint16_t>(unmapped);
+        it.len = static_cast<std::uint16_t>(len);
+    } else {
+        large_.emplace_back(static_cast<std::uint32_t>(run), content_detail::RunCounts{glyphs, unmapped, len});   // room kept by begin_run
+        it.flags |= 16;
+    }
+}
+
+const content_detail::RunCounts& ContentTexts::large_run(std::size_t run) const {
+    const auto pos = std::lower_bound(large_.begin(), large_.end(), run,
+                                      [](const std::pair<std::uint32_t, content_detail::RunCounts>& e, std::size_t r) { return e.first < r; });
+    return pos->second;
 }
 
 // The open run needs room for `n` more code points of width `shift` (log2 bytes): widens what it holds when the new
 // code points are wider, in place when the block has the room, else in a new block.
 void ContentTexts::make_room(std::size_t n, unsigned shift) {
-    TextRecord& r = *open_;
     const unsigned new_shift = std::max(shift, open_shift_);
-    const std::size_t have = r.len;
+    const std::size_t have = open_len_;
     if (n > 0xffffffffu - have) throw std::length_error("content model: text of one operator too long");
     const std::size_t need = (have + n) << new_shift;
-    unsigned char* from = const_cast<unsigned char*>(r.text);
+    unsigned char* from = open_text_;
     unsigned char* to = from;
     if (from == nullptr || static_cast<std::size_t>(cap_ - from) < need) {
         const std::size_t size = std::max(kTextBlock, need + need / 2);
@@ -150,8 +177,7 @@ void ContentTexts::make_room(std::size_t n, unsigned shift) {
         }
         open_alone_ = true;
     }
-    r.text = to;
-    r.style_shift = (r.style_shift & kStyleMask) | (new_shift << 30);
+    open_text_ = to;
     open_shift_ = new_shift;
     end_ = to + (have << new_shift);
 }
@@ -277,6 +303,17 @@ struct Exec {
 };
 
 double clamp01(double v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+
+// The text run of the text-showing operator being interpreted: its counts, stored with its text when the operator is
+// done or abandoned.
+struct OpenRun {
+    ContentTexts* texts = nullptr;
+    std::uint32_t glyphs = 0;
+    std::uint32_t unmapped = 0;
+    ~OpenRun() {
+        if (texts) texts->end_run(glyphs, unmapped);
+    }
+};
 
 // hypot of the last arguments it was called with, kept: the text matrix of consecutive text-showing operators
 // mostly differs in its translation only, and the function returns the same value for the same arguments.
@@ -888,9 +925,9 @@ bool Interpreter::step(Exec& x) {
         return m_.items.add(kind, si, fstack.empty() ? -1 : fstack.back(), opi, bbox);
     };
 
-    // `run` and `item` are the records of the operator's text run and item (null outside semantic streams).
-    auto show_string = [&](const std::string& bytes, std::uint32_t opi, std::uint32_t& gidx, TextRecord* run,
-                           content_detail::ItemRecord* item, Rect& tb, bool& tb_valid) {
+    // `run` is the operator's open text run (null outside semantic streams).
+    auto show_string = [&](const std::string& bytes, std::uint32_t opi, std::uint32_t& gidx, OpenRun* run, Rect& tb,
+                           bool& tb_valid) {
         const Font* const font = gs.font;
         if (!font) return;
         codes.clear();
@@ -927,7 +964,7 @@ bool Interpreter::step(Exec& x) {
             ev.advance_user = std::abs(w0 * tfs * th) * dir_norm;
             for (std::size_t k = 0; k < n_glyph_obs; ++k) glyph_obs[k]->on_glyph(m_, ev);
             if (run) {
-                ++item->glyphs;
+                ++run->glyphs;
                 if (const std::u32string* u = font->to_unicode(c.code)) m_.texts.append(u->data(), u->size());
                 else ++run->unmapped;
                 // Glyph box in text space: advance wide (0.5 em when zero), baseline-relative [-0.2, 0.8] em.
@@ -969,9 +1006,9 @@ bool Interpreter::step(Exec& x) {
         }
     };
 
-    // The item and the text run of a text-showing operator; the run's record, null outside semantic streams.
-    auto begin_text_op = [&](std::uint32_t opi) -> std::pair<TextRecord*, content_detail::ItemRecord*> {
-        if (!semantic) return {nullptr, nullptr};
+    // The item and the text run of a text-showing operator; the item's record, null outside semantic streams.
+    auto begin_text_op = [&](std::uint32_t opi) -> content_detail::ItemRecord* {
+        if (!semantic) return nullptr;
         int item = add_item(ContentItem::Kind::Text, opi, nullptr);
         TextStyle style;
         style.font = gs.font;
@@ -982,8 +1019,8 @@ bool Interpreter::step(Exec& x) {
         style.fill_alpha = gs.fill_alpha;
         Matrix trm = Matrix{gs.font_size * gs.th, 0, 0, gs.font_size, 0, gs.ts} * tm * gs.ctm;
         style.size_user = hypot_trm_(trm.c, trm.d);
-        TextRecord& run = m_.texts.begin_run(item, style);
-        return {&run, &m_.items.record(static_cast<std::size_t>(item))};
+        m_.texts.begin_run(item, style);
+        return &m_.items.record(static_cast<std::size_t>(item));
     };
     auto end_text_op = [&](content_detail::ItemRecord* item, const Rect& tb, bool tb_valid) {
         if (item && tb_valid) {
@@ -1096,7 +1133,10 @@ bool Interpreter::step(Exec& x) {
             }
             if (gs.font && gs.font->kind == FontKind::Type3)
                 type3_used_.try_emplace(gs.font, Type3Use{res.page, gs});
-            const auto [run, item] = begin_text_op(opi);
+            OpenRun open_run;   // stores the run when the operator ends, also when an observer or a font throws
+            content_detail::ItemRecord* const item = begin_text_op(opi);
+            OpenRun* const run = item ? &open_run : nullptr;
+            if (run) run->texts = &m_.texts;
             Rect tb;
             bool tb_valid = false;
             std::uint32_t gidx = 0;
@@ -1104,7 +1144,7 @@ bool Interpreter::step(Exec& x) {
                 if (!a.empty() && a.back().type == Operand::Array) {
                     for (const Operand& e : a.back().items) {
                         if (e.type == Operand::String) {
-                            show_string(e.s, opi, gidx, run, item, tb, tb_valid);
+                            show_string(e.s, opi, gidx, run, tb, tb_valid);
                         } else if (e.is_number()) {
                             double adj = -e.num() / 1000.0 * gs.font_size;
                             if (gs.font && gs.font->vertical()) tm = Matrix{1, 0, 0, 1, 0, adj} * tm;
@@ -1113,7 +1153,7 @@ bool Interpreter::step(Exec& x) {
                     }
                 }
             } else if (!a.empty() && a.back().type == Operand::String) {
-                show_string(a.back().s, opi, gidx, run, item, tb, tb_valid);
+                show_string(a.back().s, opi, gidx, run, tb, tb_valid);
             }
             end_text_op(item, tb, tb_valid);
         } else if (oc == Op::m) {

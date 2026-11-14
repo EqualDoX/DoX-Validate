@@ -49,6 +49,7 @@ EQX_TEST(content_model_text_roundtrip_all_widths) {
         cm.texts.begin_run(item, style_of(10));
         // one code point at a time, the way the interpreter appends the Unicode value of each glyph
         for (char32_t c : texts[i]) cm.texts.append(&c, 1);
+        cm.texts.end_run(static_cast<std::uint32_t>(texts[i].size()), 0);
     }
     EXPECT_EQ(cm.texts.size(), texts.size());
     for (std::size_t i = 0; i < texts.size(); ++i) {
@@ -85,14 +86,21 @@ EQX_TEST(content_model_text_widens_an_open_run) {
             cm.texts.append(&c, 1);
             expect.push_back(c);
         }
-        EXPECT(read(cm, 0) == expect);
     }
+    EXPECT(cm.texts[0].text.empty());           // not stored yet
+    cm.texts.end_run(15000, 7);
+    EXPECT(read(cm, 0) == expect);
+    EXPECT_EQ(cm.texts[0].glyphs, 15000u);
+    EXPECT_EQ(cm.texts[0].unmapped, 7u);
     // a second run after it starts clean and narrow
     const int item2 = cm.items.add(ContentItem::Kind::Text, 0, -1, 1, nullptr);
     cm.texts.begin_run(item2, style_of(12));
     const std::u32string tail = U"tail";
     cm.texts.append(tail.data(), tail.size());
+    cm.texts.end_run(4, 0);
+    cm.texts.end_run(99, 99);                   // nothing is open: no effect
     EXPECT(read(cm, 1) == tail);
+    EXPECT_EQ(cm.texts[1].glyphs, 4u);
     EXPECT(read(cm, 0) == expect);
 }
 
@@ -100,6 +108,7 @@ EQX_TEST(content_model_text_many_runs_and_long_runs) {
     ContentModel cm;
     Lcg rng;
     std::vector<std::u32string> expect;
+    std::vector<std::pair<std::uint32_t, std::uint32_t>> counts;
     // Runs of very different lengths, so that runs end exactly at, shortly before and far beyond the end of a block
     // of the text arena, and a run outgrows the block it started in.
     for (int i = 0; i < 4000; ++i) {
@@ -120,11 +129,20 @@ EQX_TEST(content_model_text_many_runs_and_long_runs) {
             cm.texts.append(t.data() + at, n);
             at += n;
         }
+        // counts on both sides of what an item record holds itself
+        const std::uint32_t glyphs = i % 97 == 0 ? 65534u + static_cast<std::uint32_t>(i % 5) : static_cast<std::uint32_t>(t.size());
+        const std::uint32_t unmapped = i % 89 == 0 ? 0x10000u + static_cast<std::uint32_t>(i) : static_cast<std::uint32_t>(i % 3);
+        cm.texts.end_run(glyphs, unmapped);
+        counts.emplace_back(glyphs, unmapped);
         expect.push_back(std::move(t));
     }
     EXPECT_EQ(cm.texts.size(), expect.size());
     bool all = true;
-    for (std::size_t i = 0; i < expect.size(); ++i) all = all && read(cm, i) == expect[i];
+    for (std::size_t i = 0; i < expect.size(); ++i) {
+        const TextRun& run = cm.texts[i];
+        all = all && run.text.str() == expect[i] && run.glyphs == counts[i].first && run.unmapped == counts[i].second &&
+              run.text.size() == expect[i].size();
+    }
     EXPECT(all);
 }
 
@@ -159,6 +177,7 @@ EQX_TEST(content_model_text_styles_keep_every_bit) {
     for (std::size_t i = 0; i < styles.size(); ++i) {
         const int item = cm.items.add(ContentItem::Kind::Text, 0, -1, static_cast<std::uint32_t>(i), nullptr);
         cm.texts.begin_run(item, styles[i]);
+        cm.texts.end_run(0, 0);
     }
     const auto bits = [](double v) {
         std::uint64_t b;
@@ -182,9 +201,8 @@ EQX_TEST(content_model_item_views) {
     ContentModel cm;
     const Rect box{1, 2, 3, 4};
     const int text = cm.items.add(ContentItem::Kind::Text, 3, 7, 11, nullptr);
-    content_detail::TextRecord& rec = cm.texts.begin_run(text, style_of(9));
-    cm.items.record(static_cast<std::size_t>(text)).glyphs = 5;
-    rec.unmapped = 2;
+    cm.texts.begin_run(text, style_of(9));
+    cm.texts.end_run(5, 2);
     const int path = cm.items.add(ContentItem::Kind::LineArt, 3, -1, 12, &box);
     Color red;
     red.family = ColorFamily::RGB;

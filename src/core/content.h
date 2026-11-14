@@ -285,7 +285,7 @@ struct TextRun {
     const Rect& bbox;
 };
 
-// What the model stores. A text-showing operator costs one ItemRecord and one TextRecord (80 bytes) plus its text.
+// What the model stores. A text-showing operator costs one ItemRecord and one TextRecord (72 bytes) plus its text.
 // The attributes that repeat from run to run (font, sizes, rendering mode, colours, alpha) are kept once per distinct
 // combination; the painting attributes of line art and the image of an image item are kept in side tables.
 namespace content_detail {
@@ -296,20 +296,27 @@ struct ItemRecord {
     std::int32_t frame = -1;
     std::uint32_t op_index = 0;
     std::uint32_t aux = 0;         // Text: text run, LineArt: paint record, ImageXObject: image reference
-    std::uint32_t glyphs = 0;      // Text: number of glyphs shown
+    // Text: the counts of the run - glyphs shown, glyphs without Unicode, code points of the text. A run with a
+    // count above kSmallCount has flag bit 4 set and its counts in ContentTexts' table of large runs.
+    std::uint16_t glyphs = 0;
+    std::uint16_t unmapped = 0;
+    std::uint16_t len = 0;
     std::uint8_t kind = 0;
-    std::uint8_t flags = 0;        // bit 0 bbox_valid, bits 1-2 paint, bit 3 exact_rect
+    std::uint8_t flags = 0;        // bit 0 bbox_valid, bits 1-2 paint, bit 3 exact_rect, bit 4 large run, bit 5 has a text run
 };
 static_assert(sizeof(ItemRecord) == 56);
+constexpr std::uint32_t kSmallCount = 0xfffe;
 
 struct TextRecord {
     const unsigned char* text = nullptr;
-    std::uint32_t len = 0;           // code points
     std::uint32_t style_shift = 0;   // bits 0-29 style, bits 30-31 log2 of the bytes per code point
     std::uint32_t item = 0;
-    std::uint32_t unmapped = 0;
 };
-static_assert(sizeof(TextRecord) == 24);
+static_assert(sizeof(TextRecord) == 16);
+
+struct RunCounts {
+    std::uint32_t glyphs = 0, unmapped = 0, len = 0;
+};
 
 struct TextStyle {
     const Font* font = nullptr;
@@ -346,7 +353,7 @@ public:
                            r.op_index,
                            r.bbox,
                            (r.flags & 1) != 0,
-                           kind == ContentItem::Kind::Text ? static_cast<int>(r.aux) : -1,
+                           (r.flags & 32) != 0 ? static_cast<int>(r.aux) : -1,
                            kind == ContentItem::Kind::ImageXObject ? xobjects_[r.aux] : ObjRef{},
                            p.fill,
                            p.fill_alpha,
@@ -447,14 +454,16 @@ public:
         const content_detail::TextRecord& r = recs_[i];
         const content_detail::TextStyle& s = styles_[r.style_shift & kStyleMask];
         const content_detail::ItemRecord& it = items_->record(r.item);
+        content_detail::RunCounts n{it.glyphs, it.unmapped, it.len};
+        if (it.flags & 16) [[unlikely]] n = large_run(i);
         return TextRun{static_cast<int>(r.item),
                        s.font,
                        s.size,
                        s.size_user,
                        s.tr,
-                       RunText(r.text, r.len, r.style_shift >> 30),
-                       it.glyphs,
-                       r.unmapped,
+                       RunText(r.text, n.len, r.style_shift >> 30),
+                       n.glyphs,
+                       n.unmapped,
                        s.fill,
                        s.stroke,
                        s.fill_alpha,
@@ -495,13 +504,14 @@ public:
 
     // --- for the interpreter ---
     void attach(ContentItems& items) { items_ = &items; }
-    // Opens the run of text item `item` and returns its record: append() adds to its text until the next
-    // begin_run(). The record is complete after every call, so the model stays readable if interpretation stops.
-    content_detail::TextRecord& begin_run(int item, const content_detail::TextStyle& style);
+    // Opens the run of text item `item`: append() adds to its text, end_run() stores the text and the counts of the
+    // run. Until end_run() the run reads as empty, so end_run() must also be called when the operator is abandoned
+    // (it does not throw).
+    void begin_run(int item, const content_detail::TextStyle& style);
     void append(const char32_t* s, std::size_t n) {
         if (n == 1 && *s < 0x100 && open_shift_ == 0 && end_ != cap_) {   // one narrow code point: nearly every glyph
             *end_++ = static_cast<unsigned char>(*s);
-            ++open_->len;
+            ++open_len_;
             return;
         }
         std::uint32_t all = 0;
@@ -510,8 +520,9 @@ public:
         if (shift > open_shift_ || static_cast<std::size_t>(cap_ - end_) < (n << open_shift_)) make_room(n, shift);
         store(end_, s, n, open_shift_);
         end_ += n << open_shift_;
-        open_->len += static_cast<std::uint32_t>(n);
+        open_len_ += n;
     }
+    void end_run(std::uint32_t glyphs, std::uint32_t unmapped) noexcept;
 
 private:
     static constexpr std::uint32_t kStyleMask = (std::uint32_t(1) << 30) - 1;
@@ -529,6 +540,7 @@ private:
     }
     void make_room(std::size_t n, unsigned shift);
     std::uint32_t intern(const content_detail::TextStyle& style);
+    const content_detail::RunCounts& large_run(std::size_t run) const;
 
     ChunkedVector<content_detail::TextRecord> recs_;
     ChunkedVector<content_detail::TextStyle, 64> styles_;
@@ -537,11 +549,16 @@ private:
     ContentItems* items_ = nullptr;
     // Text arena: blocks of bytes. The open run is the tail of the last block.
     std::vector<unsigned char*> blocks_;
-    content_detail::TextRecord* open_ = nullptr;   // the open run
+    unsigned char* open_text_ = nullptr;           // the text of the open run
+    std::size_t open_len_ = 0;                     // its code points
+    unsigned open_shift_ = 0;                      // log2 of its bytes per code point
+    bool open_ = false;                            // a run is open
+    bool open_alone_ = false;                      // the open run is all that its block holds
     unsigned char* end_ = nullptr;                 // write position: the end of the open run
     unsigned char* cap_ = nullptr;                 // end of the last block
-    unsigned open_shift_ = 0;
-    bool open_alone_ = false;      // the open run is all that its block holds
+    // The counts of the runs with more than kSmallCount glyphs or code points, in the order of the runs. begin_run
+    // keeps room for one more, so end_run never allocates.
+    std::vector<std::pair<std::uint32_t, content_detail::RunCounts>> large_;
 };
 
 // A graphic painted by the appearance of a signature field (ISO 14289-2 8.10.3.5).
