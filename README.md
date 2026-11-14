@@ -70,6 +70,20 @@ $ sudo cmake --install build          # installs dox-validate to /usr/local/bin
 
 Use `cmake --install build --prefix ~/.local` to install without root, or run `build/dox-validate` directly.
 
+**Faster start-up: the static build.** A distribution's shared libqpdf brings GnuTLS, OpenSSL and their libraries
+into every process, which costs about 2 ms at start, more than a small document takes to validate. Where that
+matters (many small files, one process each), configure with
+
+```console
+$ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DDOX_STATIC_DEPS=ON
+```
+
+This downloads the release archives of qpdf 12.4.2 and pugixml 1.16 at configure time, checks them against pinned
+SHA-256 values, and links them and the C++ runtime statically (the static libstdc++ is part of GCC on Arch and
+Debian; Fedora needs `libstdc++-static`). It needs the development packages of libjpeg and zlib instead of those of
+qpdf and pugixml, and has been built on Arch Linux only. The reports are the same as those of the default build. See
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#shared-or-static-dependencies).
+
 ## Usage
 
 ```console
@@ -211,47 +225,49 @@ Per-target rule counts, the assessment model and what is not covered: [docs/STAN
 
 ## Performance
 
-Measured against veraPDF on the independent test corpus of this repository: 157 files with 14,001 pages, of which
-148 were processed by both tools. The runs used 8 logical CPUs of an Intel Core i9-14900KF under Arch Linux, and the
-values are medians of 5 interleaved repetitions.
+Measured on the independent test corpus of this repository: 157 files with 14,001 pages, of which 148 were processed
+by dox-validate, VellumPdf and outloud alike. All tools ran in one benchmark run with one process per document, on
+8 logical CPUs of an Intel Core i9-14900KF under Arch Linux; the values are medians of 5 interleaved repetitions.
 
-| | dox-validate | veraPDF 1.30.4, PDF/UA-1 profile |
-|---|---|---|
-| median time per document, one process per file: small / medium / large | 5.6 ms / 64 ms / 1.10 s | 646 ms / 1.33 s / 4.60 s |
-| throughput, one process per file, sequential | 975 pages/s (10.3 documents/s) | 88 pages/s (0.93 documents/s) |
-| best parallel throughput on 8 CPUs | 3,340 pages/s (8 processes) | 434 pages/s (`--processes 4`) |
-| peak memory per process: median / maximum | 20 MB / 722 MB | 235 MB / 4,971 MB |
+| | dox-validate | VellumPdf 2.3.3 | outloud 0.2.1 | veraPDF 1.30.4, PDF/UA-1 profile |
+|---|---|---|---|---|
+| median time per document: small / medium / large | 1.7 ms / 34 ms / 0.43 s | 3.4 ms / 186 ms / 1.29 s | 300 ms / 659 ms / 3.90 s | 617 ms / 1.29 s / 4.36 s |
+| throughput, one process per file, sequential | 2,176 pages/s | 323 pages/s | 106 pages/s | 92 pages/s |
+| 8 concurrent processes on 8 CPUs | 8,362 pages/s | 1,014 pages/s | not measured | not measured in this run |
+| peak memory per process: median / maximum | 8 MB / 183 MB | 13 MB / 241 MB | 78 MB / 537 MB | 239 MB / 5,164 MB |
+| veraPDF's PDF/UA-1 suite: fail files detected, pass files flagged | 144/156, 0/140 | 128/156, 20/140 | 76/156, 33/140 | the reference |
 
 How to read these numbers:
 
+- **They are for the build with statically linked qpdf** (`cmake -DDOX_STATIC_DEPS=ON`, which fetches the pinned
+  qpdf and pugixml sources). The default build uses the distribution's shared libqpdf and takes 3.8 ms / 39 ms /
+  0.46 s, with 16 MB / 190 MB peak memory: about 2 ms of every process is then the dynamic loader binding libqpdf's
+  dependencies. On small documents VellumPdf (3.4 ms, 13 MB) is ahead of that default build.
 - **One dox-validate run covers more.** It evaluates the whole catalogue: PDF/UA-1, PDF/UA-2, WTPDF, the
-  PAC-equivalent checks and WCAG. veraPDF evaluates one profile per run. Running all four veraPDF profiles that
-  dox-validate covers takes 2.68 s / 5.41 s / 19.7 s per small / medium / large document.
-- **The gap is largest for small files.** There, the JVM start-up dominates veraPDF's run time. Inside one
-  long-running process, the per-document validation times of the two tools differ by about 3.9×.
-- **cpdf is comparable on small files.** Its PDF/UA-1 verifier, which covers only part of PDF/UA-1, is about as fast
-  as dox-validate there.
-- **Other PDF/UA-1 checkers** were compared in a separate run (2026-11-14, same corpus and method, one process per
-  document), together with their accuracy on veraPDF's PDF/UA-1 test suite:
-
-  | | dox-validate | VellumPdf 2.3.3 | outloud 0.2.1 |
-  |---|---|---|---|
-  | median per document: small / medium / large | 6.3 ms / 74 ms / 1.29 s | 4.4 ms / 224 ms / 1.51 s | 393 ms / 837 ms / 4.30 s |
-  | throughput, one process per file | 852 pages/s | 280 pages/s | 88 pages/s |
-  | peak memory: median / maximum | 21 MB / 722 MB | 13 MB / 241 MB | 88 MB / 546 MB |
-  | suite: fail files detected, pass files flagged | 144/156, 0/140 | 128/156, 20/140 | 76/156, 33/140 |
-
-  VellumPdf is faster on small files and uses less memory. dox-validate is faster on medium and large files, and
-  checks PDF/UA-2, WTPDF and WCAG in the same run. Details:
-  [docs/BENCHMARKS.md](docs/BENCHMARKS.md#pdfua-1-validators-vellumpdf-and-outloud).
+  PAC-equivalent checks and WCAG. The other tools check PDF/UA-1, and veraPDF evaluates one profile per run.
+- **Memory.** dox-validate needs less memory than VellumPdf on 20 of the 21 medium and large documents; the
+  exception is a generated 2000-page document (127 MB against 114 MB). What remains on heavily tagged documents is
+  mostly qpdf's parsed objects.
+- **Before the optimisation of 2026-11-14** the same corpus took 5.2 ms / 64 ms / 1.07 s per document, at 1,000
+  pages/s and 21 MB / 722 MB. The optimised engine writes byte-identical reports: checked on this corpus, on 462
+  regression cases and on 10,894 real-world documents, in up to nine output modes.
+- **cpdf**'s PDF/UA-1 verifier, which covers only part of PDF/UA-1, takes 5.2 ms / 106 ms / 1.09 s on the documents
+  it completes.
+- **Earlier measurements with veraPDF**, on the engine before the optimisation: all four veraPDF profiles that
+  dox-validate covers take 2.68 s / 5.41 s / 19.7 s per small / medium / large document, veraPDF's best parallel
+  throughput was 434 pages/s (`--processes 4`), and inside one long-running process the per-document validation
+  times of the two tools differed by about 3.9×.
+- Details, every table and the list of what was changed:
+  [docs/BENCHMARKS.md](docs/BENCHMARKS.md#optimised-engine-before-and-after-and-the-other-tools).
 - **PAC was not benchmarked.** PAC is a Windows-only GUI with no command-line or batch interface, and no Windows
   machine was available. A run under Wine would not measure PAC as distributed. The details, and what a valid
   comparison would need, are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md#pac-pdf-accessibility-checker).
 - **Speed is not validation quality.** Correctness is tested separately, against expectations that do not come from
   any tool ([tests/corpus/CORRECTNESS.md](tests/corpus/CORRECTNESS.md)).
-- **Measured commits.** The veraPDF comparison ran on commit `f37a695`. The published 0.2.0 (`5ae7da2`) gave the same
-  exit codes and findings on every corpus file, with run times within 0.4%. The PDF/UA-1 comparison ran on `f75a2b3`,
-  which adds the alternative-text check for remapped Figures and the veraPDF 1.30.4 reading of 7.5-1; that changes the
+- **Measured commits.** The table above ran on commit `8d20f79`; "before the optimisation" is `729a5c5`. The earlier
+  veraPDF comparison ran on commit `f37a695`. The published 0.2.0 (`5ae7da2`) gave the same exit codes and findings
+  as `f37a695` on every corpus file, with run times within 0.4%. `729a5c5` has the engine of `f75a2b3`, which adds
+  the alternative-text check for remapped Figures and the veraPDF 1.30.4 reading of 7.5-1 to that; this changes the
   findings of two corpus files.
 
 ## Reproducing the benchmarks

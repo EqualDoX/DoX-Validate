@@ -11,6 +11,14 @@ separately, against the expectations of the test corpus.
 
 ## Summary
 
+**The engine has been optimised since the measurements of this summary.** The current engine, the engine before, and
+VellumPdf, outloud, veraPDF and cpdf were measured together in one later run:
+[Optimised engine: before and after, and the other tools](#optimised-engine-before-and-after-and-the-other-tools).
+In short, one process per document, small / medium / large: 1.68 ms / 34.2 ms / 433 ms (before: 5.24 ms / 64.2 ms /
+1.07 s), 2,176 pages/s (before: 1,000), peak RSS median 8.0 MB and maximum 183 MB (before: 20.6 MB and 722 MB). The
+reports are byte-identical to those of the engine before. The tables below describe the engine before the
+optimisation; veraPDF's own figures in them still apply.
+
 Measured on the frozen corpus: 157 files, 14,000 pages. The comparison covers the 148 documents that dox-validate and
 all four veraPDF profiles processed.
 dox-validate was measured at commit `f37a695`. The published dox-validate 0.2.0 (commit `5ae7da2`) produced the same
@@ -496,7 +504,158 @@ Raw data: [`bench/results/ua1-tools-2026-11-14/`](../bench/results/ua1-tools-202
 
   See [`tests/corpus/CORRECTNESS.md`](../tests/corpus/CORRECTNESS.md), section 7.
 
+## Optimised engine: before and after, and the other tools
+
+After the comparisons above, the engine was optimised for run time and memory (commits `729a5c5`..`8d20f79`,
+2026-11-14). This section measures the result. It uses the same harness, corpus and CPU set, and one run in which
+all tools were interleaved (2026-11-14):
+
+| variant | what |
+|---|---|
+| dox-validate | commit `8d20f79`, built with statically linked qpdf (`-DDOX_STATIC_DEPS=ON`, see [ARCHITECTURE.md](ARCHITECTURE.md#shared-or-static-dependencies)); full catalogue, and `--rules EQX-UA1-` |
+| dox-validate, default build | the same commit with the distribution's shared libqpdf |
+| dox-validate before the optimisation | commit `729a5c5`, default build. Its engine is that of `f75a2b3`, measured in the VellumPdf comparison above |
+| VellumPdf 2.3.3, outloud 0.2.1, veraPDF 1.30.4 `-f ua1`, cpdf 2.9.3 | as in the sections above |
+
+Blocks: start-up (10 repetitions), cold (5), parallel (5), batch (3 repetitions of 3 passes). Foreign CPU on the set
+was 5.2 % in the cold block and 0.6 % in the others. Raw data and every table:
+[`bench/results/optimised-2026-11-14/`](../bench/results/optimised-2026-11-14/) (`tables.md` is written by
+[`bench/analyze_ua1_tools.py`](../bench/analyze_ua1_tools.py)).
+
+### The reports did not change
+
+The optimised engine was required to produce the reports of `729a5c5` byte for byte: the same findings, rule ids,
+severities, occurrence counts, stored locations, detail texts and order, the same diagnostics, stderr and exit status.
+Only the values of `timing_ms` may differ. [`bench/report_diff.py`](../bench/report_diff.py) records a SHA-256 of
+stdout and stderr and the exit status per document and output mode for the old binary, and lists every document on
+which the new one differs. Result for `8d20f79`, for the static and for the default build:
+
+| documents | output modes | differing documents |
+|---|---|---|
+| the 157 corpus files | 9: JSON, verbose text, `--target any`, `--reference-dedup`, `--rules EQX-UA1-`, `--rules EQX-WCAG-`, `--max-locations 3`, `--text-model`, `--dump` | 0 |
+| 462 regression and robustness cases (malformed files, decompression bombs, deep nesting; cases derived from veraPDF and PAC differences) | the same 9 | 0 |
+| 10,894 real-world PDFs | 8: the above without `--dump` | 0 |
+
+The two larger sets are not part of this repository. Further checks: the unit tests (98 before, 155 now) and the
+black-box suite pass; runs over several files with `--jobs 1`, `4` and `16` give the output of the old binary; 39
+command-line cases (options, usage errors, unreadable input, a full output device) give the same output and status;
+a build with AddressSanitizer and UndefinedBehaviorSanitizer reports nothing on the corpus, the regression set and
+1,200 of the real-world files.
+
+### Results
+
+One process per document, median per document of 5 repetitions, on the 148 documents that dox-validate, VellumPdf
+and outloud all processed. veraPDF and cpdf are from the same run, on those of these documents that they completed
+(veraPDF 148, cpdf 146).
+
+| measure | dox-validate | default build | before the optimisation | VellumPdf 2.3.3 | outloud 0.2.1 | veraPDF 1.30.4 `-f ua1` | cpdf 2.9.3 |
+|---|---|---|---|---|---|---|---|
+| small PDF, median | 1.68 ms | 3.77 ms | 5.24 ms | 3.43 ms | 300 ms | 617 ms | 5.20 ms |
+| medium PDF, median | 34.2 ms | 39.0 ms | 64.2 ms | 186 ms | 659 ms | 1.29 s | 106 ms |
+| large PDF, median | 433 ms | 461 ms | 1.07 s | 1.29 s | 3.90 s | 4.36 s | 1.09 s |
+| sequential throughput, pages/s | 2,176 | 1,985 | 1,000 | 323 | 106 | 92 | 465 |
+| peak RSS, median | 8.0 MB | 15.9 MB | 20.6 MB | 13.3 MB | 78.4 MB | 239 MB | 13.2 MB |
+| peak RSS, maximum | 183 MB | 190 MB | 722 MB | 241 MB | 537 MB | 5,164 MB | 1,161 MB |
+| peak RSS, median of the large documents | 61.5 MB | 69.6 MB | 248 MB | 97.2 MB | 278 MB | 2,799 MB | 208 MB |
+
+| measure | dox-validate | before the optimisation | VellumPdf 2.3.3 | outloud 0.2.1 |
+|---|---|---|---|---|
+| start-up, `--version` | 0.65 ms | 2.40 ms | 2.17 ms | 189 ms |
+| smallest corpus file, one process | 1.32 ms (default build 3.18 ms) | 3.86 ms | 3.11 ms | 308 ms |
+| one process, the corpus three times: wall / peak RSS | 18.5 s / 185 MB | 40.0 s / 820 MB | 123 s / 575 MB | 267 s / 1,328 MB |
+| 8 concurrent one-document processes: pages/s / summed peak RSS | 8,362 / 620 MB | 3,609 / 1,730 MB | 1,014 / 927 MB | not run |
+| `--jobs 8` in one process: pages/s / peak RSS | 7,986 / 757 MB | 3,390 / 2,627 MB | no such mode | no such mode |
+| `--jobs` 1 / 2 / 4: wall for one pass | 6.19 s / 3.27 s / 2.05 s | 13.0 s / 7.54 s / 4.96 s | | |
+
+**Reading.**
+
+- **Against the engine before.** Per document, the optimised build takes 0.32× the time on small, 0.56× on medium
+  and 0.42× on large documents (medians of the per-document ratios). It processes 2.2 times as many pages per second,
+  and its largest process is a quarter of the size.
+- **Against VellumPdf**, the tool that was ahead on small documents and on memory:
+  - Small documents: 1.68 ms against 3.43 ms, and 7.9 MB against 13.1 MB.
+  - Medium and large documents: 5.3 and 3.7 times faster (medians of the per-document ratios).
+  - Peak memory: lower on 20 of the 21 medium and large documents. The exception is `gen-large-2000-complex`
+    (127 MB against 114 MB), see the open points below.
+- **The default build is not ahead of VellumPdf on small documents.** With the distribution's shared libqpdf a small
+  document takes 3.77 ms and 15.8 MB, against VellumPdf's 3.43 ms and 13.1 MB. About 2 ms of every process is the
+  dynamic loader binding libqpdf's dependencies. On medium and large documents the default build is within 8 to
+  15 % of the static one.
+- **cpdf** now takes about three times as long as dox-validate on the documents it completes; its PDF/UA-1 check
+  covers part of the Matterhorn Protocol only.
+- **veraPDF** `-f ua1` takes 379, 37 and 11 times as long per small, medium and large document. The comparisons with
+  its four profiles, its batch mode and `--processes` were not repeated; the sections above hold them for the engine
+  before the optimisation.
+- **Scope and correctness** are unchanged: each dox-validate run evaluates the whole catalogue, and the tools differ
+  in what they check and how reliably (see the sections above).
+
+Median wall time / peak RSS of the large documents:
+
+| document | pages | before the optimisation | dox-validate | VellumPdf 2.3.3 |
+|---|---|---|---|---|
+| nist-sp800-53Ar5 | 733 | 2.58 s / 722 MB | 1.12 s / 183 MB | 10.7 s / 241 MB |
+| govinfo-uscode-2022-title26 | 4215 | 2.14 s / 446 MB | 1.01 s / 36 MB | 5.34 s / 79 MB |
+| govinfo-budget-2025-app | 1298 | 1.75 s / 415 MB | 945 ms / 55 MB | 9.24 s / 99 MB |
+| govinfo-fr-2024-12-30 | 758 | 1.22 s / 335 MB | 461 ms / 68 MB | 1.33 s / 126 MB |
+| nist-sp800-53r5 | 492 | 1.20 s / 268 MB | 661 ms / 142 MB | 3.65 s / 218 MB |
+| irs-p17-2023 | 142 | 956 ms / 242 MB | 433 ms / 140 MB | 7.19 s / 198 MB |
+| gen-large-2000-complex | 2000 | 940 ms / 227 MB | 342 ms / 127 MB | 716 ms / 114 MB |
+| libreoffice-draw-guide-268 | 350 | 904 ms / 152 MB | 406 ms / 88 MB | 1.25 s / 95 MB |
+| gen-large-2000-simple | 2000 | 455 ms / 87 MB | 180 ms / 18 MB | 655 ms / 54 MB |
+| gen-large-500-complex | 500 | 217 ms / 74 MB | 78.4 ms / 38 MB | 189 ms / 59 MB |
+
+### What was changed
+
+Each change kept the reports identical. The effects are from A/B runs of the build with and without the change
+(one process per document on one CPU, or callgrind instruction counts, "Ir").
+
+| change | effect |
+|---|---|
+| **Static qpdf and pugixml** (`DOX_STATIC_DEPS`): 6 shared objects instead of 25, 470 symbol relocations instead of 9,700 | `--version` 14.2 M → 0.85 M Ir; a small document 5.9 → 2.2 ms and 20 → 8 MB with the other start-up changes |
+| **Tables at compile time**: rule ids, rule ownership, the 1667 containment rules | a small document 22.3 M → 15.4 M Ir |
+| **The input file is opened once** (one source for hash, header, trailer and qpdf; SHA-256 with SHA-NI) | 15.4 M → 13.8 M Ir; about 2,000 → 150 system calls |
+| **Report writing**: constant parts are prepared at build time | 13.8 M → 11.6 M Ir |
+| **Exit without tearing the models down** | about 10 % of the wall time of a large document |
+| **Cheaper dictionary access** (`cos::` accessors; with the pinned qpdf one search per key) | 2 to 8 % fewer Ir on structure-heavy documents |
+| **Content model in compact records** (56 and 16 bytes instead of 88 and 152 plus a heap string; shared attributes; text arena) | nist-sp800-53Ar5 722 → 418 MB, govinfo-uscode 446 → 191 MB |
+| **Content model one page at a time** (items and runs are given back after their page) | nist-sp800-53Ar5 372 → 220 MB, govinfo-budget 149 → 59 MB, govinfo-uscode 129 → 36 MB |
+| **Structure tree in packed records** (64 bytes per element instead of 320, kids in one arena, facts of a type stored once) | the tree on nist-sp800-53Ar5 57 → 10.6 MB; irs-p17 184 → 157 MB |
+| **Equal `/Widths` arrays are kept once** (a subset font per page repeats them) and 24-byte records per character code | govinfo-fr 256 → 85 MB and 833 → 500 ms |
+| **Observers during interpretation**: glyph rules keep flags per stream and font instead of a hash set; per-font memos in the contrast engine; operators classified through tables | govinfo-uscode: fonts observer 7.73 G → 1.25 G Ir, contrast engine per glyph 6.62 G → 3.01 G |
+| **Contrast engine**: canvas only for the wanted pixels, luminance memo, details formatted only when stored | nist-sp800-53Ar5 `flush_page` 4.85 G → 1.88 G Ir |
+| **Number and name trees decoded once** (ParentTree, annotations, destinations); `reaches_root` and role mapping answered once per element or type | nist-sp800-53r5: 1.2 G Ir of tree walks → under 0.02 G |
+| **Rule modules on structure**: containment per type along the tree's parent links, the PAC structure model per type, marked content gathered with per-font and per-frame facts read once | pac_quality `gather_content` 6.59 G → 0.38 G Ir on nist-sp800-53Ar5; structure-heavy documents 6 to 15 % fewer Ir in the second round |
+| **Lexer and interpreter**: operands parsed without an allocation per operator, decoded streams taken from qpdf without a copy, callbacks only to observers that implement them | 1 to 5 % fewer Ir per document |
+| **Several files in one process**: a report is written when it and the earlier files are done, and the result released; each rule module is released after its run | fewer results held; 1 to 4 MB lower peak on large documents |
+
+Overall instruction counts: a one-page fixture 35.5 M → 8.2 M; gen-large-2000-complex 10.8 G → 4.9 G.
+
+Measured and not adopted, because they trade memory for time or time for memory:
+
+- **Largest files first with `--jobs`.** With 4 jobs the corpus took 2.50 s instead of 2.83 s, but the peak RSS rose
+  from 829 to 942 MB (8 jobs: 2.11 s instead of 2.18 s, 1,428 instead of 1,348 MB; measured before the second
+  memory round).
+- **Giving freed memory back to the system after large documents** in runs over several files. With 4 jobs the peak
+  fell from 498 to 420 MB at 2 % more run time; with 2 jobs it cost 2.6 % and gained nothing.
+
+### Open points after the optimisation
+
+| observation | evidence | what it would take |
+|---|---|---|
+| qpdf keeps every parsed object while the document is open, and a structure element costs about 1 KB in its object model (128 bytes per scalar, 224 per dictionary entry with a scalar). On heavily tagged documents this is the largest block. | Heap peak of nist-sp800-53Ar5: about 97 of 158 MB; irs-p17-2023: about 86 of 121 MB; gen-large-2000-complex: about 75 of 104 MB. The last one is the document where VellumPdf uses less memory (114 MB against 127 MB). | A structure tree that copies what the rules read and lets qpdf drop the dictionaries, or a leaner object model in qpdf. |
+| `StructTree::build` is now almost only qpdf parsing object streams. | irs-p17-2023: about 1.5 G of 1.68 G Ir of the build, which is over a quarter of the document's run. | A cheaper parser or object representation in qpdf. |
+| The contrast engine and the fonts module are called once per glyph. | govinfo-uscode: `ContrastEngine::on_glyph` about 13 % of Ir. | A callback per text-showing operator with the codes, origins and advances as arrays; the per-glyph results must stay the same, also after a failure in the middle of an operator. |
+| The default build pays about 2 ms per process for the dynamic loader. | `--version`: 2.6 ms against 0.65 ms for the static build. | Nothing in this project: it is libqpdf.so's dependencies (GnuTLS, OpenSSL, their libraries). Use the static build where start-up matters. |
+| Generated tables with pointers are relocated at every start. | About 80 pages: the font tables (glyph list, AFM metrics, encodings) about 60, the language registry 16; about 2 % of a small document. | Offsets into string blocks, as the rule catalogue has now. The font tables need the generator's veraPDF sources. |
+| Marked-content frames stay for the whole validation, 136 bytes each. | 13 MB on nist-sp800-53Ar5. | Seven modules read them in `run()`; they would have to take what they need per page, as for content items. |
+| `--jobs N` hands out files in argument order. | See "measured and not adopted" above. | An order that does not let the largest documents run at the same time. |
+
 ## Performance observations on dox-validate
+
+The observations in this section were made before the optimisation described above, during the first benchmark
+work. Its "open opportunities" table is kept as the record of what was known then; the items on the ParentTree and
+name-tree walks, dictionary access, the contrast canvas, the content model's memory and process start-up have been
+addressed since (see [What was changed](#what-was-changed)), and the scheduling item was measured and not adopted.
 
 These come from profiling dox-validate during the benchmark work:
 

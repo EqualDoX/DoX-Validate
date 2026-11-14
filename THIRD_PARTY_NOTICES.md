@@ -225,3 +225,9 @@ linked into the `dox-validate` binary; binary distributions must include their n
 
 qpdf in turn uses a crypto provider chosen when qpdf is built (its native implementation, OpenSSL or GnuTLS) and
 libjpeg. Their notices come with the qpdf package of the build system.
+
+A build configured with `-DDOX_STATIC_DEPS=ON` does not use the build system's qpdf and pugixml. It builds
+qpdf 12.4.2 (Apache License 2.0, with its native crypto provider) and pugixml 1.16 (MIT License) from their upstream
+release archives and links them into the binary, together with the compiler's C++ runtime (libstdc++ and libgcc:
+GPL-3.0-or-later with the GCC Runtime Library Exception). zlib and libjpeg stay shared libraries of the system. A
+binary distribution of such a build embeds these libraries and must include their notices.
