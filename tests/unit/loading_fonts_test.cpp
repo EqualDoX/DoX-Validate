@@ -5,6 +5,7 @@
 #include <string>
 
 #include "fonts/cmap.h"
+#include "fonts/model.h"
 #include "unit.h"
 
 using namespace eqx::fontimpl;
@@ -97,6 +98,32 @@ void compare(const CMap& m, unsigned seed) {
     }
 }
 
+// The codes VeraFont::vera_codes reads for a Type 0 font with this CMap, against the loop over the general procedure.
+void compare_font_codes(const CMap& m, unsigned seed) {
+    VeraFont font;
+    font.vkind = VeraKind::Type0;
+    font.cmap_file = std::make_shared<const CMap>(m);
+    std::mt19937 rng(seed);
+    for (int round = 0; round < 300; ++round) {
+        std::string s(rng() % 12, '\0');
+        for (char& c : s) c = (rng() % 4 == 0) ? '\xFF' : static_cast<char>(rng());
+        std::vector<eqx::CharCode> got, want;
+        font.vera_codes(s, got);
+        std::size_t pos = 0;
+        while (pos < s.size()) {
+            const std::size_t start = pos;
+            std::int32_t code;
+            if (!reference_read_code(m, s, pos, code)) break;
+            const std::size_t len = std::min<std::size_t>(pos - start, 255);
+            want.push_back({static_cast<std::uint32_t>(code), static_cast<std::uint8_t>(len == 0 ? 1 : len)});
+            if (pos == start) break;
+        }
+        bool same = got.size() == want.size();
+        for (std::size_t i = 0; same && i < got.size(); ++i) same = got[i].code == want[i].code && got[i].len == want[i].len;
+        if (!same) eqx_test::fail(__FILE__, __LINE__, "vera_codes differs from the general procedure");
+    }
+}
+
 CMap with_codespaces(std::initializer_list<std::pair<std::string, std::string>> ranges) {
     CMap m;
     for (const auto& [b, e] : ranges) m.add_codespace(b, e);
@@ -120,4 +147,9 @@ EQX_TEST(cmap_read_code_matches_general_procedure) {
     CMap user;
     user.use(std::make_shared<const CMap>(used));   // code space taken over by /UseCMap; shortest_cs stays INT_MAX
     compare(user, 10);
+
+    compare_font_codes(with_codespaces({{"\x00\x00"s, "\xFF\xFF"s}}), 11);
+    compare_font_codes(user, 12);
+    compare_font_codes(with_codespaces({{"\x00"s, "\x80"s}, {"\x81\x40"s, "\x9F\xFC"s}}), 13);
+    compare_font_codes(with_codespaces({{"\x00\x00\x00\x00"s, "\xFF\xFF\xFF\xFF"s}}), 14);
 }

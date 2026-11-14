@@ -1,18 +1,20 @@
 #include "util/text.h"
 
+#include <array>
+
 namespace eqx {
 
 namespace {
 
 // PDFDocEncoding (ISO 32000-2 Annex D, Table D.2): code -> Unicode. 0 marks an undefined code; codes
 // 0x00-0x17 and 0x20-0x7E map to themselves except where listed.
-char32_t pdfdoc(unsigned char c) {
-    static const char32_t hi[] = {
+constexpr char32_t pdfdoc(unsigned char c) {
+    constexpr char32_t hi[] = {
         // 0x80 .. 0xA0
         0x2022, 0x2020, 0x2021, 0x2026, 0x2014, 0x2013, 0x0192, 0x2044, 0x2039, 0x203A, 0x2212, 0x2030, 0x201E,
         0x201C, 0x201D, 0x2018, 0x2019, 0x201A, 0x2122, 0xFB01, 0xFB02, 0x0141, 0x0152, 0x0160, 0x0178, 0x017D,
         0x0131, 0x0142, 0x0153, 0x0161, 0x017E, 0x0000, 0x20AC};
-    static const char32_t ctl[] = {  // 0x18 .. 0x1F
+    constexpr char32_t ctl[] = {  // 0x18 .. 0x1F
         0x02D8, 0x02C7, 0x02C6, 0x02D9, 0x02DD, 0x02DB, 0x02DA, 0x02DC};
     if (c >= 0x18 && c <= 0x1F) return ctl[c - 0x18];
     if (c == 0x7F) return 0;
@@ -20,6 +22,16 @@ char32_t pdfdoc(unsigned char c) {
     if (c == 0xAD) return 0;
     return c;  // 0x00-0x17, 0x20-0x7E, 0xA1-0xFF (Latin-1)
 }
+
+// A byte of a PDFDocEncoding string as the code point it is read as: an undefined code is U+FFFD.
+constexpr auto kPdfDocText = [] {
+    std::array<char32_t, 256> t{};
+    for (int b = 0; b < 256; ++b) {
+        const char32_t c = pdfdoc(static_cast<unsigned char>(b));
+        t[b] = c == 0 && b != 0 ? 0xFFFD : c;
+    }
+    return t;
+}();
 
 }  // namespace
 
@@ -46,7 +58,10 @@ void append_utf8(std::string& out, char32_t cp) {
 std::string to_utf8(const std::u32string& s) {
     std::string out;
     out.reserve(s.size());
-    for (char32_t c : s) append_utf8(out, c);
+    for (char32_t c : s) {
+        if (c < 0x80) out.push_back(static_cast<char>(c));
+        else append_utf8(out, c);
+    }
     return out;
 }
 
@@ -98,11 +113,9 @@ std::u32string pdf_text_to_u32(std::string_view raw) {
         return out;
     }
     if (n >= 3 && b(0) == 0xEF && b(1) == 0xBB && b(2) == 0xBF) return utf8_to_u32(raw.substr(3));
-    out.reserve(n);
-    for (std::size_t i = 0; i < n; ++i) {
-        char32_t c = pdfdoc(b(i));
-        out.push_back(c == 0 && b(i) != 0 ? 0xFFFD : c);
-    }
+    out.resize(n);
+    char32_t* to = out.data();
+    for (std::size_t i = 0; i < n; ++i) to[i] = kPdfDocText[b(i)];
     return out;
 }
 

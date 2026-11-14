@@ -69,6 +69,12 @@ public:
     // CMap.getCodeFromStream on `bytes` starting at `pos` (advanced). Returns false when Java would throw
     // a runtime exception (the caller stops reading the string).
     bool read_code(std::string_view bytes, std::size_t& pos, std::int32_t& code) const;
+    // The only code space is <0000> <FFFF>: read_code then takes two bytes per code (see there).
+    bool plain_two_byte() const {
+        if (codespaces.size() != 1) return false;
+        const CodeSpace& cs = codespaces[0];
+        return cs.begin.size() == 2 && cs.begin[0] == '\0' && cs.begin[1] == '\0' && cs.end[0] == '\xFF' && cs.end[1] == '\xFF';
+    }
     // CMap.getUnicode
     const std::u16string* unicode(std::int32_t code, std::u16string& scratch) const;
     // CMap.useCMap

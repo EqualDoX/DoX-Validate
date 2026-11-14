@@ -806,6 +806,17 @@ void VeraFont::ensure_program() const {
 void VeraFont::vera_codes(std::string_view bytes, std::vector<CharCode>& out) const {
     if (vkind == VeraKind::Type0) {
         if (!cmap_file) return;   // PDCIDFont.readCode: "No CMap for Type 0 font" (IOException)
+        if (cmap_file->plain_two_byte()) {
+            // What the loop below does with CMap::read_code for this code space: two bytes per code, a last single
+            // byte completed with 0xFF.
+            const std::size_t n = bytes.size();
+            for (std::size_t at = 0; at < n;) {
+                const std::uint32_t b0 = static_cast<unsigned char>(bytes[at++]);
+                if (at < n) out.push_back({(b0 << 8) | static_cast<unsigned char>(bytes[at++]), 2});
+                else out.push_back({(b0 << 8) | 0xFFu, 1});
+            }
+            return;
+        }
         std::size_t pos = 0;
         while (pos < bytes.size()) {
             std::size_t start = pos;
