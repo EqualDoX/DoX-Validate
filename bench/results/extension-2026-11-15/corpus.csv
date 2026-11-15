@@ -1,0 +1,76 @@
+id,pages,bytes,tier,complexity,origin,group
+arxiv-1406.2661v1,9,530482,small,simple,public,extension
+arxiv-1512.03385v1,12,819383,medium,simple,public,extension
+arxiv-1706.03762v7,15,2215244,medium,simple,public,extension
+arxiv-1810.04805v2,16,775166,medium,simple,public,extension
+arxiv-2005.14165v4,75,6768044,medium,simple,public,extension
+arxiv-2106.09685v2,26,1609513,medium,simple,public,extension
+arxiv-2303.08774v6,100,5245564,medium,simple,public,extension
+cdc-mmwr-7301-h,26,516360,medium,,test corpus,anchor
+cdc-mmwr-7302-h,24,850247,medium,complex,public,extension
+cdc-mmwr-7303-h,19,456389,medium,complex,public,extension
+cdc-mmwr-7307-h,15,565795,medium,complex,public,extension
+cisa-sbd-pledge-2024,7,919114,small,,test corpus,anchor
+de-ao-1977,210,1049231,medium,simple,public,extension
+de-bdsg-2018,45,267512,medium,simple,public,extension
+de-bgg,14,91870,medium,simple,public,extension
+de-bitv-2-0,6,75961,small,simple,public,extension
+de-egovg,11,98513,medium,simple,public,extension
+de-gg,51,271974,medium,simple,public,extension
+de-ozg,10,100945,small,simple,public,extension
+de-sgb-5,577,2682116,large,simple,public,extension
+de-stgb,173,863844,medium,simple,public,extension
+gao-21-519sp,112,6419175,medium,complex,public,extension
+gao-23-106203,286,15290543,medium,simple,public,extension
+gao-green-book-2014,86,2385394,medium,,test corpus,anchor
+gao-yellow-book-2024,260,1457103,medium,,test corpus,anchor
+gen-large-2000-complex,2000,11035726,large,,test corpus,anchor
+govinfo-budget-2025-app,1298,14930674,large,,test corpus,anchor
+govinfo-budget-2025-bud,188,2504695,medium,complex,public,extension
+govinfo-budget-2025-per,295,8794864,medium,complex,public,extension
+govinfo-cfr-2023-title1-vol1,175,858557,medium,simple,public,extension
+govinfo-cfr-2023-title2-vol1,741,4458442,large,simple,public,extension
+govinfo-cfr-2023-title3-vol1,670,11287914,large,simple,public,extension
+govinfo-cfr-2023-title47-vol1,1216,23322634,large,simple,public,extension
+govinfo-erp-2023,513,13009086,large,simple,public,extension
+govinfo-erp-2024,487,5170016,large,simple,public,extension
+govinfo-fr-2024-01-02,229,13257131,medium,simple,public,extension
+govinfo-fr-2024-12-30,758,12390518,large,,test corpus,anchor
+govinfo-plaw-117publ169,274,876749,medium,simple,public,extension
+govinfo-plaw-117publ58,1039,2690984,large,simple,public,extension
+govinfo-uscode-2022-title1,22,200192,medium,simple,public,extension
+govinfo-uscode-2022-title15,2598,10330871,large,simple,public,extension
+govinfo-uscode-2022-title16,2726,10934954,large,simple,public,extension
+govinfo-uscode-2022-title17,249,1203983,medium,simple,public,extension
+govinfo-uscode-2022-title18,949,4187033,large,simple,public,extension
+govinfo-uscode-2022-title28,674,4490669,large,simple,public,extension
+govinfo-uscode-2022-title29,977,3855690,large,simple,public,extension
+govinfo-uscode-2022-title3,68,425515,medium,simple,public,extension
+govinfo-uscode-2022-title35,148,748499,medium,simple,public,extension
+govinfo-uscode-2022-title5,1324,6006746,large,simple,public,extension
+govinfo-uscode-2022-title9,9,135764,small,simple,public,extension
+irs-fw4-2025,4,192528,small,,test corpus,anchor
+irs-p15-2023,49,1568745,medium,complex,public,extension
+irs-p17-2023,142,3038846,medium,,test corpus,anchor
+irs-p463-2023,61,1801149,medium,complex,public,extension
+irs-p926-2023,18,1232757,medium,complex,public,extension
+irs-p936-2023,18,1290525,medium,complex,public,extension
+irs-p946-2023,111,2274453,medium,complex,public,extension
+latex-ltnews41,10,226858,small,,test corpus,anchor
+libreoffice-writer-guide-252,504,28985481,large,simple,public,extension
+nist-ai100-1,48,1946127,medium,simple,public,extension
+nist-cswp-04162018,55,1062822,medium,complex,public,extension
+nist-cswp29,32,1518858,medium,,test corpus,anchor
+nist-fips203,56,1252341,medium,complex,public,extension
+nist-sp800-53r5,492,6073678,large,,test corpus,anchor
+nist-sp800-63-3,76,1599268,medium,,test corpus,anchor
+nist-sp800160v1r1,195,8181396,medium,complex,public,extension
+nist-sp800161r1upd1,325,3511556,large,complex,public,extension
+nist-sp800207,59,966908,medium,complex,public,extension
+nist-sp800218,36,739891,medium,complex,public,extension
+nist-sp800218A,30,650661,medium,complex,public,extension
+nist-sp80037r2,183,2270327,medium,complex,public,extension
+nist-sp80061r2,80,1744473,medium,complex,public,extension
+nist-sp80063b,80,1480377,medium,complex,public,extension
+nist-sp80082r3,316,8584345,large,complex,public,extension
+ua1-good,1,32367,small,,test corpus,anchor

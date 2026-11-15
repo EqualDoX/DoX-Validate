@@ -19,3 +19,6 @@ bench/runs/
 .vscode/
 .idea/
 *.swp
+
+# Benchmark extension documents (bench/extension/fetch.py)
+bench/extension/.cache/

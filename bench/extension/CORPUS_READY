@@ -1,0 +1,4 @@
+benchmark extension: frozen
+build command (from the repository root): python3 -I bench/extension/fetch.py
+output: bench/extension/.cache/ (75 files: 61 public documents of bench/extension/manifest.json, 14 anchor documents copied from the frozen test corpus)
+corpus_manifest.json sha256: 1fcdb19b0e018864c95c5ef13e26e070cc8c0ca5efe487b9e4230a33e75a3de8
