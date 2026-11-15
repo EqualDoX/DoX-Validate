@@ -21,6 +21,8 @@ docs/BENCHMARKS.md, "Scope"). Correctness and coverage are analysed separately.
 | `analyze_ua1_tools.py` | Tables of the PDF/UA-1 tool comparison from a cold block: writes `tables.md` into the results directory it is given. |
 | `report_diff.py` | Whole-report comparison of a dox-validate binary against a recorded baseline. `record` stores the exit status and a SHA-256 of stdout and stderr per document and output mode (JSON, text, other result basis, rule selections, location cap, reference traversal, `--text-model`, `--dump`); `check` lists every document on which another binary differs and can print the difference. Only the time measurements are removed before hashing. This is the correctness gate for performance work: a finding that moves, loses a location or changes its detail counts as a difference. |
 | `ab_quick.py` | Development A/B of two or more builds (and tool variants such as `vellum-ua1`): one process per document, interleaved, medians per size tier, pages/s, median and maximum peak RSS. |
+| `extension/manifest.json`, `extension/fetch.py`, `extension/CORPUS_READY` | The benchmark extension: 61 public documents that fill the page-count intervals the frozen corpus covers sparsely, with URL, sha256, pages, publisher and licence each, plus 14 anchor documents of the frozen corpus. `fetch.py` downloads and verifies them into `extension/.cache/` (gitignored) and writes the `corpus_manifest.json` that `bench.py --corpus` reads; `CORPUS_READY` freezes the set. |
+| `charts.py` | The README charts: validation time and peak memory by page count, and the summary, as light and dark SVG files in `docs/charts/`, with `chart-data.json` and `chart-tables.md` (every plotted value). Reads the stored results only; the same inputs give the same files. |
 | `results/` | Raw measurements (CSV, one row per tool process), `env.json`, `corpus.csv`, `load.jsonl`, and the derived summary. `results/ua1-tools-2026-11-14/` holds the PDF/UA-1 tool comparison, `results/optimised-2026-11-14/` the run that compares the optimised engine with the engine before and with the other tools (start-up, cold, parallel and batch blocks). |
 
 ## Reproduce
@@ -68,7 +70,14 @@ python3 -I bench/bench.py batch --cpus 0-7 --sample-cpu 16 --reps 3 \
     --batch-variants dox,dox-base,vellum-ua1,outloud-conf --results $R
 python3 -I bench/analyze_ua1_tools.py $R
 
-# 8. Whole-report comparison of two builds: every document on which the reports differ in any of the output modes
+# 8. The README charts. The extension documents (about 240 MB) and one cold block over them (about 2 hours on the
+#    reference host; anchors and extension documents together), then the charts from both stored runs:
+python3 -I bench/extension/fetch.py
+python3 -I bench/bench.py env cold --cpus 0-7 --sample-cpu 16 --corpus bench/extension/.cache \
+    --cold-variants dox,dox-shared,vellum-ua1,outloud-conf,vp-ua1,cpdf-ua1 --results bench/results/extension-NEW
+python3 -I bench/charts.py      # reads the run directories named in its RUNS list; writes docs/charts/
+
+# 9. Whole-report comparison of two builds: every document on which the reports differ in any of the output modes
 python3 -I bench/report_diff.py record build-baseline/dox-validate --out base.jsonl \
     --modes json,text,any,dedup,ua1rules,wcagrules,maxloc,textmodel,dump tests/corpus/.cache/full
 python3 -I bench/report_diff.py check build-bench/dox-validate --against base.jsonl \

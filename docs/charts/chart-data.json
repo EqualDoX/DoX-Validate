@@ -1,0 +1,8213 @@
+{
+ "anchor_documents": [
+  {
+   "cpdf-ua1": [
+    0.976,
+    1.003
+   ],
+   "dox": [
+    0.998,
+    0.994
+   ],
+   "dox-shared": [
+    0.994,
+    0.994
+   ],
+   "id": "cdc-mmwr-7301-h",
+   "outloud-conf": [
+    0.971,
+    0.998
+   ],
+   "pages": 26,
+   "vellum-ua1": [
+    0.958,
+    0.995
+   ],
+   "vp-ua1": [
+    0.945,
+    1.017
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.986,
+    1.003
+   ],
+   "dox": [
+    0.99,
+    1.002
+   ],
+   "dox-shared": [
+    0.975,
+    0.985
+   ],
+   "id": "cisa-sbd-pledge-2024",
+   "outloud-conf": [
+    0.991,
+    0.999
+   ],
+   "pages": 7,
+   "vellum-ua1": [
+    0.989,
+    0.997
+   ],
+   "vp-ua1": [
+    0.963,
+    1.036
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.013,
+    1.004
+   ],
+   "dox": [
+    0.987,
+    0.997
+   ],
+   "dox-shared": [
+    1.001,
+    0.994
+   ],
+   "id": "gao-green-book-2014",
+   "outloud-conf": [
+    1.011,
+    0.999
+   ],
+   "pages": 86,
+   "vellum-ua1": [
+    1.021,
+    1.003
+   ],
+   "vp-ua1": [
+    0.98,
+    0.987
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.017,
+    1.001
+   ],
+   "dox": [
+    0.986,
+    0.984
+   ],
+   "dox-shared": [
+    0.985,
+    0.992
+   ],
+   "id": "gao-yellow-book-2024",
+   "outloud-conf": [
+    1.0,
+    0.999
+   ],
+   "pages": 260,
+   "vellum-ua1": [
+    1.019,
+    0.999
+   ],
+   "vp-ua1": [
+    1.013,
+    1.019
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.023,
+    1.001
+   ],
+   "dox": [
+    0.983,
+    0.944
+   ],
+   "dox-shared": [
+    0.984,
+    0.948
+   ],
+   "id": "gen-large-2000-complex",
+   "outloud-conf": [
+    1.008,
+    0.974
+   ],
+   "pages": 2000,
+   "vellum-ua1": [
+    1.013,
+    0.998
+   ],
+   "vp-ua1": [
+    0.995,
+    1.054
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.998,
+    1.0
+   ],
+   "dox": [
+    0.988,
+    0.978
+   ],
+   "dox-shared": [
+    0.989,
+    0.984
+   ],
+   "id": "govinfo-budget-2025-app",
+   "outloud-conf": [
+    0.972,
+    1.011
+   ],
+   "pages": 1298,
+   "vellum-ua1": [
+    1.007,
+    0.999
+   ],
+   "vp-ua1": [
+    0.997,
+    0.889
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.009,
+    0.987
+   ],
+   "dox": [
+    1.012,
+    0.976
+   ],
+   "dox-shared": [
+    1.006,
+    0.977
+   ],
+   "id": "govinfo-fr-2024-12-30",
+   "outloud-conf": [
+    1.004,
+    0.996
+   ],
+   "pages": 758,
+   "vellum-ua1": [
+    0.996,
+    1.001
+   ],
+   "vp-ua1": [
+    0.994,
+    0.997
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.987,
+    1.005
+   ],
+   "dox": [
+    0.976,
+    1.008
+   ],
+   "dox-shared": [
+    0.958,
+    0.999
+   ],
+   "id": "irs-fw4-2025",
+   "outloud-conf": [
+    1.01,
+    0.999
+   ],
+   "pages": 4,
+   "vellum-ua1": [
+    1.005,
+    0.996
+   ],
+   "vp-ua1": [
+    1.02,
+    1.039
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.014,
+    1.0
+   ],
+   "dox": [
+    1.011,
+    0.998
+   ],
+   "dox-shared": [
+    0.985,
+    0.997
+   ],
+   "id": "irs-p17-2023",
+   "outloud-conf": [
+    1.01,
+    0.999
+   ],
+   "pages": 142,
+   "vellum-ua1": [
+    0.999,
+    1.016
+   ],
+   "vp-ua1": [
+    1.009,
+    1.007
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    1.001,
+    1.002
+   ],
+   "dox": [
+    0.983,
+    1.0
+   ],
+   "dox-shared": [
+    0.984,
+    0.997
+   ],
+   "id": "latex-ltnews41",
+   "outloud-conf": [
+    0.991,
+    1.002
+   ],
+   "pages": 10,
+   "vellum-ua1": [
+    0.98,
+    1.0
+   ],
+   "vp-ua1": [
+    1.009,
+    0.999
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.991,
+    0.998
+   ],
+   "dox": [
+    1.0,
+    0.989
+   ],
+   "dox-shared": [
+    1.003,
+    1.002
+   ],
+   "id": "nist-cswp29",
+   "outloud-conf": [
+    1.02,
+    1.0
+   ],
+   "pages": 32,
+   "vellum-ua1": [
+    1.017,
+    1.007
+   ],
+   "vp-ua1": [
+    0.949,
+    1.0
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.999,
+    1.0
+   ],
+   "dox": [
+    1.023,
+    0.996
+   ],
+   "dox-shared": [
+    1.001,
+    0.995
+   ],
+   "id": "nist-sp800-53r5",
+   "outloud-conf": [
+    1.009,
+    0.999
+   ],
+   "pages": 492,
+   "vellum-ua1": [
+    0.995,
+    0.998
+   ],
+   "vp-ua1": [
+    1.014,
+    0.991
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.992,
+    1.002
+   ],
+   "dox": [
+    0.975,
+    0.998
+   ],
+   "dox-shared": [
+    1.002,
+    1.002
+   ],
+   "id": "nist-sp800-63-3",
+   "outloud-conf": [
+    1.001,
+    1.0
+   ],
+   "pages": 76,
+   "vellum-ua1": [
+    1.007,
+    0.988
+   ],
+   "vp-ua1": [
+    0.975,
+    1.0
+   ]
+  },
+  {
+   "cpdf-ua1": [
+    0.973,
+    1.016
+   ],
+   "dox": [
+    0.998,
+    0.982
+   ],
+   "dox-shared": [
+    1.004,
+    0.998
+   ],
+   "id": "ua1-good",
+   "outloud-conf": [
+    0.984,
+    0.997
+   ],
+   "pages": 1,
+   "vellum-ua1": [
+    1.039,
+    0.995
+   ],
+   "vp-ua1": [
+    0.943,
+    0.995
+   ]
+  }
+ ],
+ "anchors": {
+  "cpdf-ua1": {
+   "n": 14,
+   "rss_ratio_max": 1.016,
+   "rss_ratio_median": 1.002,
+   "rss_ratio_min": 0.987,
+   "time_ratio_max": 1.023,
+   "time_ratio_median": 0.998,
+   "time_ratio_min": 0.973
+  },
+  "dox": {
+   "n": 14,
+   "rss_ratio_max": 1.008,
+   "rss_ratio_median": 0.995,
+   "rss_ratio_min": 0.944,
+   "time_ratio_max": 1.023,
+   "time_ratio_median": 0.989,
+   "time_ratio_min": 0.975
+  },
+  "dox-shared": {
+   "n": 14,
+   "rss_ratio_max": 1.002,
+   "rss_ratio_median": 0.994,
+   "rss_ratio_min": 0.948,
+   "time_ratio_max": 1.006,
+   "time_ratio_median": 0.992,
+   "time_ratio_min": 0.958
+  },
+  "outloud-conf": {
+   "n": 14,
+   "rss_ratio_max": 1.011,
+   "rss_ratio_median": 0.999,
+   "rss_ratio_min": 0.974,
+   "time_ratio_max": 1.02,
+   "time_ratio_median": 1.003,
+   "time_ratio_min": 0.971
+  },
+  "vellum-ua1": {
+   "n": 14,
+   "rss_ratio_max": 1.016,
+   "rss_ratio_median": 0.999,
+   "rss_ratio_min": 0.988,
+   "time_ratio_max": 1.039,
+   "time_ratio_median": 1.006,
+   "time_ratio_min": 0.958
+  },
+  "vp-ua1": {
+   "n": 14,
+   "rss_ratio_max": 1.054,
+   "rss_ratio_median": 1.0,
+   "rss_ratio_min": 0.889,
+   "time_ratio_max": 1.02,
+   "time_ratio_median": 0.995,
+   "time_ratio_min": 0.943
+  }
+ },
+ "comparison": {
+  "dox": {
+   "documents_another_tool_lower_rss": [
+    {
+     "dox": 126.9,
+     "id": "gen-large-2000-complex",
+     "pages": 2000,
+     "tool": "vellum-ua1",
+     "value": 114.1
+    }
+   ],
+   "documents_another_tool_lower_time": [
+    {
+     "dox": 0.08107,
+     "id": "arxiv-2106.09685v2",
+     "pages": 26,
+     "tool": "vellum-ua1",
+     "value": 0.07769
+    }
+   ],
+   "intervals_another_tool_lower_rss": [],
+   "intervals_another_tool_lower_time": [],
+   "lowest_rss_documents": {
+    "dox": 203,
+    "vellum-ua1": 1
+   },
+   "lowest_time_documents": {
+    "dox": 203,
+    "vellum-ua1": 1
+   }
+  },
+  "dox-shared": {
+   "documents_another_tool_lower_rss": [
+    {
+     "dox": 15.72,
+     "id": "annot-text-not-tagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.89
+    },
+    {
+     "dox": 15.7,
+     "id": "annot-trapnet",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.92
+    },
+    {
+     "dox": 15.71,
+     "id": "annots-no-tabs",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.07
+    },
+    {
+     "dox": 15.75,
+     "id": "annots-tabs-row",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 12.89
+    },
+    {
+     "dox": 15.88,
+     "id": "artifact-in-tagged",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.0
+    },
+    {
+     "dox": 19.41,
+     "id": "cisa-sbd-pledge-2024",
+     "pages": 7,
+     "tool": "cpdf-ua1",
+     "value": 19.24
+    },
+    {
+     "dox": 15.68,
+     "id": "content-untagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.49,
+     "id": "contrast-black",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.48
+    },
+    {
+     "dox": 15.49,
+     "id": "contrast-boundary-fail",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 15.53,
+     "id": "contrast-boundary-pass",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 15.57,
+     "id": "contrast-large-fail",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.55
+    },
+    {
+     "dox": 15.48,
+     "id": "contrast-large-pass",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.64
+    },
+    {
+     "dox": 15.52,
+     "id": "contrast-lightgrey",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 15.77,
+     "id": "displaydoctitle-false",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.86
+    },
+    {
+     "dox": 15.7,
+     "id": "displaydoctitle-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 16.26,
+     "id": "edge-deep-structure",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 15.02,
+     "id": "edge-empty-tagged-page",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.48
+    },
+    {
+     "dox": 15.71,
+     "id": "edge-incremental-update",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.05
+    },
+    {
+     "dox": 15.8,
+     "id": "embedded-file-no-name",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.99
+    },
+    {
+     "dox": 16.18,
+     "id": "encrypted-owner-only",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 12.99
+    },
+    {
+     "dox": 15.7,
+     "id": "field-alt-instead-of-tu",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.48
+    },
+    {
+     "dox": 15.55,
+     "id": "field-no-tu",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 15.46,
+     "id": "field-not-in-form",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.58
+    },
+    {
+     "dox": 15.55,
+     "id": "figure-actualtext",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 15.8,
+     "id": "figure-no-alt",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.02
+    },
+    {
+     "dox": 15.73,
+     "id": "figure-no-bbox",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.46
+    },
+    {
+     "dox": 15.51,
+     "id": "font-not-embedded",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.23
+    },
+    {
+     "dox": 15.68,
+     "id": "font-symbolic-with-encoding",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.22
+    },
+    {
+     "dox": 15.73,
+     "id": "font-truetype-no-encoding",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.02
+    },
+    {
+     "dox": 15.87,
+     "id": "font-type0-good",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.23
+    },
+    {
+     "dox": 15.95,
+     "id": "font-type0-no-tounicode",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.68,
+     "id": "font-widths-mismatch",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.97
+    },
+    {
+     "dox": 134.7,
+     "id": "gen-large-2000-complex",
+     "pages": 2000,
+     "tool": "vellum-ua1",
+     "value": 114.1
+    },
+    {
+     "dox": 22.02,
+     "id": "gen-medium-100-complex",
+     "pages": 100,
+     "tool": "cpdf-ua1",
+     "value": 18.8
+    },
+    {
+     "dox": 15.57,
+     "id": "gen-medium-20-simple",
+     "pages": 20,
+     "tool": "cpdf-ua1",
+     "value": 13.48
+    },
+    {
+     "dox": 15.52,
+     "id": "heading-first-not-h1",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.76
+    },
+    {
+     "dox": 15.88,
+     "id": "heading-good-sequence",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.79
+    },
+    {
+     "dox": 15.61,
+     "id": "heading-h-and-hn",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.66
+    },
+    {
+     "dox": 15.53,
+     "id": "heading-skipped-level",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.8
+    },
+    {
+     "dox": 15.69,
+     "id": "heading-two-h-in-node",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.62
+    },
+    {
+     "dox": 15.73,
+     "id": "headings-without-outline",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.98
+    },
+    {
+     "dox": 15.68,
+     "id": "lang-invalid",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.83,
+     "id": "lang-missing",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.0
+    },
+    {
+     "dox": 15.99,
+     "id": "lang-private-use",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.93
+    },
+    {
+     "dox": 15.78,
+     "id": "lang-unknown-primary",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.0
+    },
+    {
+     "dox": 15.92,
+     "id": "lang-valid-de",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.98
+    },
+    {
+     "dox": 22.34,
+     "id": "latex-ltnews41",
+     "pages": 10,
+     "tool": "cpdf-ua1",
+     "value": 22.05
+    },
+    {
+     "dox": 15.54,
+     "id": "link-no-contents",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.57
+    },
+    {
+     "dox": 15.57,
+     "id": "link-not-tagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.43
+    },
+    {
+     "dox": 16.09,
+     "id": "list-wrong-nesting",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.0
+    },
+    {
+     "dox": 15.85,
+     "id": "marked-false",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.91
+    },
+    {
+     "dox": 15.81,
+     "id": "metadata-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.64
+    },
+    {
+     "dox": 15.84,
+     "id": "metadata-no-title",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.95
+    },
+    {
+     "dox": 15.22,
+     "id": "nara-jfk-104-10004-10143",
+     "pages": 2,
+     "tool": "vellum-ua1",
+     "value": 12.7
+    },
+    {
+     "dox": 15.51,
+     "id": "note-duplicate-id",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.55
+    },
+    {
+     "dox": 15.61,
+     "id": "note-no-id",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.6
+    },
+    {
+     "dox": 15.83,
+     "id": "oc-config-no-name",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.97
+    },
+    {
+     "dox": 20.57,
+     "id": "opm-of306",
+     "pages": 3,
+     "tool": "cpdf-ua1",
+     "value": 17.3
+    },
+    {
+     "dox": 16.0,
+     "id": "page-structparents-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.98
+    },
+    {
+     "dox": 15.77,
+     "id": "parenttree-entry-missing",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 12.88
+    },
+    {
+     "dox": 15.83,
+     "id": "parenttree-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.91
+    },
+    {
+     "dox": 15.77,
+     "id": "parenttree-wrong-owner",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.94
+    },
+    {
+     "dox": 16.77,
+     "id": "pdf20-simple",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.58
+    },
+    {
+     "dox": 16.8,
+     "id": "pdf20-utf8-test",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.32
+    },
+    {
+     "dox": 15.74,
+     "id": "pdfuaid-missing",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.03
+    },
+    {
+     "dox": 15.84,
+     "id": "rolemap-circular",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.93,
+     "id": "rolemap-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.93
+    },
+    {
+     "dox": 15.71,
+     "id": "rolemap-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.93
+    },
+    {
+     "dox": 16.03,
+     "id": "rolemap-standard-remapped",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.96
+    },
+    {
+     "dox": 15.1,
+     "id": "scanned-tagged-figure",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.29
+    },
+    {
+     "dox": 14.97,
+     "id": "scanned-untagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.5
+    },
+    {
+     "dox": 16.0,
+     "id": "structelem-no-parent",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.82,
+     "id": "suspects-true",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.97
+    },
+    {
+     "dox": 15.78,
+     "id": "table-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.74
+    },
+    {
+     "dox": 15.65,
+     "id": "table-headers-ids",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.79
+    },
+    {
+     "dox": 15.63,
+     "id": "table-irregular",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.74
+    },
+    {
+     "dox": 16.04,
+     "id": "table-td-in-table",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.68
+    },
+    {
+     "dox": 15.59,
+     "id": "table-th-no-scope",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.68
+    },
+    {
+     "dox": 15.83,
+     "id": "tagged-in-artifact",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.06
+    },
+    {
+     "dox": 15.71,
+     "id": "ua1-good",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.03
+    },
+    {
+     "dox": 15.8,
+     "id": "ua1-good-5pages",
+     "pages": 5,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 17.21,
+     "id": "ua2-good",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.45,
+     "id": "untagged-text",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.52
+    },
+    {
+     "dox": 18.37,
+     "id": "uscis-ar11",
+     "pages": 2,
+     "tool": "cpdf-ua1",
+     "value": 14.14
+    },
+    {
+     "dox": 16.02,
+     "id": "verapdf-ua1-5-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 15.86,
+     "id": "verapdf-ua1-5-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 16.21,
+     "id": "verapdf-ua1-7-18.3-t01-pass-a",
+     "pages": 2,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 16.79,
+     "id": "verapdf-ua1-7.1-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.3
+    },
+    {
+     "dox": 16.75,
+     "id": "verapdf-ua1-7.1-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 16.82,
+     "id": "verapdf-ua1-7.10-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.39
+    },
+    {
+     "dox": 16.69,
+     "id": "verapdf-ua1-7.10-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 16.18,
+     "id": "verapdf-ua1-7.11-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.13
+    },
+    {
+     "dox": 16.07,
+     "id": "verapdf-ua1-7.11-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 15.48,
+     "id": "verapdf-ua1-7.15-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 16.35,
+     "id": "verapdf-ua1-7.16-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 15.96,
+     "id": "verapdf-ua1-7.16-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 15.96,
+     "id": "verapdf-ua1-7.18.1-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.32
+    },
+    {
+     "dox": 15.97,
+     "id": "verapdf-ua1-7.2-t02-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 15.99,
+     "id": "verapdf-ua1-7.2-t02-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 15.79,
+     "id": "verapdf-ua1-7.20-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.13
+    },
+    {
+     "dox": 15.79,
+     "id": "verapdf-ua1-7.20-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 15.81,
+     "id": "verapdf-ua1-7.21.3.1-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.94
+    },
+    {
+     "dox": 16.07,
+     "id": "verapdf-ua1-7.21.3.1-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 13.93
+    },
+    {
+     "dox": 15.91,
+     "id": "verapdf-ua1-7.3-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 15.98,
+     "id": "verapdf-ua1-7.3-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.33
+    },
+    {
+     "dox": 15.99,
+     "id": "verapdf-ua1-7.4.2-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 15.75,
+     "id": "verapdf-ua1-7.4.2-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 16.06,
+     "id": "verapdf-ua1-7.5-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.25
+    },
+    {
+     "dox": 15.95,
+     "id": "verapdf-ua1-7.5-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.33
+    },
+    {
+     "dox": 16.88,
+     "id": "verapdf-ua1-7.7-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 17.0,
+     "id": "verapdf-ua1-7.7-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.23
+    },
+    {
+     "dox": 15.96,
+     "id": "verapdf-ua1-7.9-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.25
+    },
+    {
+     "dox": 15.95,
+     "id": "verapdf-ua1-7.9-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.24
+    },
+    {
+     "dox": 17.29,
+     "id": "verapdf-ua2-5-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 17.39,
+     "id": "verapdf-ua2-5-t02-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 17.39,
+     "id": "verapdf-ua2-8.11.1-t01-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.29
+    },
+    {
+     "dox": 17.42,
+     "id": "verapdf-ua2-8.11.1-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 16.61,
+     "id": "verapdf-ua2-8.2.1-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.54
+    },
+    {
+     "dox": 18.17,
+     "id": "verapdf-ua2-8.2.2-t01-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.3
+    },
+    {
+     "dox": 17.42,
+     "id": "verapdf-ua2-8.4.4-t02-fail-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.3
+    },
+    {
+     "dox": 17.36,
+     "id": "verapdf-ua2-8.4.4-t02-pass-a",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.31
+    },
+    {
+     "dox": 17.57,
+     "id": "verapdf-ua2-8.9.2.2-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.91
+    },
+    {
+     "dox": 16.1,
+     "id": "w3c-pdf1-alt-entry",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.28
+    },
+    {
+     "dox": 17.77,
+     "id": "w3c-pdf12-form-fields",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.57
+    },
+    {
+     "dox": 16.42,
+     "id": "w3c-pdf17-page-numbers",
+     "pages": 5,
+     "tool": "cpdf-ua1",
+     "value": 13.3
+    },
+    {
+     "dox": 16.69,
+     "id": "w3c-pdf3-reading-order-word",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.75
+    },
+    {
+     "dox": 16.31,
+     "id": "w3c-pdf6-table-headers",
+     "pages": 1,
+     "tool": "cpdf-ua1",
+     "value": 13.24
+    },
+    {
+     "dox": 15.67,
+     "id": "xfa-dynamic",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 12.98
+    },
+    {
+     "dox": 17.78,
+     "id": "arxiv-1406.2661v1",
+     "pages": 9,
+     "tool": "cpdf-ua1",
+     "value": 17.7
+    },
+    {
+     "dox": 35.67,
+     "id": "arxiv-1706.03762v7",
+     "pages": 15,
+     "tool": "cpdf-ua1",
+     "value": 29.91
+    },
+    {
+     "dox": 43.47,
+     "id": "arxiv-2106.09685v2",
+     "pages": 26,
+     "tool": "vellum-ua1",
+     "value": 41.64
+    },
+    {
+     "dox": 16.23,
+     "id": "de-bgg",
+     "pages": 14,
+     "tool": "cpdf-ua1",
+     "value": 15.05
+    },
+    {
+     "dox": 15.9,
+     "id": "de-bitv-2-0",
+     "pages": 6,
+     "tool": "cpdf-ua1",
+     "value": 14.08
+    },
+    {
+     "dox": 16.16,
+     "id": "de-egovg",
+     "pages": 11,
+     "tool": "cpdf-ua1",
+     "value": 15.11
+    },
+    {
+     "dox": 16.32,
+     "id": "de-ozg",
+     "pages": 10,
+     "tool": "cpdf-ua1",
+     "value": 15.11
+    },
+    {
+     "dox": 16.48,
+     "id": "govinfo-uscode-2022-title9",
+     "pages": 9,
+     "tool": "cpdf-ua1",
+     "value": 14.7
+    }
+   ],
+   "documents_another_tool_lower_time": [
+    {
+     "dox": 0.003732,
+     "id": "annot-text-not-tagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003577
+    },
+    {
+     "dox": 0.003753,
+     "id": "annot-trapnet",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003432
+    },
+    {
+     "dox": 0.003646,
+     "id": "annots-no-tabs",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003299
+    },
+    {
+     "dox": 0.003838,
+     "id": "annots-tabs-row",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003754
+    },
+    {
+     "dox": 0.003856,
+     "id": "artifact-in-tagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003434
+    },
+    {
+     "dox": 0.003853,
+     "id": "content-untagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003569
+    },
+    {
+     "dox": 0.003438,
+     "id": "contrast-black",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003098
+    },
+    {
+     "dox": 0.003432,
+     "id": "contrast-boundary-fail",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003011
+    },
+    {
+     "dox": 0.003382,
+     "id": "contrast-boundary-pass",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002909
+    },
+    {
+     "dox": 0.003414,
+     "id": "contrast-large-fail",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003023
+    },
+    {
+     "dox": 0.003279,
+     "id": "contrast-large-pass",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002957
+    },
+    {
+     "dox": 0.003507,
+     "id": "contrast-lightgrey",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002936
+    },
+    {
+     "dox": 0.003665,
+     "id": "displaydoctitle-false",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003431
+    },
+    {
+     "dox": 0.003666,
+     "id": "displaydoctitle-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00344
+    },
+    {
+     "dox": 0.004313,
+     "id": "edge-deep-structure",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003646
+    },
+    {
+     "dox": 0.003164,
+     "id": "edge-empty-tagged-page",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002815
+    },
+    {
+     "dox": 0.003747,
+     "id": "edge-incremental-update",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003393
+    },
+    {
+     "dox": 0.003807,
+     "id": "embedded-file-no-name",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003436
+    },
+    {
+     "dox": 0.003862,
+     "id": "encrypted-owner-only",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003739
+    },
+    {
+     "dox": 0.003548,
+     "id": "field-alt-instead-of-tu",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002953
+    },
+    {
+     "dox": 0.003477,
+     "id": "field-no-tu",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003001
+    },
+    {
+     "dox": 0.003435,
+     "id": "field-not-in-form",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002911
+    },
+    {
+     "dox": 0.003509,
+     "id": "figure-actualtext",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003024
+    },
+    {
+     "dox": 0.003681,
+     "id": "figure-no-alt",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003398
+    },
+    {
+     "dox": 0.003565,
+     "id": "figure-no-bbox",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003099
+    },
+    {
+     "dox": 0.003941,
+     "id": "font-symbolic-with-encoding",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003545
+    },
+    {
+     "dox": 0.003843,
+     "id": "font-truetype-no-encoding",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003362
+    },
+    {
+     "dox": 0.003792,
+     "id": "font-type0-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003497
+    },
+    {
+     "dox": 0.003957,
+     "id": "font-type0-no-tounicode",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003414
+    },
+    {
+     "dox": 0.003808,
+     "id": "font-widths-mismatch",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003427
+    },
+    {
+     "dox": 0.00336,
+     "id": "heading-first-not-h1",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00293
+    },
+    {
+     "dox": 0.00359,
+     "id": "heading-good-sequence",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003079
+    },
+    {
+     "dox": 0.003358,
+     "id": "heading-h-and-hn",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002938
+    },
+    {
+     "dox": 0.003453,
+     "id": "heading-skipped-level",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002978
+    },
+    {
+     "dox": 0.003411,
+     "id": "heading-two-h-in-node",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003102
+    },
+    {
+     "dox": 0.003735,
+     "id": "headings-without-outline",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00321
+    },
+    {
+     "dox": 0.003672,
+     "id": "lang-invalid",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003258
+    },
+    {
+     "dox": 0.003719,
+     "id": "lang-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003499
+    },
+    {
+     "dox": 0.003759,
+     "id": "lang-private-use",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003419
+    },
+    {
+     "dox": 0.003766,
+     "id": "lang-unknown-primary",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003435
+    },
+    {
+     "dox": 0.003739,
+     "id": "lang-valid-de",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003397
+    },
+    {
+     "dox": 0.003449,
+     "id": "link-no-contents",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00303
+    },
+    {
+     "dox": 0.003402,
+     "id": "link-not-tagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002866
+    },
+    {
+     "dox": 0.003799,
+     "id": "list-wrong-nesting",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003392
+    },
+    {
+     "dox": 0.003792,
+     "id": "marked-false",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003282
+    },
+    {
+     "dox": 0.003694,
+     "id": "metadata-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003518
+    },
+    {
+     "dox": 0.003719,
+     "id": "metadata-no-title",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003321
+    },
+    {
+     "dox": 0.003519,
+     "id": "nara-jfk-104-10004-10143",
+     "pages": 2,
+     "tool": "vellum-ua1",
+     "value": 0.002976
+    },
+    {
+     "dox": 0.003487,
+     "id": "note-duplicate-id",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.0031
+    },
+    {
+     "dox": 0.00345,
+     "id": "note-no-id",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002807
+    },
+    {
+     "dox": 0.003825,
+     "id": "oc-config-no-name",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003362
+    },
+    {
+     "dox": 0.003715,
+     "id": "page-structparents-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003276
+    },
+    {
+     "dox": 0.003833,
+     "id": "parenttree-entry-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003228
+    },
+    {
+     "dox": 0.003765,
+     "id": "parenttree-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003405
+    },
+    {
+     "dox": 0.003734,
+     "id": "parenttree-wrong-owner",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003323
+    },
+    {
+     "dox": 0.003331,
+     "id": "pdf20-simple",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002998
+    },
+    {
+     "dox": 0.003617,
+     "id": "pdf20-utf8-test",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003014
+    },
+    {
+     "dox": 0.003792,
+     "id": "pdfuaid-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003468
+    },
+    {
+     "dox": 0.00377,
+     "id": "rolemap-circular",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003406
+    },
+    {
+     "dox": 0.00381,
+     "id": "rolemap-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00341
+    },
+    {
+     "dox": 0.003687,
+     "id": "rolemap-missing",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003489
+    },
+    {
+     "dox": 0.003766,
+     "id": "rolemap-standard-remapped",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003236
+    },
+    {
+     "dox": 0.003359,
+     "id": "scanned-tagged-figure",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002921
+    },
+    {
+     "dox": 0.003261,
+     "id": "scanned-untagged",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002915
+    },
+    {
+     "dox": 0.003895,
+     "id": "structelem-no-parent",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003379
+    },
+    {
+     "dox": 0.003824,
+     "id": "suspects-true",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003583
+    },
+    {
+     "dox": 0.003537,
+     "id": "table-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003091
+    },
+    {
+     "dox": 0.00345,
+     "id": "table-headers-ids",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003252
+    },
+    {
+     "dox": 0.003524,
+     "id": "table-irregular",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003088
+    },
+    {
+     "dox": 0.003608,
+     "id": "table-td-in-table",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003025
+    },
+    {
+     "dox": 0.003586,
+     "id": "table-th-no-scope",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003224
+    },
+    {
+     "dox": 0.003637,
+     "id": "tagged-in-artifact",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003476
+    },
+    {
+     "dox": 0.003815,
+     "id": "ua1-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003321
+    },
+    {
+     "dox": 0.003836,
+     "id": "ua2-good",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003429
+    },
+    {
+     "dox": 0.003271,
+     "id": "untagged-text",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002882
+    },
+    {
+     "dox": 0.0043,
+     "id": "verapdf-ua1-7.10-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.004167
+    },
+    {
+     "dox": 0.004556,
+     "id": "verapdf-ua1-7.10-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.004243
+    },
+    {
+     "dox": 0.004291,
+     "id": "verapdf-ua1-7.11-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00409
+    },
+    {
+     "dox": 0.004186,
+     "id": "verapdf-ua1-7.11-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003914
+    },
+    {
+     "dox": 0.003645,
+     "id": "verapdf-ua1-7.16-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003549
+    },
+    {
+     "dox": 0.003565,
+     "id": "verapdf-ua1-7.20-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003304
+    },
+    {
+     "dox": 0.003634,
+     "id": "verapdf-ua1-7.20-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003187
+    },
+    {
+     "dox": 0.003869,
+     "id": "verapdf-ua1-7.21.3.1-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003332
+    },
+    {
+     "dox": 0.003804,
+     "id": "verapdf-ua1-7.21.3.1-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00334
+    },
+    {
+     "dox": 0.004178,
+     "id": "verapdf-ua1-7.5-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003873
+    },
+    {
+     "dox": 0.005629,
+     "id": "verapdf-ua1-7.7-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.004757
+    },
+    {
+     "dox": 0.005872,
+     "id": "verapdf-ua1-7.7-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.00486
+    },
+    {
+     "dox": 0.003962,
+     "id": "verapdf-ua2-8.11.1-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003512
+    },
+    {
+     "dox": 0.003837,
+     "id": "verapdf-ua2-8.11.1-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003548
+    },
+    {
+     "dox": 0.003485,
+     "id": "verapdf-ua2-8.2.1-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.002971
+    },
+    {
+     "dox": 0.005092,
+     "id": "verapdf-ua2-8.2.2-t01-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.004279
+    },
+    {
+     "dox": 0.003782,
+     "id": "verapdf-ua2-8.4.4-t02-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003579
+    },
+    {
+     "dox": 0.00377,
+     "id": "verapdf-ua2-8.4.4-t02-pass-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003603
+    },
+    {
+     "dox": 0.003991,
+     "id": "verapdf-ua2-8.9.2.2-t01-fail-a",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003171
+    },
+    {
+     "dox": 0.003645,
+     "id": "xfa-dynamic",
+     "pages": 1,
+     "tool": "vellum-ua1",
+     "value": 0.003419
+    },
+    {
+     "dox": 0.08509,
+     "id": "arxiv-2106.09685v2",
+     "pages": 26,
+     "tool": "vellum-ua1",
+     "value": 0.07769
+    }
+   ],
+   "intervals_another_tool_lower_rss": [
+    {
+     "dox": 15.83,
+     "pages": "1",
+     "tool": "vellum-ua1",
+     "value": 13.04
+    },
+    {
+     "dox": 15.83,
+     "pages": "1",
+     "tool": "cpdf-ua1",
+     "value": 13.08
+    },
+    {
+     "dox": 18.37,
+     "pages": "2-4",
+     "tool": "cpdf-ua1",
+     "value": 14.14
+    },
+    {
+     "dox": 16.48,
+     "pages": "5-9",
+     "tool": "cpdf-ua1",
+     "value": 14.7
+    }
+   ],
+   "intervals_another_tool_lower_time": [
+    {
+     "dox": 0.003759,
+     "pages": "1",
+     "tool": "vellum-ua1",
+     "value": 0.003419
+    }
+   ],
+   "lowest_rss_documents": {
+    "cpdf-ua1": 70,
+    "dox-shared": 68,
+    "vellum-ua1": 66
+   },
+   "lowest_time_documents": {
+    "dox-shared": 108,
+    "vellum-ua1": 96
+   }
+  }
+ },
+ "correlation": {
+  "10+ pages": {
+   "n": 75,
+   "pages_vs_bytes_spearman": 0.798,
+   "tools": {
+    "cpdf-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.784,
+      "spearman": 0.826
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.716,
+      "spearman": 0.74
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.787,
+      "spearman": 0.787
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.751,
+      "spearman": 0.771
+     }
+    },
+    "dox": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.622,
+      "spearman": 0.678
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.434,
+      "spearman": 0.445
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.874,
+      "spearman": 0.862
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.817,
+      "spearman": 0.827
+     }
+    },
+    "dox-shared": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.587,
+      "spearman": 0.677
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.419,
+      "spearman": 0.442
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.867,
+      "spearman": 0.859
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.818,
+      "spearman": 0.826
+     }
+    },
+    "outloud-conf": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.719,
+      "spearman": 0.784
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.706,
+      "spearman": 0.744
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.773,
+      "spearman": 0.819
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.823,
+      "spearman": 0.85
+     }
+    },
+    "vellum-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.678,
+      "spearman": 0.803
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.512,
+      "spearman": 0.591
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.763,
+      "spearman": 0.77
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.799,
+      "spearman": 0.826
+     }
+    },
+    "vp-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.786,
+      "spearman": 0.797
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.787,
+      "spearman": 0.776
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.755,
+      "spearman": 0.805
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.753,
+      "spearman": 0.769
+     }
+    }
+   }
+  },
+  "all": {
+   "n": 204,
+   "pages_vs_bytes_spearman": 0.875,
+   "tools": {
+    "cpdf-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.885,
+      "spearman": 0.857
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.891,
+      "spearman": 0.875
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.941,
+      "spearman": 0.899
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.954,
+      "spearman": 0.873
+     }
+    },
+    "dox": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.812,
+      "spearman": 0.763
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.785,
+      "spearman": 0.815
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.961,
+      "spearman": 0.893
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.962,
+      "spearman": 0.874
+     }
+    },
+    "dox-shared": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.767,
+      "spearman": 0.805
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.739,
+      "spearman": 0.81
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.951,
+      "spearman": 0.9
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.957,
+      "spearman": 0.876
+     }
+    },
+    "outloud-conf": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.763,
+      "spearman": 0.821
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.78,
+      "spearman": 0.802
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.861,
+      "spearman": 0.843
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.897,
+      "spearman": 0.864
+     }
+    },
+    "vellum-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.929,
+      "spearman": 0.885
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.91,
+      "spearman": 0.863
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.944,
+      "spearman": 0.884
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.966,
+      "spearman": 0.878
+     }
+    },
+    "vp-ua1": {
+     "rss_vs_bytes": {
+      "pearson_log_log": 0.877,
+      "spearman": 0.78
+     },
+     "rss_vs_pages": {
+      "pearson_log_log": 0.905,
+      "spearman": 0.856
+     },
+     "time_vs_bytes": {
+      "pearson_log_log": 0.873,
+      "spearman": 0.812
+     },
+     "time_vs_pages": {
+      "pearson_log_log": 0.894,
+      "spearman": 0.854
+     }
+    }
+   }
+  }
+ },
+ "documents": 204,
+ "documents_by_run": {
+  "corpus": 146,
+  "extension": 58
+ },
+ "excluded": [
+  {
+   "id": "edge-zero-pages",
+   "not_processed_by": {
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "encrypted-user-password",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 1": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 8": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "libreoffice-custom-shape-tutorial",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "timeout": 5
+    }
+   },
+   "pages": 132,
+   "run": "corpus"
+  },
+  {
+   "id": "libreoffice-draw-guide-268",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "timeout": 5
+    }
+   },
+   "pages": 350,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-bad-xref",
+   "not_processed_by": {
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 1,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-garbage",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-header-only",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-no-root",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-not-pdf",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-truncated",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "malformed-zero-byte",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "exit 2": 5
+    },
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    },
+    "outloud-conf": {
+     "exit 2": 5
+    },
+    "vellum-ua1": {
+     "exit 2": 5
+    },
+    "vp-ua1": {
+     "exit 7": 5
+    }
+   },
+   "pages": 0,
+   "run": "corpus"
+  },
+  {
+   "id": "cdc-mmwr-7307-h",
+   "not_processed_by": {
+    "dox": {
+     "exit 2": 5
+    },
+    "dox-shared": {
+     "exit 2": 5
+    }
+   },
+   "pages": 15,
+   "run": "extension"
+  },
+  {
+   "id": "govinfo-budget-2025-per",
+   "not_processed_by": {
+    "vp-ua1": {
+     "exit 9": 5
+    }
+   },
+   "pages": 295,
+   "run": "extension"
+  },
+  {
+   "id": "libreoffice-writer-guide-252",
+   "not_processed_by": {
+    "cpdf-ua1": {
+     "timeout": 5
+    }
+   },
+   "pages": 504,
+   "run": "extension"
+  }
+ ],
+ "intervals": [
+  {
+   "generated": 74,
+   "hi": 1,
+   "lo": 1,
+   "median_pages": 1,
+   "n": 117,
+   "n_by_run": {
+    "corpus": 117
+   },
+   "pages": "1",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 13.08,
+     "q1": 13.03,
+     "q3": 13.29
+    },
+    "dox": {
+     "median": 7.898,
+     "q1": 7.629,
+     "q3": 8.133
+    },
+    "dox-shared": {
+     "median": 15.83,
+     "q1": 15.68,
+     "q3": 16.06
+    },
+    "outloud-conf": {
+     "median": 78.41,
+     "q1": 78.34,
+     "q3": 78.44
+    },
+    "vellum-ua1": {
+     "median": 13.04,
+     "q1": 12.76,
+     "q3": 14.37
+    },
+    "vp-ua1": {
+     "median": 236.8,
+     "q1": 234.1,
+     "q3": 240.0
+    }
+   },
+   "tagged": 114,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.00518,
+     "q1": 0.004893,
+     "q3": 0.005636
+    },
+    "dox": {
+     "median": 0.001669,
+     "q1": 0.001448,
+     "q3": 0.001796
+    },
+    "dox-shared": {
+     "median": 0.003759,
+     "q1": 0.003565,
+     "q3": 0.003895
+    },
+    "outloud-conf": {
+     "median": 0.3003,
+     "q1": 0.2979,
+     "q3": 0.303
+    },
+    "vellum-ua1": {
+     "median": 0.003419,
+     "q1": 0.003102,
+     "q3": 0.003759
+    },
+    "vp-ua1": {
+     "median": 0.6127,
+     "q1": 0.5867,
+     "q3": 0.6425
+    }
+   }
+  },
+  {
+   "generated": 0,
+   "hi": 4,
+   "lo": 2,
+   "median_pages": 2,
+   "n": 5,
+   "n_by_run": {
+    "corpus": 5
+   },
+   "pages": "2-4",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 14.14,
+     "q1": 13.56,
+     "q3": 17.3
+    },
+    "dox": {
+     "median": 10.14,
+     "q1": 7.762,
+     "q3": 12.48
+    },
+    "dox-shared": {
+     "median": 18.37,
+     "q1": 16.21,
+     "q3": 20.57
+    },
+    "outloud-conf": {
+     "median": 79.71,
+     "q1": 78.55,
+     "q3": 84.05
+    },
+    "vellum-ua1": {
+     "median": 35.59,
+     "q1": 16.43,
+     "q3": 37.83
+    },
+    "vp-ua1": {
+     "median": 258.4,
+     "q1": 238.5,
+     "q3": 261.8
+    }
+   },
+   "tagged": 4,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.01212,
+     "q1": 0.006519,
+     "q3": 0.02578
+    },
+    "dox": {
+     "median": 0.005006,
+     "q1": 0.002169,
+     "q3": 0.009705
+    },
+    "dox-shared": {
+     "median": 0.007142,
+     "q1": 0.004298,
+     "q3": 0.01208
+    },
+    "outloud-conf": {
+     "median": 0.3047,
+     "q1": 0.2985,
+     "q3": 0.3399
+    },
+    "vellum-ua1": {
+     "median": 0.01711,
+     "q1": 0.004654,
+     "q3": 0.03408
+    },
+    "vp-ua1": {
+     "median": 0.7591,
+     "q1": 0.6157,
+     "q3": 0.8699
+    }
+   }
+  },
+  {
+   "generated": 1,
+   "hi": 9,
+   "lo": 5,
+   "median_pages": 7,
+   "n": 7,
+   "n_by_run": {
+    "corpus": 4,
+    "extension": 3
+   },
+   "pages": "5-9",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 14.7,
+     "q1": 13.69,
+     "q3": 18.47
+    },
+    "dox": {
+     "median": 8.336,
+     "q1": 8.244,
+     "q3": 9.385
+    },
+    "dox-shared": {
+     "median": 16.48,
+     "q1": 16.16,
+     "q3": 17.48
+    },
+    "outloud-conf": {
+     "median": 79.17,
+     "q1": 78.4,
+     "q3": 80.85
+    },
+    "vellum-ua1": {
+     "median": 31.6,
+     "q1": 27.9,
+     "q3": 33.45
+    },
+    "vp-ua1": {
+     "median": 251.1,
+     "q1": 239.7,
+     "q3": 255.9
+    }
+   },
+   "tagged": 3,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.01401,
+     "q1": 0.009242,
+     "q3": 0.02076
+    },
+    "dox": {
+     "median": 0.004147,
+     "q1": 0.002833,
+     "q3": 0.01296
+    },
+    "dox-shared": {
+     "median": 0.006405,
+     "q1": 0.004988,
+     "q3": 0.0151
+    },
+    "outloud-conf": {
+     "median": 0.3343,
+     "q1": 0.3058,
+     "q3": 0.3651
+    },
+    "vellum-ua1": {
+     "median": 0.0196,
+     "q1": 0.01441,
+     "q3": 0.02911
+    },
+    "vp-ua1": {
+     "median": 0.6933,
+     "q1": 0.6444,
+     "q3": 0.7666
+    }
+   }
+  },
+  {
+   "generated": 0,
+   "hi": 19,
+   "lo": 10,
+   "median_pages": 14.5,
+   "n": 10,
+   "n_by_run": {
+    "corpus": 1,
+    "extension": 9
+   },
+   "pages": "10-19",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 24.59,
+     "q1": 16.85,
+     "q3": 29.4
+    },
+    "dox": {
+     "median": 14.46,
+     "q1": 9.365,
+     "q3": 17.59
+    },
+    "dox-shared": {
+     "median": 22.3,
+     "q1": 17.24,
+     "q3": 25.53
+    },
+    "outloud-conf": {
+     "median": 87.32,
+     "q1": 80.08,
+     "q3": 95.49
+    },
+    "vellum-ua1": {
+     "median": 38.02,
+     "q1": 32.81,
+     "q3": 44.12
+    },
+    "vp-ua1": {
+     "median": 303.4,
+     "q1": 258.5,
+     "q3": 385.6
+    }
+   },
+   "tagged": 4,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.06108,
+     "q1": 0.02927,
+     "q3": 0.1052
+    },
+    "dox": {
+     "median": 0.02221,
+     "q1": 0.007174,
+     "q3": 0.03475
+    },
+    "dox-shared": {
+     "median": 0.02555,
+     "q1": 0.009542,
+     "q3": 0.03737
+    },
+    "outloud-conf": {
+     "median": 0.4932,
+     "q1": 0.3556,
+     "q3": 0.5565
+    },
+    "vellum-ua1": {
+     "median": 0.05551,
+     "q1": 0.03613,
+     "q3": 0.09506
+    },
+    "vp-ua1": {
+     "median": 0.9752,
+     "q1": 0.7182,
+     "q3": 1.174
+    }
+   }
+  },
+  {
+   "generated": 1,
+   "hi": 49,
+   "lo": 20,
+   "median_pages": 28.5,
+   "n": 12,
+   "n_by_run": {
+    "corpus": 4,
+    "extension": 8
+   },
+   "pages": "20-49",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 33.47,
+     "q1": 22.92,
+     "q3": 38.37
+    },
+    "dox": {
+     "median": 14.24,
+     "q1": 9.886,
+     "q3": 18.56
+    },
+    "dox-shared": {
+     "median": 21.98,
+     "q1": 17.76,
+     "q3": 26.5
+    },
+    "outloud-conf": {
+     "median": 89.03,
+     "q1": 83.63,
+     "q3": 96.04
+    },
+    "vellum-ua1": {
+     "median": 39.78,
+     "q1": 35.72,
+     "q3": 42.07
+    },
+    "vp-ua1": {
+     "median": 371.9,
+     "q1": 276.9,
+     "q3": 523.0
+    }
+   },
+   "tagged": 6,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.09118,
+     "q1": 0.065,
+     "q3": 0.1176
+    },
+    "dox": {
+     "median": 0.02564,
+     "q1": 0.01531,
+     "q3": 0.0371
+    },
+    "dox-shared": {
+     "median": 0.0284,
+     "q1": 0.01789,
+     "q3": 0.04182
+    },
+    "outloud-conf": {
+     "median": 0.555,
+     "q1": 0.4327,
+     "q3": 0.673
+    },
+    "vellum-ua1": {
+     "median": 0.1051,
+     "q1": 0.06471,
+     "q3": 0.1402
+    },
+    "vp-ua1": {
+     "median": 1.142,
+     "q1": 0.8296,
+     "q3": 1.336
+    }
+   }
+  },
+  {
+   "generated": 0,
+   "hi": 99,
+   "lo": 50,
+   "median_pages": 71.5,
+   "n": 12,
+   "n_by_run": {
+    "corpus": 3,
+    "extension": 9
+   },
+   "pages": "50-99",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 51.89,
+     "q1": 42.34,
+     "q3": 66.27
+    },
+    "dox": {
+     "median": 18.52,
+     "q1": 14.86,
+     "q3": 25.63
+    },
+    "dox-shared": {
+     "median": 26.44,
+     "q1": 22.78,
+     "q3": 33.72
+    },
+    "outloud-conf": {
+     "median": 94.56,
+     "q1": 88.46,
+     "q3": 119.1
+    },
+    "vellum-ua1": {
+     "median": 50.06,
+     "q1": 44.42,
+     "q3": 55.67
+    },
+    "vp-ua1": {
+     "median": 748.5,
+     "q1": 446.8,
+     "q3": 983.9
+    }
+   },
+   "tagged": 7,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.1927,
+     "q1": 0.1038,
+     "q3": 0.2632
+    },
+    "dox": {
+     "median": 0.05218,
+     "q1": 0.03372,
+     "q3": 0.07254
+    },
+    "dox-shared": {
+     "median": 0.05602,
+     "q1": 0.03704,
+     "q3": 0.08011
+    },
+    "outloud-conf": {
+     "median": 0.9227,
+     "q1": 0.6424,
+     "q3": 1.042
+    },
+    "vellum-ua1": {
+     "median": 0.256,
+     "q1": 0.1732,
+     "q3": 0.3603
+    },
+    "vp-ua1": {
+     "median": 1.388,
+     "q1": 1.147,
+     "q3": 1.529
+    }
+   }
+  },
+  {
+   "generated": 1,
+   "hi": 199,
+   "lo": 100,
+   "median_pages": 148,
+   "n": 11,
+   "n_by_run": {
+    "corpus": 2,
+    "extension": 9
+   },
+   "pages": "100-199",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 103.4,
+     "q1": 33.54,
+     "q3": 148.9
+    },
+    "dox": {
+     "median": 37.44,
+     "q1": 13.43,
+     "q3": 44.47
+    },
+    "dox-shared": {
+     "median": 45.26,
+     "q1": 21.24,
+     "q3": 51.88
+    },
+    "outloud-conf": {
+     "median": 120.7,
+     "q1": 92.59,
+     "q3": 161.5
+    },
+    "vellum-ua1": {
+     "median": 71.91,
+     "q1": 39.29,
+     "q3": 79.11
+    },
+    "vp-ua1": {
+     "median": 1844.0,
+     "q1": 693.1,
+     "q3": 2097.0
+    }
+   },
+   "tagged": 7,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.5196,
+     "q1": 0.1194,
+     "q3": 0.7265
+    },
+    "dox": {
+     "median": 0.1175,
+     "q1": 0.03841,
+     "q3": 0.1822
+    },
+    "dox-shared": {
+     "median": 0.1251,
+     "q1": 0.04212,
+     "q3": 0.1962
+    },
+    "outloud-conf": {
+     "median": 1.698,
+     "q1": 0.8132,
+     "q3": 2.038
+    },
+    "vellum-ua1": {
+     "median": 0.3847,
+     "q1": 0.2112,
+     "q3": 0.9323
+    },
+    "vp-ua1": {
+     "median": 1.983,
+     "q1": 1.1,
+     "q3": 2.323
+    }
+   }
+  },
+  {
+   "generated": 0,
+   "hi": 499,
+   "lo": 200,
+   "median_pages": 280.0,
+   "n": 10,
+   "n_by_run": {
+    "corpus": 2,
+    "extension": 8
+   },
+   "pages": "200-499",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 87.59,
+     "q1": 48.55,
+     "q3": 209.1
+    },
+    "dox": {
+     "median": 27.67,
+     "q1": 14.43,
+     "q3": 61.8
+    },
+    "dox-shared": {
+     "median": 35.73,
+     "q1": 22.45,
+     "q3": 69.8
+    },
+    "outloud-conf": {
+     "median": 131.7,
+     "q1": 99.13,
+     "q3": 246.5
+    },
+    "vellum-ua1": {
+     "median": 73.54,
+     "q1": 41.31,
+     "q3": 98.13
+    },
+    "vp-ua1": {
+     "median": 1437.0,
+     "q1": 972.9,
+     "q3": 1891.0
+    }
+   },
+   "tagged": 4,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.3294,
+     "q1": 0.3086,
+     "q3": 1.014
+    },
+    "dox": {
+     "median": 0.1187,
+     "q1": 0.06813,
+     "q3": 0.2475
+    },
+    "dox-shared": {
+     "median": 0.1273,
+     "q1": 0.07281,
+     "q3": 0.2617
+    },
+    "outloud-conf": {
+     "median": 1.454,
+     "q1": 0.9681,
+     "q3": 3.157
+    },
+    "vellum-ua1": {
+     "median": 0.4684,
+     "q1": 0.3866,
+     "q3": 1.38
+    },
+    "vp-ua1": {
+     "median": 1.799,
+     "q1": 1.347,
+     "q3": 2.848
+    }
+   }
+  },
+  {
+   "generated": 2,
+   "hi": 999,
+   "lo": 500,
+   "median_pages": 674,
+   "n": 11,
+   "n_by_run": {
+    "corpus": 4,
+    "extension": 7
+   },
+   "pages": "500-999",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 101.4,
+     "q1": 61.38,
+     "q3": 158.8
+    },
+    "dox": {
+     "median": 19.48,
+     "q1": 15.32,
+     "q3": 52.6
+    },
+    "dox-shared": {
+     "median": 27.21,
+     "q1": 23.27,
+     "q3": 60.63
+    },
+    "outloud-conf": {
+     "median": 154.2,
+     "q1": 118.4,
+     "q3": 273.8
+    },
+    "vellum-ua1": {
+     "median": 55.64,
+     "q1": 45.54,
+     "q3": 93.61
+    },
+    "vp-ua1": {
+     "median": 1816.0,
+     "q1": 1693.0,
+     "q3": 1887.0
+    }
+   },
+   "tagged": 2,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 0.6211,
+     "q1": 0.268,
+     "q3": 1.106
+    },
+    "dox": {
+     "median": 0.171,
+     "q1": 0.1179,
+     "q3": 0.3324
+    },
+    "dox-shared": {
+     "median": 0.1791,
+     "q1": 0.1237,
+     "q3": 0.3454
+    },
+    "outloud-conf": {
+     "median": 2.78,
+     "q1": 1.469,
+     "q3": 4.02
+    },
+    "vellum-ua1": {
+     "median": 1.176,
+     "q1": 0.4992,
+     "q3": 1.315
+    },
+    "vp-ua1": {
+     "median": 2.215,
+     "q1": 1.752,
+     "q3": 3.097
+    }
+   }
+  },
+  {
+   "generated": 2,
+   "hi": null,
+   "lo": 1000,
+   "median_pages": 2000,
+   "n": 9,
+   "n_by_run": {
+    "corpus": 4,
+    "extension": 5
+   },
+   "pages": "1000+",
+   "rss_mb": {
+    "cpdf-ua1": {
+     "median": 181.2,
+     "q1": 125.2,
+     "q3": 281.1
+    },
+    "dox": {
+     "median": 25.1,
+     "q1": 17.88,
+     "q3": 35.98
+    },
+    "dox-shared": {
+     "median": 32.65,
+     "q1": 25.89,
+     "q3": 43.6
+    },
+    "outloud-conf": {
+     "median": 259.5,
+     "q1": 180.8,
+     "q3": 353.4
+    },
+    "vellum-ua1": {
+     "median": 61.25,
+     "q1": 53.89,
+     "q3": 81.82
+    },
+    "vp-ua1": {
+     "median": 1826.0,
+     "q1": 1819.0,
+     "q3": 2840.0
+    }
+   },
+   "tagged": 1,
+   "time_s": {
+    "cpdf-ua1": {
+     "median": 1.092,
+     "q1": 0.6147,
+     "q3": 1.679
+    },
+    "dox": {
+     "median": 0.3469,
+     "q1": 0.2531,
+     "q3": 0.6039
+    },
+    "dox-shared": {
+     "median": 0.3683,
+     "q1": 0.2633,
+     "q3": 0.6263
+    },
+    "outloud-conf": {
+     "median": 5.415,
+     "q1": 2.945,
+     "q3": 9.328
+    },
+    "vellum-ua1": {
+     "median": 1.874,
+     "q1": 0.716,
+     "q3": 3.223
+    },
+    "vp-ua1": {
+     "median": 5.307,
+     "q1": 2.469,
+     "q3": 5.588
+    }
+   }
+  }
+ ],
+ "method": {
+  "interval_statistic": "median over the documents of the interval; band = inclusive quartiles",
+  "min_documents_per_interval": 5,
+  "per_document": "median wall time and largest peak RSS over the repetitions; documents processed by every tool in every repetition",
+  "repetitions": 5,
+  "repetitions_by_run": {
+   "corpus": 5,
+   "extension": 5
+  },
+  "rss_unit": "MB = 2^20 bytes (ru_maxrss / 1024)",
+  "runs": {
+   "corpus": "bench/results/optimised-2026-11-14",
+   "extension": "bench/results/extension-2026-11-15"
+  }
+ },
+ "per_document": [
+  {
+   "bytes": 32509,
+   "id": "annot-text-not-tagged",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.641,
+    "dox-shared": 15.72,
+    "outloud-conf": 78.48,
+    "vellum-ua1": 12.89,
+    "vp-ua1": 237.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005143,
+    "dox": 0.001661,
+    "dox-shared": 0.003732,
+    "outloud-conf": 0.3104,
+    "vellum-ua1": 0.003577,
+    "vp-ua1": 0.6644
+   }
+  },
+  {
+   "bytes": 32520,
+   "id": "annot-trapnet",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.828,
+    "dox-shared": 15.7,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.92,
+    "vp-ua1": 240.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005145,
+    "dox": 0.001689,
+    "dox-shared": 0.003753,
+    "outloud-conf": 0.3035,
+    "vellum-ua1": 0.003432,
+    "vp-ua1": 0.6689
+   }
+  },
+  {
+   "bytes": 32358,
+   "id": "annots-no-tabs",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.07,
+    "dox": 7.512,
+    "dox-shared": 15.71,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 13.11,
+    "vp-ua1": 241.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005123,
+    "dox": 0.001669,
+    "dox-shared": 0.003646,
+    "outloud-conf": 0.2979,
+    "vellum-ua1": 0.003299,
+    "vp-ua1": 0.6466
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "annots-tabs-row",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.89,
+    "dox": 8.039,
+    "dox-shared": 15.75,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 12.91,
+    "vp-ua1": 238.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005087,
+    "dox": 0.00165,
+    "dox-shared": 0.003838,
+    "outloud-conf": 0.3035,
+    "vellum-ua1": 0.003754,
+    "vp-ua1": 0.645
+   }
+  },
+  {
+   "bytes": 32610,
+   "id": "artifact-in-tagged",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 8.07,
+    "dox-shared": 15.88,
+    "outloud-conf": 78.45,
+    "vellum-ua1": 13.18,
+    "vp-ua1": 236.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005293,
+    "dox": 0.001692,
+    "dox-shared": 0.003856,
+    "outloud-conf": 0.3021,
+    "vellum-ua1": 0.003434,
+    "vp-ua1": 0.6362
+   }
+  },
+  {
+   "bytes": 32472,
+   "id": "content-untagged",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.629,
+    "dox-shared": 15.68,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 13.04,
+    "vp-ua1": 240.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005199,
+    "dox": 0.001672,
+    "dox-shared": 0.003853,
+    "outloud-conf": 0.2987,
+    "vellum-ua1": 0.003569,
+    "vp-ua1": 0.6511
+   }
+  },
+  {
+   "bytes": 26747,
+   "id": "contrast-black",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.82,
+    "dox": 7.969,
+    "dox-shared": 15.49,
+    "outloud-conf": 78.27,
+    "vellum-ua1": 12.48,
+    "vp-ua1": 233.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004775,
+    "dox": 0.001392,
+    "dox-shared": 0.003438,
+    "outloud-conf": 0.3001,
+    "vellum-ua1": 0.003098,
+    "vp-ua1": 0.6175
+   }
+  },
+  {
+   "bytes": 26757,
+   "id": "contrast-boundary-fail",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.07,
+    "dox": 7.543,
+    "dox-shared": 15.49,
+    "outloud-conf": 78.29,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 237.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004615,
+    "dox": 0.001397,
+    "dox-shared": 0.003432,
+    "outloud-conf": 0.303,
+    "vellum-ua1": 0.003011,
+    "vp-ua1": 0.5794
+   }
+  },
+  {
+   "bytes": 26757,
+   "id": "contrast-boundary-pass",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.516,
+    "dox-shared": 15.53,
+    "outloud-conf": 78.29,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 229.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004736,
+    "dox": 0.001373,
+    "dox-shared": 0.003382,
+    "outloud-conf": 0.2968,
+    "vellum-ua1": 0.002909,
+    "vp-ua1": 0.589
+   }
+  },
+  {
+   "bytes": 26796,
+   "id": "contrast-large-fail",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.98,
+    "dox-shared": 15.57,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 12.55,
+    "vp-ua1": 231.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004727,
+    "dox": 0.001405,
+    "dox-shared": 0.003414,
+    "outloud-conf": 0.3016,
+    "vellum-ua1": 0.003023,
+    "vp-ua1": 0.5846
+   }
+  },
+  {
+   "bytes": 26796,
+   "id": "contrast-large-pass",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.08,
+    "dox": 7.945,
+    "dox-shared": 15.48,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.64,
+    "vp-ua1": 234.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004735,
+    "dox": 0.001353,
+    "dox-shared": 0.003279,
+    "outloud-conf": 0.3004,
+    "vellum-ua1": 0.002957,
+    "vp-ua1": 0.5847
+   }
+  },
+  {
+   "bytes": 26751,
+   "id": "contrast-lightgrey",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.574,
+    "dox-shared": 15.52,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 233.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004729,
+    "dox": 0.001429,
+    "dox-shared": 0.003507,
+    "outloud-conf": 0.2971,
+    "vellum-ua1": 0.002936,
+    "vp-ua1": 0.6046
+   }
+  },
+  {
+   "bytes": 32368,
+   "id": "displaydoctitle-false",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 7.504,
+    "dox-shared": 15.77,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 12.86,
+    "vp-ua1": 241.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005119,
+    "dox": 0.001645,
+    "dox-shared": 0.003665,
+    "outloud-conf": 0.3053,
+    "vellum-ua1": 0.003431,
+    "vp-ua1": 0.663
+   }
+  },
+  {
+   "bytes": 32320,
+   "id": "displaydoctitle-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.816,
+    "dox-shared": 15.7,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 13.04,
+    "vp-ua1": 237.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005153,
+    "dox": 0.001668,
+    "dox-shared": 0.003666,
+    "outloud-conf": 0.2958,
+    "vellum-ua1": 0.00344,
+    "vp-ua1": 0.666
+   }
+  },
+  {
+   "bytes": 62786,
+   "id": "edge-deep-structure",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.53,
+    "dox": 8.246,
+    "dox-shared": 16.26,
+    "outloud-conf": 78.93,
+    "vellum-ua1": 13.29,
+    "vp-ua1": 239.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.007509,
+    "dox": 0.002302,
+    "dox-shared": 0.004313,
+    "outloud-conf": 0.2976,
+    "vellum-ua1": 0.003646,
+    "vp-ua1": 0.629
+   }
+  },
+  {
+   "bytes": 25556,
+   "id": "edge-empty-tagged-page",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.88,
+    "dox": 6.734,
+    "dox-shared": 15.02,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.48,
+    "vp-ua1": 230.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00457,
+    "dox": 0.00107,
+    "dox-shared": 0.003164,
+    "outloud-conf": 0.2976,
+    "vellum-ua1": 0.002815,
+    "vp-ua1": 0.5199
+   }
+  },
+  {
+   "bytes": 32872,
+   "id": "edge-incremental-update",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.629,
+    "dox-shared": 15.71,
+    "outloud-conf": 78.38,
+    "vellum-ua1": 13.23,
+    "vp-ua1": 242.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005131,
+    "dox": 0.001682,
+    "dox-shared": 0.003747,
+    "outloud-conf": 0.2966,
+    "vellum-ua1": 0.003393,
+    "vp-ua1": 0.6466
+   }
+  },
+  {
+   "bytes": 32609,
+   "id": "embedded-file-no-name",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 7.898,
+    "dox-shared": 15.8,
+    "outloud-conf": 78.37,
+    "vellum-ua1": 12.99,
+    "vp-ua1": 237.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005244,
+    "dox": 0.001738,
+    "dox-shared": 0.003807,
+    "outloud-conf": 0.2968,
+    "vellum-ua1": 0.003436,
+    "vp-ua1": 0.6503
+   }
+  },
+  {
+   "bytes": 32897,
+   "id": "encrypted-owner-only",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.797,
+    "dox-shared": 16.18,
+    "outloud-conf": 78.48,
+    "vellum-ua1": 13.29,
+    "vp-ua1": 238.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00533,
+    "dox": 0.001855,
+    "dox-shared": 0.003862,
+    "outloud-conf": 0.3031,
+    "vellum-ua1": 0.003739,
+    "vp-ua1": 0.6234
+   }
+  },
+  {
+   "bytes": 26951,
+   "id": "field-alt-instead-of-tu",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.13,
+    "dox": 7.418,
+    "dox-shared": 15.7,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.48,
+    "vp-ua1": 235.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004871,
+    "dox": 0.001448,
+    "dox-shared": 0.003548,
+    "outloud-conf": 0.2987,
+    "vellum-ua1": 0.002953,
+    "vp-ua1": 0.5976
+   }
+  },
+  {
+   "bytes": 26934,
+   "id": "field-no-tu",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 7.852,
+    "dox-shared": 15.55,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 235.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00469,
+    "dox": 0.001434,
+    "dox-shared": 0.003477,
+    "outloud-conf": 0.3108,
+    "vellum-ua1": 0.003001,
+    "vp-ua1": 0.5991
+   }
+  },
+  {
+   "bytes": 26727,
+   "id": "field-not-in-form",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.941,
+    "dox-shared": 15.46,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.58,
+    "vp-ua1": 235.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004803,
+    "dox": 0.00142,
+    "dox-shared": 0.003435,
+    "outloud-conf": 0.2984,
+    "vellum-ua1": 0.002911,
+    "vp-ua1": 0.589
+   }
+  },
+  {
+   "bytes": 26681,
+   "id": "figure-actualtext",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.98,
+    "dox": 7.945,
+    "dox-shared": 15.55,
+    "outloud-conf": 78.28,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 232.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004679,
+    "dox": 0.001348,
+    "dox-shared": 0.003509,
+    "outloud-conf": 0.3003,
+    "vellum-ua1": 0.003024,
+    "vp-ua1": 0.583
+   }
+  },
+  {
+   "bytes": 32311,
+   "id": "figure-no-alt",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.59,
+    "dox-shared": 15.8,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 13.02,
+    "vp-ua1": 244.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005088,
+    "dox": 0.001695,
+    "dox-shared": 0.003681,
+    "outloud-conf": 0.2986,
+    "vellum-ua1": 0.003398,
+    "vp-ua1": 0.657
+   }
+  },
+  {
+   "bytes": 26612,
+   "id": "figure-no-bbox",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.88,
+    "dox": 8.242,
+    "dox-shared": 15.73,
+    "outloud-conf": 78.32,
+    "vellum-ua1": 12.46,
+    "vp-ua1": 236.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004737,
+    "dox": 0.001443,
+    "dox-shared": 0.003565,
+    "outloud-conf": 0.3016,
+    "vellum-ua1": 0.003099,
+    "vp-ua1": 0.5993
+   }
+  },
+  {
+   "bytes": 8866,
+   "id": "font-not-embedded",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.23,
+    "dox": 7.785,
+    "dox-shared": 15.51,
+    "outloud-conf": 76.69,
+    "vellum-ua1": 14.39,
+    "vp-ua1": 241.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004977,
+    "dox": 0.001488,
+    "dox-shared": 0.003564,
+    "outloud-conf": 0.2919,
+    "vellum-ua1": 0.004319,
+    "vp-ua1": 0.6284
+   }
+  },
+  {
+   "bytes": 44211,
+   "id": "font-symbolic-with-encoding",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.688,
+    "dox-shared": 15.68,
+    "outloud-conf": 78.45,
+    "vellum-ua1": 13.22,
+    "vp-ua1": 238.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005399,
+    "dox": 0.001747,
+    "dox-shared": 0.003941,
+    "outloud-conf": 0.3116,
+    "vellum-ua1": 0.003545,
+    "vp-ua1": 0.6633
+   }
+  },
+  {
+   "bytes": 44185,
+   "id": "font-truetype-no-encoding",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 7.711,
+    "dox-shared": 15.73,
+    "outloud-conf": 78.47,
+    "vellum-ua1": 13.02,
+    "vp-ua1": 239.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005256,
+    "dox": 0.001746,
+    "dox-shared": 0.003843,
+    "outloud-conf": 0.3002,
+    "vellum-ua1": 0.003362,
+    "vp-ua1": 0.6486
+   }
+  },
+  {
+   "bytes": 35243,
+   "id": "font-type0-good",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.23,
+    "dox": 7.984,
+    "dox-shared": 15.87,
+    "outloud-conf": 78.4,
+    "vellum-ua1": 13.32,
+    "vp-ua1": 235.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005388,
+    "dox": 0.001733,
+    "dox-shared": 0.003792,
+    "outloud-conf": 0.3007,
+    "vellum-ua1": 0.003497,
+    "vp-ua1": 0.6627
+   }
+  },
+  {
+   "bytes": 33497,
+   "id": "font-type0-no-tounicode",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.04,
+    "dox": 7.965,
+    "dox-shared": 15.95,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 13.29,
+    "vp-ua1": 240.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005196,
+    "dox": 0.00173,
+    "dox-shared": 0.003957,
+    "outloud-conf": 0.3019,
+    "vellum-ua1": 0.003414,
+    "vp-ua1": 0.6502
+   }
+  },
+  {
+   "bytes": 44213,
+   "id": "font-widths-mismatch",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.32,
+    "dox": 8.238,
+    "dox-shared": 15.68,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 12.97,
+    "vp-ua1": 241.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00515,
+    "dox": 0.001744,
+    "dox-shared": 0.003808,
+    "outloud-conf": 0.3026,
+    "vellum-ua1": 0.003427,
+    "vp-ua1": 0.6474
+   }
+  },
+  {
+   "bytes": 26990,
+   "id": "heading-first-not-h1",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 7.508,
+    "dox-shared": 15.52,
+    "outloud-conf": 78.36,
+    "vellum-ua1": 12.76,
+    "vp-ua1": 231.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00472,
+    "dox": 0.001443,
+    "dox-shared": 0.00336,
+    "outloud-conf": 0.2974,
+    "vellum-ua1": 0.00293,
+    "vp-ua1": 0.6051
+   }
+  },
+  {
+   "bytes": 28870,
+   "id": "heading-good-sequence",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.914,
+    "dox-shared": 15.88,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.79,
+    "vp-ua1": 229.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004886,
+    "dox": 0.001456,
+    "dox-shared": 0.00359,
+    "outloud-conf": 0.2973,
+    "vellum-ua1": 0.003079,
+    "vp-ua1": 0.6014
+   }
+  },
+  {
+   "bytes": 26988,
+   "id": "heading-h-and-hn",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.12,
+    "dox": 7.891,
+    "dox-shared": 15.61,
+    "outloud-conf": 78.35,
+    "vellum-ua1": 12.66,
+    "vp-ua1": 231.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004699,
+    "dox": 0.001389,
+    "dox-shared": 0.003358,
+    "outloud-conf": 0.3042,
+    "vellum-ua1": 0.002938,
+    "vp-ua1": 0.6017
+   }
+  },
+  {
+   "bytes": 26990,
+   "id": "heading-skipped-level",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.32,
+    "dox": 7.914,
+    "dox-shared": 15.53,
+    "outloud-conf": 78.29,
+    "vellum-ua1": 12.8,
+    "vp-ua1": 232.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004826,
+    "dox": 0.00137,
+    "dox-shared": 0.003453,
+    "outloud-conf": 0.297,
+    "vellum-ua1": 0.002978,
+    "vp-ua1": 0.6093
+   }
+  },
+  {
+   "bytes": 26986,
+   "id": "heading-two-h-in-node",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 7.543,
+    "dox-shared": 15.69,
+    "outloud-conf": 78.51,
+    "vellum-ua1": 12.62,
+    "vp-ua1": 232.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004763,
+    "dox": 0.001387,
+    "dox-shared": 0.003411,
+    "outloud-conf": 0.2979,
+    "vellum-ua1": 0.003102,
+    "vp-ua1": 0.584
+   }
+  },
+  {
+   "bytes": 31977,
+   "id": "headings-without-outline",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.08,
+    "dox": 7.406,
+    "dox-shared": 15.73,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.98,
+    "vp-ua1": 241.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005024,
+    "dox": 0.001641,
+    "dox-shared": 0.003735,
+    "outloud-conf": 0.2993,
+    "vellum-ua1": 0.00321,
+    "vp-ua1": 0.6183
+   }
+  },
+  {
+   "bytes": 32368,
+   "id": "lang-invalid",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.04,
+    "dox": 7.965,
+    "dox-shared": 15.68,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 13.05,
+    "vp-ua1": 240.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005305,
+    "dox": 0.001662,
+    "dox-shared": 0.003672,
+    "outloud-conf": 0.3028,
+    "vellum-ua1": 0.003258,
+    "vp-ua1": 0.6251
+   }
+  },
+  {
+   "bytes": 32353,
+   "id": "lang-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 8.062,
+    "dox-shared": 15.83,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 13.16,
+    "vp-ua1": 238.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005126,
+    "dox": 0.00171,
+    "dox-shared": 0.003719,
+    "outloud-conf": 0.3009,
+    "vellum-ua1": 0.003499,
+    "vp-ua1": 0.628
+   }
+  },
+  {
+   "bytes": 32370,
+   "id": "lang-private-use",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.859,
+    "dox-shared": 15.99,
+    "outloud-conf": 78.49,
+    "vellum-ua1": 12.93,
+    "vp-ua1": 241.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005129,
+    "dox": 0.001712,
+    "dox-shared": 0.003759,
+    "outloud-conf": 0.2979,
+    "vellum-ua1": 0.003419,
+    "vp-ua1": 0.6395
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "lang-unknown-primary",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 7.449,
+    "dox-shared": 15.78,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 13.05,
+    "vp-ua1": 241.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00525,
+    "dox": 0.001684,
+    "dox-shared": 0.003766,
+    "outloud-conf": 0.2982,
+    "vellum-ua1": 0.003435,
+    "vp-ua1": 0.6508
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "lang-valid-de",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.707,
+    "dox-shared": 15.92,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.98,
+    "vp-ua1": 243.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005177,
+    "dox": 0.001626,
+    "dox-shared": 0.003739,
+    "outloud-conf": 0.2993,
+    "vellum-ua1": 0.003397,
+    "vp-ua1": 0.6358
+   }
+  },
+  {
+   "bytes": 26733,
+   "id": "link-no-contents",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 8.047,
+    "dox-shared": 15.54,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 12.57,
+    "vp-ua1": 235.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004614,
+    "dox": 0.001412,
+    "dox-shared": 0.003449,
+    "outloud-conf": 0.2973,
+    "vellum-ua1": 0.00303,
+    "vp-ua1": 0.6038
+   }
+  },
+  {
+   "bytes": 26604,
+   "id": "link-not-tagged",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.02,
+    "dox": 7.871,
+    "dox-shared": 15.57,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 12.43,
+    "vp-ua1": 236.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004617,
+    "dox": 0.001377,
+    "dox-shared": 0.003402,
+    "outloud-conf": 0.2985,
+    "vellum-ua1": 0.002866,
+    "vp-ua1": 0.5933
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "list-wrong-nesting",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 7.949,
+    "dox-shared": 16.09,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 13.04,
+    "vp-ua1": 242.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00514,
+    "dox": 0.001663,
+    "dox-shared": 0.003799,
+    "outloud-conf": 0.3004,
+    "vellum-ua1": 0.003392,
+    "vp-ua1": 0.6797
+   }
+  },
+  {
+   "bytes": 32368,
+   "id": "marked-false",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.637,
+    "dox-shared": 15.85,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 12.91,
+    "vp-ua1": 240.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005189,
+    "dox": 0.001669,
+    "dox-shared": 0.003792,
+    "outloud-conf": 0.3037,
+    "vellum-ua1": 0.003282,
+    "vp-ua1": 0.6373
+   }
+  },
+  {
+   "bytes": 31572,
+   "id": "metadata-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.609,
+    "dox-shared": 15.81,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 12.64,
+    "vp-ua1": 240.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005197,
+    "dox": 0.001573,
+    "dox-shared": 0.003694,
+    "outloud-conf": 0.2983,
+    "vellum-ua1": 0.003518,
+    "vp-ua1": 0.6336
+   }
+  },
+  {
+   "bytes": 32269,
+   "id": "metadata-no-title",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.664,
+    "dox-shared": 15.84,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.95,
+    "vp-ua1": 240.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005188,
+    "dox": 0.001673,
+    "dox-shared": 0.003719,
+    "outloud-conf": 0.2995,
+    "vellum-ua1": 0.003321,
+    "vp-ua1": 0.6512
+   }
+  },
+  {
+   "bytes": 26733,
+   "id": "note-duplicate-id",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.3,
+    "dox": 7.477,
+    "dox-shared": 15.51,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 12.55,
+    "vp-ua1": 238.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004689,
+    "dox": 0.001444,
+    "dox-shared": 0.003487,
+    "outloud-conf": 0.3081,
+    "vellum-ua1": 0.0031,
+    "vp-ua1": 0.5901
+   }
+  },
+  {
+   "bytes": 26533,
+   "id": "note-no-id",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.02,
+    "dox": 7.586,
+    "dox-shared": 15.61,
+    "outloud-conf": 78.23,
+    "vellum-ua1": 12.6,
+    "vp-ua1": 236.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004693,
+    "dox": 0.001389,
+    "dox-shared": 0.00345,
+    "outloud-conf": 0.2992,
+    "vellum-ua1": 0.002807,
+    "vp-ua1": 0.5923
+   }
+  },
+  {
+   "bytes": 32509,
+   "id": "oc-config-no-name",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.98,
+    "dox": 7.566,
+    "dox-shared": 15.83,
+    "outloud-conf": 78.38,
+    "vellum-ua1": 12.97,
+    "vp-ua1": 240.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00537,
+    "dox": 0.001743,
+    "dox-shared": 0.003825,
+    "outloud-conf": 0.2995,
+    "vellum-ua1": 0.003362,
+    "vp-ua1": 0.6429
+   }
+  },
+  {
+   "bytes": 32350,
+   "id": "page-structparents-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.582,
+    "dox-shared": 16.0,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 12.98,
+    "vp-ua1": 240.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005244,
+    "dox": 0.00162,
+    "dox-shared": 0.003715,
+    "outloud-conf": 0.302,
+    "vellum-ua1": 0.003276,
+    "vp-ua1": 0.6532
+   }
+  },
+  {
+   "bytes": 32216,
+   "id": "parenttree-entry-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.88,
+    "dox": 7.562,
+    "dox-shared": 15.77,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 12.94,
+    "vp-ua1": 240.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005084,
+    "dox": 0.001708,
+    "dox-shared": 0.003833,
+    "outloud-conf": 0.3,
+    "vellum-ua1": 0.003228,
+    "vp-ua1": 0.6372
+   }
+  },
+  {
+   "bytes": 32108,
+   "id": "parenttree-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 8.027,
+    "dox-shared": 15.83,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.91,
+    "vp-ua1": 240.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005136,
+    "dox": 0.001699,
+    "dox-shared": 0.003765,
+    "outloud-conf": 0.2995,
+    "vellum-ua1": 0.003405,
+    "vp-ua1": 0.654
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "parenttree-wrong-owner",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.99,
+    "dox": 7.645,
+    "dox-shared": 15.77,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 12.94,
+    "vp-ua1": 241.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005209,
+    "dox": 0.001745,
+    "dox-shared": 0.003734,
+    "outloud-conf": 0.2986,
+    "vellum-ua1": 0.003323,
+    "vp-ua1": 0.6397
+   }
+  },
+  {
+   "bytes": 5211,
+   "id": "pdf20-simple",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 9.172,
+    "dox-shared": 16.77,
+    "outloud-conf": 76.58,
+    "vellum-ua1": 12.58,
+    "vp-ua1": 231.5
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.004627,
+    "dox": 0.001343,
+    "dox-shared": 0.003331,
+    "outloud-conf": 0.3012,
+    "vellum-ua1": 0.002998,
+    "vp-ua1": 0.5568
+   }
+  },
+  {
+   "bytes": 13926,
+   "id": "pdf20-utf8-test",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 9.211,
+    "dox-shared": 16.8,
+    "outloud-conf": 76.83,
+    "vellum-ua1": 12.32,
+    "vp-ua1": 230.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004713,
+    "dox": 0.001421,
+    "dox-shared": 0.003617,
+    "outloud-conf": 0.297,
+    "vellum-ua1": 0.003014,
+    "vp-ua1": 0.5867
+   }
+  },
+  {
+   "bytes": 32337,
+   "id": "pdfuaid-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.477,
+    "dox-shared": 15.74,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 13.05,
+    "vp-ua1": 240.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005283,
+    "dox": 0.00166,
+    "dox-shared": 0.003792,
+    "outloud-conf": 0.2973,
+    "vellum-ua1": 0.003468,
+    "vp-ua1": 0.6483
+   }
+  },
+  {
+   "bytes": 32421,
+   "id": "rolemap-circular",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.04,
+    "dox": 8.051,
+    "dox-shared": 15.84,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 13.13,
+    "vp-ua1": 239.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00472,
+    "dox": 0.001624,
+    "dox-shared": 0.00377,
+    "outloud-conf": 0.297,
+    "vellum-ua1": 0.003406,
+    "vp-ua1": 0.6354
+   }
+  },
+  {
+   "bytes": 32402,
+   "id": "rolemap-good",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.496,
+    "dox-shared": 15.93,
+    "outloud-conf": 78.37,
+    "vellum-ua1": 12.93,
+    "vp-ua1": 239.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005053,
+    "dox": 0.001668,
+    "dox-shared": 0.00381,
+    "outloud-conf": 0.3064,
+    "vellum-ua1": 0.00341,
+    "vp-ua1": 0.6471
+   }
+  },
+  {
+   "bytes": 32374,
+   "id": "rolemap-missing",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.05,
+    "dox": 7.609,
+    "dox-shared": 15.71,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 12.93,
+    "vp-ua1": 235.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005089,
+    "dox": 0.001629,
+    "dox-shared": 0.003687,
+    "outloud-conf": 0.2991,
+    "vellum-ua1": 0.003489,
+    "vp-ua1": 0.6395
+   }
+  },
+  {
+   "bytes": 32391,
+   "id": "rolemap-standard-remapped",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.777,
+    "dox-shared": 16.03,
+    "outloud-conf": 78.45,
+    "vellum-ua1": 12.96,
+    "vp-ua1": 238.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005284,
+    "dox": 0.001729,
+    "dox-shared": 0.003766,
+    "outloud-conf": 0.3018,
+    "vellum-ua1": 0.003236,
+    "vp-ua1": 0.6425
+   }
+  },
+  {
+   "bytes": 102841,
+   "id": "scanned-tagged-figure",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.07,
+    "dox": 7.496,
+    "dox-shared": 15.1,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.29,
+    "vp-ua1": 231.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004919,
+    "dox": 0.001284,
+    "dox-shared": 0.003359,
+    "outloud-conf": 0.296,
+    "vellum-ua1": 0.002921,
+    "vp-ua1": 0.5418
+   }
+  },
+  {
+   "bytes": 102262,
+   "id": "scanned-untagged",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.24,
+    "dox": 7.383,
+    "dox-shared": 14.97,
+    "outloud-conf": 78.24,
+    "vellum-ua1": 12.5,
+    "vp-ua1": 227.3
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.004671,
+    "dox": 0.001164,
+    "dox-shared": 0.003261,
+    "outloud-conf": 0.3038,
+    "vellum-ua1": 0.002915,
+    "vp-ua1": 0.53
+   }
+  },
+  {
+   "bytes": 32357,
+   "id": "structelem-no-parent",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 8.004,
+    "dox-shared": 16.0,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 13.04,
+    "vp-ua1": 240.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005081,
+    "dox": 0.001726,
+    "dox-shared": 0.003895,
+    "outloud-conf": 0.3007,
+    "vellum-ua1": 0.003379,
+    "vp-ua1": 0.6404
+   }
+  },
+  {
+   "bytes": 32382,
+   "id": "suspects-true",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.977,
+    "dox-shared": 15.82,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.97,
+    "vp-ua1": 241.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00518,
+    "dox": 0.001639,
+    "dox-shared": 0.003824,
+    "outloud-conf": 0.3003,
+    "vellum-ua1": 0.003583,
+    "vp-ua1": 0.6573
+   }
+  },
+  {
+   "bytes": 28085,
+   "id": "table-good",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 12.87,
+    "dox": 7.531,
+    "dox-shared": 15.78,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 12.74,
+    "vp-ua1": 238.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004887,
+    "dox": 0.001445,
+    "dox-shared": 0.003537,
+    "outloud-conf": 0.296,
+    "vellum-ua1": 0.003091,
+    "vp-ua1": 0.5841
+   }
+  },
+  {
+   "bytes": 28252,
+   "id": "table-headers-ids",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 7.406,
+    "dox-shared": 15.65,
+    "outloud-conf": 78.32,
+    "vellum-ua1": 12.79,
+    "vp-ua1": 236.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004892,
+    "dox": 0.001468,
+    "dox-shared": 0.00345,
+    "outloud-conf": 0.2953,
+    "vellum-ua1": 0.003252,
+    "vp-ua1": 0.6018
+   }
+  },
+  {
+   "bytes": 27913,
+   "id": "table-irregular",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.01,
+    "dox": 7.996,
+    "dox-shared": 15.63,
+    "outloud-conf": 78.38,
+    "vellum-ua1": 12.74,
+    "vp-ua1": 237.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004893,
+    "dox": 0.001452,
+    "dox-shared": 0.003524,
+    "outloud-conf": 0.2993,
+    "vellum-ua1": 0.003088,
+    "vp-ua1": 0.5829
+   }
+  },
+  {
+   "bytes": 27818,
+   "id": "table-td-in-table",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.0,
+    "dox": 7.953,
+    "dox-shared": 16.04,
+    "outloud-conf": 78.26,
+    "vellum-ua1": 12.68,
+    "vp-ua1": 236.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004795,
+    "dox": 0.001446,
+    "dox-shared": 0.003608,
+    "outloud-conf": 0.3008,
+    "vellum-ua1": 0.003025,
+    "vp-ua1": 0.5801
+   }
+  },
+  {
+   "bytes": 27983,
+   "id": "table-th-no-scope",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 8.051,
+    "dox-shared": 15.59,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 12.68,
+    "vp-ua1": 236.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004945,
+    "dox": 0.001485,
+    "dox-shared": 0.003586,
+    "outloud-conf": 0.3007,
+    "vellum-ua1": 0.003224,
+    "vp-ua1": 0.6038
+   }
+  },
+  {
+   "bytes": 32606,
+   "id": "tagged-in-artifact",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.06,
+    "dox": 7.422,
+    "dox-shared": 15.83,
+    "outloud-conf": 78.62,
+    "vellum-ua1": 13.12,
+    "vp-ua1": 240.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005188,
+    "dox": 0.001645,
+    "dox-shared": 0.003637,
+    "outloud-conf": 0.3056,
+    "vellum-ua1": 0.003476,
+    "vp-ua1": 0.6707
+   }
+  },
+  {
+   "bytes": 32367,
+   "id": "ua1-good",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.03,
+    "dox": 8.121,
+    "dox-shared": 15.71,
+    "outloud-conf": 78.62,
+    "vellum-ua1": 13.14,
+    "vp-ua1": 240.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00524,
+    "dox": 0.001679,
+    "dox-shared": 0.003815,
+    "outloud-conf": 0.3024,
+    "vellum-ua1": 0.003321,
+    "vp-ua1": 0.6579
+   }
+  },
+  {
+   "bytes": 32857,
+   "id": "ua2-good",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.04,
+    "dox": 9.727,
+    "dox-shared": 17.21,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 13.13,
+    "vp-ua1": 239.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005252,
+    "dox": 0.001795,
+    "dox-shared": 0.003836,
+    "outloud-conf": 0.3028,
+    "vellum-ua1": 0.003429,
+    "vp-ua1": 0.6576
+   }
+  },
+  {
+   "bytes": 26022,
+   "id": "untagged-text",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.04,
+    "dox": 7.766,
+    "dox-shared": 15.45,
+    "outloud-conf": 78.27,
+    "vellum-ua1": 12.52,
+    "vp-ua1": 227.7
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.004663,
+    "dox": 0.001212,
+    "dox-shared": 0.003271,
+    "outloud-conf": 0.2946,
+    "vellum-ua1": 0.002882,
+    "vp-ua1": 0.5608
+   }
+  },
+  {
+   "bytes": 38394,
+   "id": "verapdf-ua1-5-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.945,
+    "dox-shared": 16.02,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 17.35,
+    "vp-ua1": 236.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00613,
+    "dox": 0.001978,
+    "dox-shared": 0.004155,
+    "outloud-conf": 0.3027,
+    "vellum-ua1": 0.005237,
+    "vp-ua1": 0.6055
+   }
+  },
+  {
+   "bytes": 42497,
+   "id": "verapdf-ua1-5-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.715,
+    "dox-shared": 15.86,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 17.43,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006373,
+    "dox": 0.002031,
+    "dox-shared": 0.004174,
+    "outloud-conf": 0.3049,
+    "vellum-ua1": 0.005315,
+    "vp-ua1": 0.6064
+   }
+  },
+  {
+   "bytes": 72268,
+   "id": "verapdf-ua1-7.1-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.3,
+    "dox": 8.465,
+    "dox-shared": 16.79,
+    "outloud-conf": 78.59,
+    "vellum-ua1": 17.02,
+    "vp-ua1": 234.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005712,
+    "dox": 0.00292,
+    "dox-shared": 0.004942,
+    "outloud-conf": 0.3149,
+    "vellum-ua1": 0.00554,
+    "vp-ua1": 0.617
+   }
+  },
+  {
+   "bytes": 72296,
+   "id": "verapdf-ua1-7.1-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 8.477,
+    "dox-shared": 16.75,
+    "outloud-conf": 78.62,
+    "vellum-ua1": 17.16,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005679,
+    "dox": 0.00297,
+    "dox-shared": 0.005138,
+    "outloud-conf": 0.3099,
+    "vellum-ua1": 0.005494,
+    "vp-ua1": 0.6344
+   }
+  },
+  {
+   "bytes": 54521,
+   "id": "verapdf-ua1-7.10-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.39,
+    "dox": 8.832,
+    "dox-shared": 16.82,
+    "outloud-conf": 79.26,
+    "vellum-ua1": 14.85,
+    "vp-ua1": 236.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006352,
+    "dox": 0.002273,
+    "dox-shared": 0.0043,
+    "outloud-conf": 0.3001,
+    "vellum-ua1": 0.004167,
+    "vp-ua1": 0.6131
+   }
+  },
+  {
+   "bytes": 65472,
+   "id": "verapdf-ua1-7.10-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 8.738,
+    "dox-shared": 16.69,
+    "outloud-conf": 79.3,
+    "vellum-ua1": 14.93,
+    "vp-ua1": 234.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006156,
+    "dox": 0.002313,
+    "dox-shared": 0.004556,
+    "outloud-conf": 0.3019,
+    "vellum-ua1": 0.004243,
+    "vp-ua1": 0.5744
+   }
+  },
+  {
+   "bytes": 100147,
+   "id": "verapdf-ua1-7.11-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.13,
+    "dox": 8.234,
+    "dox-shared": 16.18,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 14.66,
+    "vp-ua1": 235.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006299,
+    "dox": 0.002039,
+    "dox-shared": 0.004291,
+    "outloud-conf": 0.2949,
+    "vellum-ua1": 0.00409,
+    "vp-ua1": 0.6287
+   }
+  },
+  {
+   "bytes": 92757,
+   "id": "verapdf-ua1-7.11-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.75,
+    "dox-shared": 16.07,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 14.35,
+    "vp-ua1": 240.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00595,
+    "dox": 0.002032,
+    "dox-shared": 0.004186,
+    "outloud-conf": 0.3036,
+    "vellum-ua1": 0.003914,
+    "vp-ua1": 0.5986
+   }
+  },
+  {
+   "bytes": 82580,
+   "id": "verapdf-ua1-7.15-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 7.406,
+    "dox-shared": 15.48,
+    "outloud-conf": 76.83,
+    "vellum-ua1": 15.14,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005171,
+    "dox": 0.00137,
+    "dox-shared": 0.003452,
+    "outloud-conf": 0.2853,
+    "vellum-ua1": 0.00351,
+    "vp-ua1": 0.5485
+   }
+  },
+  {
+   "bytes": 23383,
+   "id": "verapdf-ua1-7.16-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 8.133,
+    "dox-shared": 16.35,
+    "outloud-conf": 78.51,
+    "vellum-ua1": 19.25,
+    "vp-ua1": 242.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006569,
+    "dox": 0.002041,
+    "dox-shared": 0.004089,
+    "outloud-conf": 0.3003,
+    "vellum-ua1": 0.005778,
+    "vp-ua1": 0.6004
+   }
+  },
+  {
+   "bytes": 40438,
+   "id": "verapdf-ua1-7.16-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.977,
+    "dox-shared": 15.96,
+    "outloud-conf": 78.31,
+    "vellum-ua1": 14.37,
+    "vp-ua1": 233.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005575,
+    "dox": 0.001668,
+    "dox-shared": 0.003645,
+    "outloud-conf": 0.2987,
+    "vellum-ua1": 0.003549,
+    "vp-ua1": 0.5629
+   }
+  },
+  {
+   "bytes": 42403,
+   "id": "verapdf-ua1-7.18.1-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.32,
+    "dox": 7.977,
+    "dox-shared": 15.96,
+    "outloud-conf": 78.53,
+    "vellum-ua1": 15.18,
+    "vp-ua1": 235.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00627,
+    "dox": 0.00187,
+    "dox-shared": 0.00395,
+    "outloud-conf": 0.302,
+    "vellum-ua1": 0.004011,
+    "vp-ua1": 0.5867
+   }
+  },
+  {
+   "bytes": 31123,
+   "id": "verapdf-ua1-7.2-t02-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 7.91,
+    "dox-shared": 15.97,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 15.91,
+    "vp-ua1": 235.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005715,
+    "dox": 0.001862,
+    "dox-shared": 0.003887,
+    "outloud-conf": 0.2988,
+    "vellum-ua1": 0.004565,
+    "vp-ua1": 0.612
+   }
+  },
+  {
+   "bytes": 60259,
+   "id": "verapdf-ua1-7.2-t02-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 7.762,
+    "dox-shared": 15.99,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 16.14,
+    "vp-ua1": 234.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00654,
+    "dox": 0.001982,
+    "dox-shared": 0.00417,
+    "outloud-conf": 0.3058,
+    "vellum-ua1": 0.004683,
+    "vp-ua1": 0.636
+   }
+  },
+  {
+   "bytes": 15380,
+   "id": "verapdf-ua1-7.20-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.13,
+    "dox": 7.707,
+    "dox-shared": 15.79,
+    "outloud-conf": 76.71,
+    "vellum-ua1": 13.32,
+    "vp-ua1": 238.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005232,
+    "dox": 0.001464,
+    "dox-shared": 0.003565,
+    "outloud-conf": 0.2895,
+    "vellum-ua1": 0.003304,
+    "vp-ua1": 0.5608
+   }
+  },
+  {
+   "bytes": 15258,
+   "id": "verapdf-ua1-7.20-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.668,
+    "dox-shared": 15.79,
+    "outloud-conf": 76.73,
+    "vellum-ua1": 13.28,
+    "vp-ua1": 230.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005148,
+    "dox": 0.001427,
+    "dox-shared": 0.003634,
+    "outloud-conf": 0.2848,
+    "vellum-ua1": 0.003187,
+    "vp-ua1": 0.576
+   }
+  },
+  {
+   "bytes": 60224,
+   "id": "verapdf-ua1-7.21.3.1-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 18.56,
+    "dox": 7.672,
+    "dox-shared": 15.81,
+    "outloud-conf": 77.77,
+    "vellum-ua1": 13.94,
+    "vp-ua1": 235.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.01475,
+    "dox": 0.001662,
+    "dox-shared": 0.003869,
+    "outloud-conf": 0.29,
+    "vellum-ua1": 0.003332,
+    "vp-ua1": 0.6341
+   }
+  },
+  {
+   "bytes": 60219,
+   "id": "verapdf-ua1-7.21.3.1-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 18.5,
+    "dox": 7.758,
+    "dox-shared": 16.07,
+    "outloud-conf": 77.69,
+    "vellum-ua1": 13.93,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.01504,
+    "dox": 0.001628,
+    "dox-shared": 0.003804,
+    "outloud-conf": 0.2893,
+    "vellum-ua1": 0.00334,
+    "vp-ua1": 0.5741
+   }
+  },
+  {
+   "bytes": 34282,
+   "id": "verapdf-ua1-7.3-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 8.148,
+    "dox-shared": 15.91,
+    "outloud-conf": 78.37,
+    "vellum-ua1": 14.91,
+    "vp-ua1": 234.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005722,
+    "dox": 0.001773,
+    "dox-shared": 0.003701,
+    "outloud-conf": 0.2961,
+    "vellum-ua1": 0.003759,
+    "vp-ua1": 0.5761
+   }
+  },
+  {
+   "bytes": 45437,
+   "id": "verapdf-ua1-7.3-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.33,
+    "dox": 8.227,
+    "dox-shared": 15.98,
+    "outloud-conf": 78.42,
+    "vellum-ua1": 15.27,
+    "vp-ua1": 234.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005943,
+    "dox": 0.001854,
+    "dox-shared": 0.003835,
+    "outloud-conf": 0.3008,
+    "vellum-ua1": 0.003915,
+    "vp-ua1": 0.581
+   }
+  },
+  {
+   "bytes": 33122,
+   "id": "verapdf-ua1-7.4.2-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 7.535,
+    "dox-shared": 15.99,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 14.89,
+    "vp-ua1": 233.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005764,
+    "dox": 0.001645,
+    "dox-shared": 0.003666,
+    "outloud-conf": 0.3006,
+    "vellum-ua1": 0.00399,
+    "vp-ua1": 0.5799
+   }
+  },
+  {
+   "bytes": 33080,
+   "id": "verapdf-ua1-7.4.2-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.457,
+    "dox-shared": 15.75,
+    "outloud-conf": 78.38,
+    "vellum-ua1": 14.84,
+    "vp-ua1": 236.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005774,
+    "dox": 0.001635,
+    "dox-shared": 0.003656,
+    "outloud-conf": 0.3003,
+    "vellum-ua1": 0.003871,
+    "vp-ua1": 0.5748
+   }
+  },
+  {
+   "bytes": 35332,
+   "id": "verapdf-ua1-7.5-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.25,
+    "dox": 8.168,
+    "dox-shared": 16.06,
+    "outloud-conf": 78.51,
+    "vellum-ua1": 15.37,
+    "vp-ua1": 235.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005986,
+    "dox": 0.00205,
+    "dox-shared": 0.004061,
+    "outloud-conf": 0.306,
+    "vellum-ua1": 0.004085,
+    "vp-ua1": 0.5992
+   }
+  },
+  {
+   "bytes": 37174,
+   "id": "verapdf-ua1-7.5-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.33,
+    "dox": 7.758,
+    "dox-shared": 15.95,
+    "outloud-conf": 78.52,
+    "vellum-ua1": 13.85,
+    "vp-ua1": 239.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005942,
+    "dox": 0.001963,
+    "dox-shared": 0.004178,
+    "outloud-conf": 0.3008,
+    "vellum-ua1": 0.003873,
+    "vp-ua1": 0.584
+   }
+  },
+  {
+   "bytes": 137920,
+   "id": "verapdf-ua1-7.7-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 8.754,
+    "dox-shared": 16.88,
+    "outloud-conf": 79.31,
+    "vellum-ua1": 15.64,
+    "vp-ua1": 239.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005499,
+    "dox": 0.003721,
+    "dox-shared": 0.005629,
+    "outloud-conf": 0.3109,
+    "vellum-ua1": 0.004757,
+    "vp-ua1": 0.5927
+   }
+  },
+  {
+   "bytes": 137888,
+   "id": "verapdf-ua1-7.7-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.23,
+    "dox": 9.008,
+    "dox-shared": 17.0,
+    "outloud-conf": 79.27,
+    "vellum-ua1": 15.87,
+    "vp-ua1": 235.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005764,
+    "dox": 0.003751,
+    "dox-shared": 0.005872,
+    "outloud-conf": 0.3123,
+    "vellum-ua1": 0.00486,
+    "vp-ua1": 0.617
+   }
+  },
+  {
+   "bytes": 44438,
+   "id": "verapdf-ua1-7.9-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.25,
+    "dox": 8.129,
+    "dox-shared": 15.96,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 15.46,
+    "vp-ua1": 237.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.00606,
+    "dox": 0.001891,
+    "dox-shared": 0.004092,
+    "outloud-conf": 0.3056,
+    "vellum-ua1": 0.004279,
+    "vp-ua1": 0.61
+   }
+  },
+  {
+   "bytes": 44478,
+   "id": "verapdf-ua1-7.9-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.24,
+    "dox": 7.691,
+    "dox-shared": 15.95,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 15.6,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005927,
+    "dox": 0.001854,
+    "dox-shared": 0.003917,
+    "outloud-conf": 0.301,
+    "vellum-ua1": 0.00426,
+    "vp-ua1": 0.5917
+   }
+  },
+  {
+   "bytes": 25816,
+   "id": "verapdf-ua2-5-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 9.16,
+    "dox-shared": 17.29,
+    "outloud-conf": 78.44,
+    "vellum-ua1": 17.16,
+    "vp-ua1": 234.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005937,
+    "dox": 0.001997,
+    "dox-shared": 0.004028,
+    "outloud-conf": 0.2977,
+    "vellum-ua1": 0.005215,
+    "vp-ua1": 0.6056
+   }
+  },
+  {
+   "bytes": 27104,
+   "id": "verapdf-ua2-5-t02-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 9.539,
+    "dox-shared": 17.39,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 17.05,
+    "vp-ua1": 239.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005871,
+    "dox": 0.002006,
+    "dox-shared": 0.004091,
+    "outloud-conf": 0.2981,
+    "vellum-ua1": 0.00531,
+    "vp-ua1": 0.5931
+   }
+  },
+  {
+   "bytes": 23678,
+   "id": "verapdf-ua2-8.11.1-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.29,
+    "dox": 9.199,
+    "dox-shared": 17.39,
+    "outloud-conf": 78.4,
+    "vellum-ua1": 14.1,
+    "vp-ua1": 231.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005377,
+    "dox": 0.001856,
+    "dox-shared": 0.003962,
+    "outloud-conf": 0.302,
+    "vellum-ua1": 0.003512,
+    "vp-ua1": 0.5767
+   }
+  },
+  {
+   "bytes": 23813,
+   "id": "verapdf-ua2-8.11.1-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 9.066,
+    "dox-shared": 17.42,
+    "outloud-conf": 78.39,
+    "vellum-ua1": 14.24,
+    "vp-ua1": 232.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005314,
+    "dox": 0.001796,
+    "dox-shared": 0.003837,
+    "outloud-conf": 0.2975,
+    "vellum-ua1": 0.003548,
+    "vp-ua1": 0.5766
+   }
+  },
+  {
+   "bytes": 47056,
+   "id": "verapdf-ua2-8.2.1-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.25,
+    "dox": 8.52,
+    "dox-shared": 16.61,
+    "outloud-conf": 78.45,
+    "vellum-ua1": 12.54,
+    "vp-ua1": 232.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004992,
+    "dox": 0.001368,
+    "dox-shared": 0.003485,
+    "outloud-conf": 0.2987,
+    "vellum-ua1": 0.002971,
+    "vp-ua1": 0.5187
+   }
+  },
+  {
+   "bytes": 63081,
+   "id": "verapdf-ua2-8.2.2-t01-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.3,
+    "dox": 9.941,
+    "dox-shared": 18.17,
+    "outloud-conf": 79.17,
+    "vellum-ua1": 15.26,
+    "vp-ua1": 234.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005355,
+    "dox": 0.002954,
+    "dox-shared": 0.005092,
+    "outloud-conf": 0.3039,
+    "vellum-ua1": 0.004279,
+    "vp-ua1": 0.6292
+   }
+  },
+  {
+   "bytes": 18004,
+   "id": "verapdf-ua2-8.4.4-t02-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.3,
+    "dox": 9.527,
+    "dox-shared": 17.42,
+    "outloud-conf": 78.34,
+    "vellum-ua1": 13.82,
+    "vp-ua1": 233.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005131,
+    "dox": 0.001695,
+    "dox-shared": 0.003782,
+    "outloud-conf": 0.2966,
+    "vellum-ua1": 0.003579,
+    "vp-ua1": 0.6127
+   }
+  },
+  {
+   "bytes": 18099,
+   "id": "verapdf-ua2-8.4.4-t02-pass-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 9.188,
+    "dox-shared": 17.36,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 13.93,
+    "vp-ua1": 238.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005247,
+    "dox": 0.001675,
+    "dox-shared": 0.00377,
+    "outloud-conf": 0.3051,
+    "vellum-ua1": 0.003603,
+    "vp-ua1": 0.5804
+   }
+  },
+  {
+   "bytes": 27773,
+   "id": "verapdf-ua2-8.9.2.2-t01-fail-a",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.33,
+    "dox": 9.105,
+    "dox-shared": 17.57,
+    "outloud-conf": 78.43,
+    "vellum-ua1": 12.91,
+    "vp-ua1": 240.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005636,
+    "dox": 0.001761,
+    "dox-shared": 0.003991,
+    "outloud-conf": 0.3074,
+    "vellum-ua1": 0.003171,
+    "vp-ua1": 0.5879
+   }
+  },
+  {
+   "bytes": 82487,
+   "id": "w3c-pdf1-alt-entry",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 8.141,
+    "dox-shared": 16.1,
+    "outloud-conf": 78.32,
+    "vellum-ua1": 15.98,
+    "vp-ua1": 236.7
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.004909,
+    "dox": 0.002029,
+    "dox-shared": 0.004123,
+    "outloud-conf": 0.3123,
+    "vellum-ua1": 0.00481,
+    "vp-ua1": 0.6221
+   }
+  },
+  {
+   "bytes": 70926,
+   "id": "w3c-pdf12-form-fields",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.57,
+    "dox": 9.574,
+    "dox-shared": 17.77,
+    "outloud-conf": 81.33,
+    "vellum-ua1": 19.04,
+    "vp-ua1": 238.1
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006997,
+    "dox": 0.00382,
+    "dox-shared": 0.00592,
+    "outloud-conf": 0.3051,
+    "vellum-ua1": 0.006923,
+    "vp-ua1": 0.6619
+   }
+  },
+  {
+   "bytes": 68781,
+   "id": "w3c-pdf3-reading-order-word",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.75,
+    "dox": 8.68,
+    "dox-shared": 16.69,
+    "outloud-conf": 78.59,
+    "vellum-ua1": 29.73,
+    "vp-ua1": 239.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.007224,
+    "dox": 0.002929,
+    "dox-shared": 0.005185,
+    "outloud-conf": 0.3061,
+    "vellum-ua1": 0.01104,
+    "vp-ua1": 0.6475
+   }
+  },
+  {
+   "bytes": 64821,
+   "id": "w3c-pdf6-table-headers",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.24,
+    "dox": 8.504,
+    "dox-shared": 16.31,
+    "outloud-conf": 78.57,
+    "vellum-ua1": 16.74,
+    "vp-ua1": 236.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006316,
+    "dox": 0.002685,
+    "dox-shared": 0.004809,
+    "outloud-conf": 0.3061,
+    "vellum-ua1": 0.00535,
+    "vp-ua1": 0.6358
+   }
+  },
+  {
+   "bytes": 32707,
+   "id": "xfa-dynamic",
+   "pages": 1,
+   "rss_mb": {
+    "cpdf-ua1": 13.08,
+    "dox": 7.656,
+    "dox-shared": 15.67,
+    "outloud-conf": 78.41,
+    "vellum-ua1": 12.98,
+    "vp-ua1": 239.2
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005044,
+    "dox": 0.00168,
+    "dox-shared": 0.003645,
+    "outloud-conf": 0.3008,
+    "vellum-ua1": 0.003419,
+    "vp-ua1": 0.6275
+   }
+  },
+  {
+   "bytes": 415346,
+   "id": "nara-jfk-104-10004-10143",
+   "pages": 2,
+   "rss_mb": {
+    "cpdf-ua1": 13.56,
+    "dox": 7.098,
+    "dox-shared": 15.22,
+    "outloud-conf": 76.52,
+    "vellum-ua1": 12.7,
+    "vp-ua1": 229.9
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.005123,
+    "dox": 0.001366,
+    "dox-shared": 0.003519,
+    "outloud-conf": 0.2862,
+    "vellum-ua1": 0.002976,
+    "vp-ua1": 0.5274
+   }
+  },
+  {
+   "bytes": 291691,
+   "id": "uscis-ar11",
+   "pages": 2,
+   "rss_mb": {
+    "cpdf-ua1": 14.14,
+    "dox": 10.14,
+    "dox-shared": 18.37,
+    "outloud-conf": 79.71,
+    "vellum-ua1": 38.95,
+    "vp-ua1": 261.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.01212,
+    "dox": 0.005006,
+    "dox-shared": 0.007142,
+    "outloud-conf": 0.3047,
+    "vellum-ua1": 0.01711,
+    "vp-ua1": 0.7591
+   }
+  },
+  {
+   "bytes": 34741,
+   "id": "verapdf-ua1-7-18.3-t01-pass-a",
+   "pages": 2,
+   "rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 7.762,
+    "dox-shared": 16.21,
+    "outloud-conf": 78.55,
+    "vellum-ua1": 16.43,
+    "vp-ua1": 238.5
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.006519,
+    "dox": 0.002169,
+    "dox-shared": 0.004298,
+    "outloud-conf": 0.2985,
+    "vellum-ua1": 0.004654,
+    "vp-ua1": 0.6157
+   }
+  },
+  {
+   "bytes": 171239,
+   "id": "opm-of306",
+   "pages": 3,
+   "rss_mb": {
+    "cpdf-ua1": 17.3,
+    "dox": 12.48,
+    "dox-shared": 20.57,
+    "outloud-conf": 84.05,
+    "vellum-ua1": 35.59,
+    "vp-ua1": 258.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.02578,
+    "dox": 0.009705,
+    "dox-shared": 0.01208,
+    "outloud-conf": 0.3399,
+    "vellum-ua1": 0.03408,
+    "vp-ua1": 0.8699
+   }
+  },
+  {
+   "bytes": 192528,
+   "id": "irs-fw4-2025",
+   "pages": 4,
+   "rss_mb": {
+    "cpdf-ua1": 22.37,
+    "dox": 13.96,
+    "dox-shared": 22.26,
+    "outloud-conf": 92.68,
+    "vellum-ua1": 37.83,
+    "vp-ua1": 264.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.04423,
+    "dox": 0.01492,
+    "dox-shared": 0.0179,
+    "outloud-conf": 0.4155,
+    "vellum-ua1": 0.05958,
+    "vp-ua1": 0.9479
+   }
+  },
+  {
+   "bytes": 41259,
+   "id": "ua1-good-5pages",
+   "pages": 5,
+   "rss_mb": {
+    "cpdf-ua1": 13.28,
+    "dox": 8.184,
+    "dox-shared": 15.8,
+    "outloud-conf": 78.49,
+    "vellum-ua1": 14.51,
+    "vp-ua1": 239.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005435,
+    "dox": 0.001766,
+    "dox-shared": 0.003865,
+    "outloud-conf": 0.3041,
+    "vellum-ua1": 0.00435,
+    "vp-ua1": 0.6259
+   }
+  },
+  {
+   "bytes": 56558,
+   "id": "w3c-pdf17-page-numbers",
+   "pages": 5,
+   "rss_mb": {
+    "cpdf-ua1": 13.3,
+    "dox": 8.289,
+    "dox-shared": 16.42,
+    "outloud-conf": 79.17,
+    "vellum-ua1": 24.8,
+    "vp-ua1": 239.8
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.005645,
+    "dox": 0.002474,
+    "dox-shared": 0.00461,
+    "outloud-conf": 0.3018,
+    "vellum-ua1": 0.009955,
+    "vp-ua1": 0.6185
+   }
+  },
+  {
+   "bytes": 75961,
+   "id": "de-bitv-2-0",
+   "pages": 6,
+   "rss_mb": {
+    "cpdf-ua1": 14.08,
+    "dox": 8.199,
+    "dox-shared": 15.9,
+    "outloud-conf": 78.12,
+    "vellum-ua1": 31.0,
+    "vp-ua1": 237.5
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.01284,
+    "dox": 0.003192,
+    "dox-shared": 0.005365,
+    "outloud-conf": 0.3075,
+    "vellum-ua1": 0.01886,
+    "vp-ua1": 0.6629
+   }
+  },
+  {
+   "bytes": 919114,
+   "id": "cisa-sbd-pledge-2024",
+   "pages": 7,
+   "rss_mb": {
+    "cpdf-ua1": 19.24,
+    "dox": 11.19,
+    "dox-shared": 19.41,
+    "outloud-conf": 83.49,
+    "vellum-ua1": 34.17,
+    "vp-ua1": 254.6
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.0224,
+    "dox": 0.01855,
+    "dox-shared": 0.02108,
+    "outloud-conf": 0.3637,
+    "vellum-ua1": 0.03261,
+    "vp-ua1": 0.8259
+   }
+  },
+  {
+   "bytes": 530482,
+   "id": "arxiv-1406.2661v1",
+   "pages": 9,
+   "rss_mb": {
+    "cpdf-ua1": 17.7,
+    "dox": 9.809,
+    "dox-shared": 17.78,
+    "outloud-conf": 78.3,
+    "vellum-ua1": 32.73,
+    "vp-ua1": 280.6
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.0243,
+    "dox": 0.01528,
+    "dox-shared": 0.01745,
+    "outloud-conf": 0.4211,
+    "vellum-ua1": 0.03086,
+    "vp-ua1": 0.7926
+   }
+  },
+  {
+   "bytes": 3749788,
+   "id": "arxiv-2310.06825v1-mistral7b",
+   "pages": 9,
+   "rss_mb": {
+    "cpdf-ua1": 19.34,
+    "dox": 8.961,
+    "dox-shared": 17.19,
+    "outloud-conf": 79.7,
+    "vellum-ua1": 39.16,
+    "vp-ua1": 257.1
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.01913,
+    "dox": 0.01063,
+    "dox-shared": 0.01275,
+    "outloud-conf": 0.3665,
+    "vellum-ua1": 0.02737,
+    "vp-ua1": 0.7405
+   }
+  },
+  {
+   "bytes": 135764,
+   "id": "govinfo-uscode-2022-title9",
+   "pages": 9,
+   "rss_mb": {
+    "cpdf-ua1": 14.7,
+    "dox": 8.336,
+    "dox-shared": 16.48,
+    "outloud-conf": 82.0,
+    "vellum-ua1": 31.6,
+    "vp-ua1": 251.1
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.01401,
+    "dox": 0.004147,
+    "dox-shared": 0.006405,
+    "outloud-conf": 0.3343,
+    "vellum-ua1": 0.0196,
+    "vp-ua1": 0.6933
+   }
+  },
+  {
+   "bytes": 100945,
+   "id": "de-ozg",
+   "pages": 10,
+   "rss_mb": {
+    "cpdf-ua1": 15.11,
+    "dox": 8.363,
+    "dox-shared": 16.32,
+    "outloud-conf": 78.18,
+    "vellum-ua1": 31.71,
+    "vp-ua1": 246.8
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.02095,
+    "dox": 0.004297,
+    "dox-shared": 0.006539,
+    "outloud-conf": 0.3249,
+    "vellum-ua1": 0.0282,
+    "vp-ua1": 0.6751
+   }
+  },
+  {
+   "bytes": 226858,
+   "id": "latex-ltnews41",
+   "pages": 10,
+   "rss_mb": {
+    "cpdf-ua1": 22.05,
+    "dox": 14.48,
+    "dox-shared": 22.34,
+    "outloud-conf": 86.49,
+    "vellum-ua1": 37.8,
+    "vp-ua1": 280.3
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.05229,
+    "dox": 0.01547,
+    "dox-shared": 0.01848,
+    "outloud-conf": 0.421,
+    "vellum-ua1": 0.0596,
+    "vp-ua1": 0.9855
+   }
+  },
+  {
+   "bytes": 98513,
+   "id": "de-egovg",
+   "pages": 11,
+   "rss_mb": {
+    "cpdf-ua1": 15.11,
+    "dox": 8.469,
+    "dox-shared": 16.16,
+    "outloud-conf": 78.19,
+    "vellum-ua1": 31.55,
+    "vp-ua1": 251.7
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.02252,
+    "dox": 0.004408,
+    "dox-shared": 0.006536,
+    "outloud-conf": 0.3338,
+    "vellum-ua1": 0.02938,
+    "vp-ua1": 0.6762
+   }
+  },
+  {
+   "bytes": 819383,
+   "id": "arxiv-1512.03385v1",
+   "pages": 12,
+   "rss_mb": {
+    "cpdf-ua1": 23.14,
+    "dox": 12.05,
+    "dox-shared": 20.01,
+    "outloud-conf": 85.73,
+    "vellum-ua1": 36.12,
+    "vp-ua1": 278.8
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.04743,
+    "dox": 0.01825,
+    "dox-shared": 0.02095,
+    "outloud-conf": 0.4852,
+    "vellum-ua1": 0.05142,
+    "vp-ua1": 0.8442
+   }
+  },
+  {
+   "bytes": 91870,
+   "id": "de-bgg",
+   "pages": 14,
+   "rss_mb": {
+    "cpdf-ua1": 15.05,
+    "dox": 8.148,
+    "dox-shared": 16.23,
+    "outloud-conf": 78.12,
+    "vellum-ua1": 31.6,
+    "vp-ua1": 249.1
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.02322,
+    "dox": 0.00436,
+    "dox-shared": 0.006564,
+    "outloud-conf": 0.3277,
+    "vellum-ua1": 0.03158,
+    "vp-ua1": 0.6396
+   }
+  },
+  {
+   "bytes": 2215244,
+   "id": "arxiv-1706.03762v7",
+   "pages": 15,
+   "rss_mb": {
+    "cpdf-ua1": 29.91,
+    "dox": 27.81,
+    "dox-shared": 35.67,
+    "outloud-conf": 96.5,
+    "vellum-ua1": 44.15,
+    "vp-ua1": 327.4
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1145,
+    "dox": 0.04914,
+    "dox-shared": 0.05547,
+    "outloud-conf": 0.57,
+    "vellum-ua1": 0.06192,
+    "vp-ua1": 1.07
+   }
+  },
+  {
+   "bytes": 775166,
+   "id": "arxiv-1810.04805v2",
+   "pages": 16,
+   "rss_mb": {
+    "cpdf-ua1": 26.05,
+    "dox": 14.44,
+    "dox-shared": 22.26,
+    "outloud-conf": 88.16,
+    "vellum-ua1": 38.23,
+    "vp-ua1": 326.4
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.06987,
+    "dox": 0.0358,
+    "dox-shared": 0.03805,
+    "outloud-conf": 0.5012,
+    "vellum-ua1": 0.04979,
+    "vp-ua1": 0.9648
+   }
+  },
+  {
+   "bytes": 1232757,
+   "id": "irs-p926-2023",
+   "pages": 18,
+   "rss_mb": {
+    "cpdf-ua1": 37.63,
+    "dox": 17.96,
+    "dox-shared": 25.81,
+    "outloud-conf": 99.89,
+    "vellum-ua1": 49.09,
+    "vp-ua1": 404.9
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1195,
+    "dox": 0.03158,
+    "dox-shared": 0.03533,
+    "outloud-conf": 0.5945,
+    "vellum-ua1": 0.1691,
+    "vp-ua1": 1.211
+   }
+  },
+  {
+   "bytes": 1290525,
+   "id": "irs-p936-2023",
+   "pages": 18,
+   "rss_mb": {
+    "cpdf-ua1": 37.73,
+    "dox": 19.26,
+    "dox-shared": 27.46,
+    "outloud-conf": 98.18,
+    "vellum-ua1": 50.86,
+    "vp-ua1": 517.8
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1339,
+    "dox": 0.03592,
+    "dox-shared": 0.03995,
+    "outloud-conf": 0.6146,
+    "vellum-ua1": 0.2018,
+    "vp-ua1": 1.245
+   }
+  },
+  {
+   "bytes": 456389,
+   "id": "cdc-mmwr-7303-h",
+   "pages": 19,
+   "rss_mb": {
+    "cpdf-ua1": 27.86,
+    "dox": 16.47,
+    "dox-shared": 24.68,
+    "outloud-conf": 92.45,
+    "vellum-ua1": 44.04,
+    "vp-ua1": 421.8
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.07736,
+    "dox": 0.02618,
+    "dox-shared": 0.03014,
+    "outloud-conf": 0.516,
+    "vellum-ua1": 0.1061,
+    "vp-ua1": 1.208
+   }
+  },
+  {
+   "bytes": 126519,
+   "id": "gen-medium-20-simple",
+   "pages": 20,
+   "rss_mb": {
+    "cpdf-ua1": 13.48,
+    "dox": 7.621,
+    "dox-shared": 15.57,
+    "outloud-conf": 78.4,
+    "vellum-ua1": 28.98,
+    "vp-ua1": 239.4
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.008042,
+    "dox": 0.003116,
+    "dox-shared": 0.005254,
+    "outloud-conf": 0.3234,
+    "vellum-ua1": 0.01391,
+    "vp-ua1": 0.6517
+   }
+  },
+  {
+   "bytes": 200192,
+   "id": "govinfo-uscode-2022-title1",
+   "pages": 22,
+   "rss_mb": {
+    "cpdf-ua1": 17.2,
+    "dox": 8.816,
+    "dox-shared": 16.84,
+    "outloud-conf": 83.82,
+    "vellum-ua1": 32.79,
+    "vp-ua1": 256.6
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.02575,
+    "dox": 0.008135,
+    "dox-shared": 0.01043,
+    "outloud-conf": 0.4039,
+    "vellum-ua1": 0.04081,
+    "vp-ua1": 0.7616
+   }
+  },
+  {
+   "bytes": 850247,
+   "id": "cdc-mmwr-7302-h",
+   "pages": 24,
+   "rss_mb": {
+    "cpdf-ua1": 28.87,
+    "dox": 17.98,
+    "dox-shared": 25.93,
+    "outloud-conf": 92.96,
+    "vellum-ua1": 41.18,
+    "vp-ua1": 444.4
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.08442,
+    "dox": 0.03,
+    "dox-shared": 0.03487,
+    "outloud-conf": 0.551,
+    "vellum-ua1": 0.1135,
+    "vp-ua1": 1.316
+   }
+  },
+  {
+   "bytes": 1609513,
+   "id": "arxiv-2106.09685v2",
+   "pages": 26,
+   "rss_mb": {
+    "cpdf-ua1": 159.5,
+    "dox": 35.98,
+    "dox-shared": 43.47,
+    "outloud-conf": 232.0,
+    "vellum-ua1": 41.64,
+    "vp-ua1": 1828.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.9099,
+    "dox": 0.08107,
+    "dox-shared": 0.08509,
+    "outloud-conf": 1.873,
+    "vellum-ua1": 0.07769,
+    "vp-ua1": 2.0
+   }
+  },
+  {
+   "bytes": 516360,
+   "id": "cdc-mmwr-7301-h",
+   "pages": 26,
+   "rss_mb": {
+    "cpdf-ua1": 33.58,
+    "dox": 20.3,
+    "dox-shared": 28.21,
+    "outloud-conf": 97.66,
+    "vellum-ua1": 45.32,
+    "vp-ua1": 571.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.09793,
+    "dox": 0.03413,
+    "dox-shared": 0.039,
+    "outloud-conf": 0.5784,
+    "vellum-ua1": 0.1349,
+    "vp-ua1": 1.396
+   }
+  },
+  {
+   "bytes": 726566,
+   "id": "arxiv-2302.13971v1-llama",
+   "pages": 27,
+   "rss_mb": {
+    "cpdf-ua1": 35.98,
+    "dox": 12.04,
+    "dox-shared": 20.16,
+    "outloud-conf": 94.97,
+    "vellum-ua1": 39.16,
+    "vp-ua1": 351.6
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1019,
+    "dox": 0.02471,
+    "dox-shared": 0.02719,
+    "outloud-conf": 0.5346,
+    "vellum-ua1": 0.06576,
+    "vp-ua1": 0.9781
+   }
+  },
+  {
+   "bytes": 650661,
+   "id": "nist-sp800218A",
+   "pages": 30,
+   "rss_mb": {
+    "cpdf-ua1": 36.62,
+    "dox": 15.02,
+    "dox-shared": 22.7,
+    "outloud-conf": 85.09,
+    "vellum-ua1": 40.36,
+    "vp-ua1": 379.5
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1043,
+    "dox": 0.02656,
+    "dox-shared": 0.02962,
+    "outloud-conf": 0.6369,
+    "vellum-ua1": 0.1563,
+    "vp-ua1": 1.165
+   }
+  },
+  {
+   "bytes": 1518858,
+   "id": "nist-cswp29",
+   "pages": 32,
+   "rss_mb": {
+    "cpdf-ua1": 33.37,
+    "dox": 13.45,
+    "dox-shared": 21.26,
+    "outloud-conf": 83.07,
+    "vellum-ua1": 39.2,
+    "vp-ua1": 364.4
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.07874,
+    "dox": 0.02274,
+    "dox-shared": 0.02606,
+    "outloud-conf": 0.559,
+    "vellum-ua1": 0.1204,
+    "vp-ua1": 1.118
+   }
+  },
+  {
+   "bytes": 739891,
+   "id": "nist-sp800218",
+   "pages": 36,
+   "rss_mb": {
+    "cpdf-ua1": 43.62,
+    "dox": 17.77,
+    "dox-shared": 25.65,
+    "outloud-conf": 95.5,
+    "vellum-ua1": 43.36,
+    "vp-ua1": 506.7
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1574,
+    "dox": 0.046,
+    "dox-shared": 0.05027,
+    "outloud-conf": 0.7813,
+    "vellum-ua1": 0.225,
+    "vp-ua1": 1.259
+   }
+  },
+  {
+   "bytes": 267512,
+   "id": "de-bdsg-2018",
+   "pages": 45,
+   "rss_mb": {
+    "cpdf-ua1": 19.08,
+    "dox": 9.18,
+    "dox-shared": 17.01,
+    "outloud-conf": 80.21,
+    "vellum-ua1": 35.67,
+    "vp-ua1": 277.2
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.07451,
+    "dox": 0.01173,
+    "dox-shared": 0.01406,
+    "outloud-conf": 0.4354,
+    "vellum-ua1": 0.09677,
+    "vp-ua1": 0.834
+   }
+  },
+  {
+   "bytes": 1946127,
+   "id": "nist-ai100-1",
+   "pages": 48,
+   "rss_mb": {
+    "cpdf-ua1": 24.2,
+    "dox": 10.12,
+    "dox-shared": 18.02,
+    "outloud-conf": 84.37,
+    "vellum-ua1": 35.73,
+    "vp-ua1": 276.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.03648,
+    "dox": 0.0165,
+    "dox-shared": 0.01917,
+    "outloud-conf": 0.4246,
+    "vellum-ua1": 0.06155,
+    "vp-ua1": 0.8163
+   }
+  },
+  {
+   "bytes": 1568745,
+   "id": "irs-p15-2023",
+   "pages": 49,
+   "rss_mb": {
+    "cpdf-ua1": 53.95,
+    "dox": 24.64,
+    "dox-shared": 32.23,
+    "outloud-conf": 107.0,
+    "vellum-ua1": 55.82,
+    "vp-ua1": 1017.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.2487,
+    "dox": 0.06153,
+    "dox-shared": 0.06631,
+    "outloud-conf": 0.8724,
+    "vellum-ua1": 0.3761,
+    "vp-ua1": 1.585
+   }
+  },
+  {
+   "bytes": 271974,
+   "id": "de-gg",
+   "pages": 51,
+   "rss_mb": {
+    "cpdf-ua1": 18.79,
+    "dox": 9.555,
+    "dox-shared": 17.24,
+    "outloud-conf": 80.5,
+    "vellum-ua1": 33.71,
+    "vp-ua1": 266.5
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.07391,
+    "dox": 0.01147,
+    "dox-shared": 0.01428,
+    "outloud-conf": 0.4126,
+    "vellum-ua1": 0.0903,
+    "vp-ua1": 0.7826
+   }
+  },
+  {
+   "bytes": 1062822,
+   "id": "nist-cswp-04162018",
+   "pages": 55,
+   "rss_mb": {
+    "cpdf-ua1": 53.14,
+    "dox": 15.99,
+    "dox-shared": 23.75,
+    "outloud-conf": 90.65,
+    "vellum-ua1": 48.55,
+    "vp-ua1": 622.9
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1807,
+    "dox": 0.04266,
+    "dox-shared": 0.04668,
+    "outloud-conf": 0.9088,
+    "vellum-ua1": 0.2971,
+    "vp-ua1": 1.307
+   }
+  },
+  {
+   "bytes": 1252341,
+   "id": "nist-fips203",
+   "pages": 56,
+   "rss_mb": {
+    "cpdf-ua1": 66.2,
+    "dox": 33.14,
+    "dox-shared": 40.93,
+    "outloud-conf": 128.4,
+    "vellum-ua1": 60.18,
+    "vp-ua1": 874.2
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.2975,
+    "dox": 0.07951,
+    "dox-shared": 0.0899,
+    "outloud-conf": 1.105,
+    "vellum-ua1": 0.3441,
+    "vp-ua1": 1.726
+   }
+  },
+  {
+   "bytes": 966908,
+   "id": "nist-sp800207",
+   "pages": 59,
+   "rss_mb": {
+    "cpdf-ua1": 39.79,
+    "dox": 16.98,
+    "dox-shared": 24.73,
+    "outloud-conf": 87.73,
+    "vellum-ua1": 41.57,
+    "vp-ua1": 460.2
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.1349,
+    "dox": 0.03591,
+    "dox-shared": 0.0397,
+    "outloud-conf": 0.7356,
+    "vellum-ua1": 0.215,
+    "vp-ua1": 1.183
+   }
+  },
+  {
+   "bytes": 1801149,
+   "id": "irs-p463-2023",
+   "pages": 61,
+   "rss_mb": {
+    "cpdf-ua1": 88.74,
+    "dox": 37.5,
+    "dox-shared": 45.36,
+    "outloud-conf": 131.5,
+    "vellum-ua1": 72.41,
+    "vp-ua1": 1793.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.465,
+    "dox": 0.1038,
+    "dox-shared": 0.1109,
+    "outloud-conf": 1.331,
+    "vellum-ua1": 0.6253,
+    "vp-ua1": 1.983
+   }
+  },
+  {
+   "bytes": 425515,
+   "id": "govinfo-uscode-2022-title3",
+   "pages": 68,
+   "rss_mb": {
+    "cpdf-ua1": 23.64,
+    "dox": 9.754,
+    "dox-shared": 17.17,
+    "outloud-conf": 89.04,
+    "vellum-ua1": 35.76,
+    "vp-ua1": 406.5
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.06211,
+    "dox": 0.02063,
+    "dox-shared": 0.02393,
+    "outloud-conf": 0.5928,
+    "vellum-ua1": 0.1131,
+    "vp-ua1": 0.9339
+   }
+  },
+  {
+   "bytes": 6768044,
+   "id": "arxiv-2005.14165v4",
+   "pages": 75,
+   "rss_mb": {
+    "cpdf-ua1": 43.2,
+    "dox": 12.92,
+    "dox-shared": 20.83,
+    "outloud-conf": 83.8,
+    "vellum-ua1": 45.37,
+    "vp-ua1": 406.7
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.08722,
+    "dox": 0.03236,
+    "dox-shared": 0.03521,
+    "outloud-conf": 0.5694,
+    "vellum-ua1": 0.1362,
+    "vp-ua1": 1.04
+   }
+  },
+  {
+   "bytes": 1599268,
+   "id": "nist-sp800-63-3",
+   "pages": 76,
+   "rss_mb": {
+    "cpdf-ua1": 93.54,
+    "dox": 22.29,
+    "dox-shared": 30.1,
+    "outloud-conf": 127.2,
+    "vellum-ua1": 57.68,
+    "vp-ua1": 1107.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.3879,
+    "dox": 0.06947,
+    "dox-shared": 0.07397,
+    "outloud-conf": 1.142,
+    "vellum-ua1": 0.4299,
+    "vp-ua1": 1.49
+   }
+  },
+  {
+   "bytes": 1744473,
+   "id": "nist-sp80061r2",
+   "pages": 80,
+   "rss_mb": {
+    "cpdf-ua1": 65.45,
+    "dox": 20.06,
+    "dox-shared": 28.14,
+    "outloud-conf": 98.46,
+    "vellum-ua1": 54.84,
+    "vp-ua1": 942.9
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.2302,
+    "dox": 0.0617,
+    "dox-shared": 0.06536,
+    "outloud-conf": 1.005,
+    "vellum-ua1": 0.4088,
+    "vp-ua1": 1.468
+   }
+  },
+  {
+   "bytes": 1480377,
+   "id": "nist-sp80063b",
+   "pages": 80,
+   "rss_mb": {
+    "cpdf-ua1": 66.48,
+    "dox": 26.2,
+    "dox-shared": 34.26,
+    "outloud-conf": 104.1,
+    "vellum-ua1": 55.0,
+    "vp-ua1": 913.8
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.2518,
+    "dox": 0.07022,
+    "dox-shared": 0.07684,
+    "outloud-conf": 1.022,
+    "vellum-ua1": 0.3344,
+    "vp-ua1": 1.497
+   }
+  },
+  {
+   "bytes": 2385394,
+   "id": "gao-green-book-2014",
+   "pages": 86,
+   "rss_mb": {
+    "cpdf-ua1": 43.78,
+    "dox": 15.51,
+    "dox-shared": 23.43,
+    "outloud-conf": 88.7,
+    "vellum-ua1": 45.6,
+    "vp-ua1": 468.1
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1094,
+    "dox": 0.03417,
+    "dox-shared": 0.03765,
+    "outloud-conf": 0.6589,
+    "vellum-ua1": 0.1855,
+    "vp-ua1": 1.246
+   }
+  },
+  {
+   "bytes": 2711295,
+   "id": "arxiv-2204.02311v5-palm",
+   "pages": 87,
+   "rss_mb": {
+    "cpdf-ua1": 50.64,
+    "dox": 25.45,
+    "dox-shared": 33.54,
+    "outloud-conf": 116.4,
+    "vellum-ua1": 51.57,
+    "vp-ua1": 1372.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.2047,
+    "dox": 0.09099,
+    "dox-shared": 0.09864,
+    "outloud-conf": 0.9367,
+    "vellum-ua1": 0.1967,
+    "vp-ua1": 1.624
+   }
+  },
+  {
+   "bytes": 5245564,
+   "id": "arxiv-2303.08774v6",
+   "pages": 100,
+   "rss_mb": {
+    "cpdf-ua1": 40.39,
+    "dox": 15.24,
+    "dox-shared": 23.53,
+    "outloud-conf": 90.95,
+    "vellum-ua1": 43.72,
+    "vp-ua1": 770.4
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1207,
+    "dox": 0.06277,
+    "dox-shared": 0.06603,
+    "outloud-conf": 0.7827,
+    "vellum-ua1": 0.07747,
+    "vp-ua1": 1.214
+   }
+  },
+  {
+   "bytes": 562127,
+   "id": "gen-medium-100-complex",
+   "pages": 100,
+   "rss_mb": {
+    "cpdf-ua1": 18.8,
+    "dox": 14.39,
+    "dox-shared": 22.02,
+    "outloud-conf": 86.69,
+    "vellum-ua1": 37.86,
+    "vp-ua1": 305.9
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.04514,
+    "dox": 0.01611,
+    "dox-shared": 0.0194,
+    "outloud-conf": 0.4307,
+    "vellum-ua1": 0.04452,
+    "vp-ua1": 1.049
+   }
+  },
+  {
+   "bytes": 2274453,
+   "id": "irs-p946-2023",
+   "pages": 111,
+   "rss_mb": {
+    "cpdf-ua1": 103.4,
+    "dox": 41.37,
+    "dox-shared": 49.07,
+    "outloud-conf": 137.2,
+    "vellum-ua1": 73.65,
+    "vp-ua1": 2116.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.5198,
+    "dox": 0.1458,
+    "dox-shared": 0.1601,
+    "outloud-conf": 1.698,
+    "vellum-ua1": 0.6317,
+    "vp-ua1": 2.245
+   }
+  },
+  {
+   "bytes": 6419175,
+   "id": "gao-21-519sp",
+   "pages": 112,
+   "rss_mb": {
+    "cpdf-ua1": 126.6,
+    "dox": 37.44,
+    "dox-shared": 45.26,
+    "outloud-conf": 186.9,
+    "vellum-ua1": 74.79,
+    "vp-ua1": 2075.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.6456,
+    "dox": 0.1175,
+    "dox-shared": 0.1251,
+    "outloud-conf": 1.845,
+    "vellum-ua1": 0.3847,
+    "vp-ua1": 1.983
+   }
+  },
+  {
+   "bytes": 3038846,
+   "id": "irs-p17-2023",
+   "pages": 142,
+   "rss_mb": {
+    "cpdf-ua1": 353.8,
+    "dox": 139.6,
+    "dox-shared": 147.4,
+    "outloud-conf": 298.1,
+    "vellum-ua1": 198.3,
+    "vp-ua1": 4096.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 2.558,
+    "dox": 0.433,
+    "dox-shared": 0.4677,
+    "outloud-conf": 4.863,
+    "vellum-ua1": 7.187,
+    "vp-ua1": 6.576
+   }
+  },
+  {
+   "bytes": 748499,
+   "id": "govinfo-uscode-2022-title35",
+   "pages": 148,
+   "rss_mb": {
+    "cpdf-ua1": 30.62,
+    "dox": 10.14,
+    "dox-shared": 17.98,
+    "outloud-conf": 97.57,
+    "vellum-ua1": 35.8,
+    "vp-ua1": 677.6
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1168,
+    "dox": 0.03992,
+    "dox-shared": 0.0438,
+    "outloud-conf": 0.8724,
+    "vellum-ua1": 0.218,
+    "vp-ua1": 1.083
+   }
+  },
+  {
+   "bytes": 863844,
+   "id": "de-stgb",
+   "pages": 173,
+   "rss_mb": {
+    "cpdf-ua1": 35.45,
+    "dox": 12.47,
+    "dox-shared": 20.45,
+    "outloud-conf": 87.53,
+    "vellum-ua1": 38.16,
+    "vp-ua1": 708.6
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.2601,
+    "dox": 0.0369,
+    "dox-shared": 0.04045,
+    "outloud-conf": 0.8144,
+    "vellum-ua1": 0.3216,
+    "vp-ua1": 1.114
+   }
+  },
+  {
+   "bytes": 858557,
+   "id": "govinfo-cfr-2023-title1-vol1",
+   "pages": 175,
+   "rss_mb": {
+    "cpdf-ua1": 31.64,
+    "dox": 11.52,
+    "dox-shared": 19.46,
+    "outloud-conf": 94.23,
+    "vellum-ua1": 40.42,
+    "vp-ua1": 512.7
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.118,
+    "dox": 0.03261,
+    "dox-shared": 0.03558,
+    "outloud-conf": 0.812,
+    "vellum-ua1": 0.2045,
+    "vp-ua1": 1.086
+   }
+  },
+  {
+   "bytes": 2270327,
+   "id": "nist-sp80037r2",
+   "pages": 183,
+   "rss_mb": {
+    "cpdf-ua1": 171.3,
+    "dox": 47.57,
+    "dox-shared": 54.7,
+    "outloud-conf": 134.0,
+    "vellum-ua1": 83.42,
+    "vp-ua1": 2079.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.8073,
+    "dox": 0.2187,
+    "dox-shared": 0.2322,
+    "outloud-conf": 2.453,
+    "vellum-ua1": 1.13,
+    "vp-ua1": 2.401
+   }
+  },
+  {
+   "bytes": 2504695,
+   "id": "govinfo-budget-2025-bud",
+   "pages": 188,
+   "rss_mb": {
+    "cpdf-ua1": 207.6,
+    "dox": 64.91,
+    "dox-shared": 72.78,
+    "outloud-conf": 185.8,
+    "vellum-ua1": 121.1,
+    "vp-ua1": 3472.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.906,
+    "dox": 0.2565,
+    "dox-shared": 0.288,
+    "outloud-conf": 2.231,
+    "vellum-ua1": 2.425,
+    "vp-ua1": 3.253
+   }
+  },
+  {
+   "bytes": 8181396,
+   "id": "nist-sp800160v1r1",
+   "pages": 195,
+   "rss_mb": {
+    "cpdf-ua1": 124.4,
+    "dox": 39.04,
+    "dox-shared": 47.06,
+    "outloud-conf": 120.7,
+    "vellum-ua1": 71.91,
+    "vp-ua1": 1844.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.5196,
+    "dox": 0.1415,
+    "dox-shared": 0.151,
+    "outloud-conf": 1.809,
+    "vellum-ua1": 0.7343,
+    "vp-ua1": 2.055
+   }
+  },
+  {
+   "bytes": 1049231,
+   "id": "de-ao-1977",
+   "pages": 210,
+   "rss_mb": {
+    "cpdf-ua1": 41.23,
+    "dox": 12.05,
+    "dox-shared": 20.26,
+    "outloud-conf": 89.38,
+    "vellum-ua1": 38.66,
+    "vp-ua1": 872.6
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.3181,
+    "dox": 0.04432,
+    "dox-shared": 0.04782,
+    "outloud-conf": 0.8747,
+    "vellum-ua1": 0.3802,
+    "vp-ua1": 1.206
+   }
+  },
+  {
+   "bytes": 13257131,
+   "id": "govinfo-fr-2024-01-02",
+   "pages": 229,
+   "rss_mb": {
+    "cpdf-ua1": 85.12,
+    "dox": 30.26,
+    "dox-shared": 38.44,
+    "outloud-conf": 271.8,
+    "vellum-ua1": 82.0,
+    "vp-ua1": 1908.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.3223,
+    "dox": 0.1519,
+    "dox-shared": 0.1637,
+    "outloud-conf": 1.519,
+    "vellum-ua1": 0.406,
+    "vp-ua1": 1.865
+   }
+  },
+  {
+   "bytes": 1203983,
+   "id": "govinfo-uscode-2022-title17",
+   "pages": 249,
+   "rss_mb": {
+    "cpdf-ua1": 39.06,
+    "dox": 9.977,
+    "dox-shared": 18.17,
+    "outloud-conf": 107.9,
+    "vellum-ua1": 36.99,
+    "vp-ua1": 1274.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1731,
+    "dox": 0.06299,
+    "dox-shared": 0.0672,
+    "outloud-conf": 1.198,
+    "vellum-ua1": 0.3351,
+    "vp-ua1": 1.355
+   }
+  },
+  {
+   "bytes": 1457103,
+   "id": "gao-yellow-book-2024",
+   "pages": 260,
+   "rss_mb": {
+    "cpdf-ua1": 90.06,
+    "dox": 25.08,
+    "dox-shared": 33.02,
+    "outloud-conf": 104.7,
+    "vellum-ua1": 49.26,
+    "vp-ua1": 1375.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.3366,
+    "dox": 0.08357,
+    "dox-shared": 0.08966,
+    "outloud-conf": 1.389,
+    "vellum-ua1": 0.4946,
+    "vp-ua1": 1.733
+   }
+  },
+  {
+   "bytes": 876749,
+   "id": "govinfo-plaw-117publ169",
+   "pages": 274,
+   "rss_mb": {
+    "cpdf-ua1": 29.2,
+    "dox": 12.59,
+    "dox-shared": 20.65,
+    "outloud-conf": 97.28,
+    "vellum-ua1": 36.8,
+    "vp-ua1": 583.5
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.1154,
+    "dox": 0.04177,
+    "dox-shared": 0.04514,
+    "outloud-conf": 0.7565,
+    "vellum-ua1": 0.2024,
+    "vp-ua1": 1.094
+   }
+  },
+  {
+   "bytes": 15290543,
+   "id": "gao-23-106203",
+   "pages": 286,
+   "rss_mb": {
+    "cpdf-ua1": 70.48,
+    "dox": 19.96,
+    "dox-shared": 27.84,
+    "outloud-conf": 93.85,
+    "vellum-ua1": 66.05,
+    "vp-ua1": 818.7
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.3055,
+    "dox": 0.08558,
+    "dox-shared": 0.09084,
+    "outloud-conf": 0.8915,
+    "vellum-ua1": 0.4423,
+    "vp-ua1": 1.345
+   }
+  },
+  {
+   "bytes": 8584345,
+   "id": "nist-sp80082r3",
+   "pages": 316,
+   "rss_mb": {
+    "cpdf-ua1": 196.1,
+    "dox": 64.61,
+    "dox-shared": 72.66,
+    "outloud-conf": 170.6,
+    "vellum-ua1": 103.5,
+    "vp-ua1": 2062.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 1.027,
+    "dox": 0.2558,
+    "dox-shared": 0.2701,
+    "outloud-conf": 3.195,
+    "vellum-ua1": 1.306,
+    "vp-ua1": 2.942
+   }
+  },
+  {
+   "bytes": 3511556,
+   "id": "nist-sp800161r1upd1",
+   "pages": 325,
+   "rss_mb": {
+    "cpdf-ua1": 213.4,
+    "dox": 53.4,
+    "dox-shared": 61.21,
+    "outloud-conf": 155.5,
+    "vellum-ua1": 81.02,
+    "vp-ua1": 1842.0
+   },
+   "run": "extension",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.9735,
+    "dox": 0.2227,
+    "dox-shared": 0.2365,
+    "outloud-conf": 3.042,
+    "vellum-ua1": 1.405,
+    "vp-ua1": 2.567
+   }
+  },
+  {
+   "bytes": 5170016,
+   "id": "govinfo-erp-2024",
+   "pages": 487,
+   "rss_mb": {
+    "cpdf-ua1": 280.7,
+    "dox": 71.34,
+    "dox-shared": 79.36,
+    "outloud-conf": 364.9,
+    "vellum-ua1": 107.0,
+    "vp-ua1": 1499.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.952,
+    "dox": 0.4354,
+    "dox-shared": 0.4492,
+    "outloud-conf": 5.637,
+    "vellum-ua1": 2.861,
+    "vp-ua1": 3.672
+   }
+  },
+  {
+   "bytes": 6073678,
+   "id": "nist-sp800-53r5",
+   "pages": 492,
+   "rss_mb": {
+    "cpdf-ua1": 563.2,
+    "dox": 141.7,
+    "dox-shared": 149.6,
+    "outloud-conf": 296.7,
+    "vellum-ua1": 218.4,
+    "vp-ua1": 4111.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 2.979,
+    "dox": 0.6606,
+    "dox-shared": 0.7152,
+    "outloud-conf": 7.383,
+    "vellum-ua1": 3.653,
+    "vp-ua1": 5.14
+   }
+  },
+  {
+   "bytes": 2738140,
+   "id": "gen-large-500-complex",
+   "pages": 500,
+   "rss_mb": {
+    "cpdf-ua1": 48.31,
+    "dox": 37.57,
+    "dox-shared": 45.44,
+    "outloud-conf": 122.3,
+    "vellum-ua1": 59.43,
+    "vp-ua1": 1575.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 0.2228,
+    "dox": 0.07843,
+    "dox-shared": 0.08503,
+    "outloud-conf": 0.9274,
+    "vellum-ua1": 0.1887,
+    "vp-ua1": 1.74
+   }
+  },
+  {
+   "bytes": 2566626,
+   "id": "gen-large-500-simple",
+   "pages": 500,
+   "rss_mb": {
+    "cpdf-ua1": 31.58,
+    "dox": 10.32,
+    "dox-shared": 18.31,
+    "outloud-conf": 94.52,
+    "vellum-ua1": 38.43,
+    "vp-ua1": 1029.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.09784,
+    "dox": 0.04597,
+    "dox-shared": 0.05104,
+    "outloud-conf": 0.9531,
+    "vellum-ua1": 0.1703,
+    "vp-ua1": 1.187
+   }
+  },
+  {
+   "bytes": 13009086,
+   "id": "govinfo-erp-2023",
+   "pages": 513,
+   "rss_mb": {
+    "cpdf-ua1": 269.7,
+    "dox": 83.69,
+    "dox-shared": 91.85,
+    "outloud-conf": 364.3,
+    "vellum-ua1": 126.8,
+    "vp-ua1": 1952.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.597,
+    "dox": 0.432,
+    "dox-shared": 0.4485,
+    "outloud-conf": 4.798,
+    "vellum-ua1": 2.244,
+    "vp-ua1": 3.534
+   }
+  },
+  {
+   "bytes": 2682116,
+   "id": "de-sgb-5",
+   "pages": 577,
+   "rss_mb": {
+    "cpdf-ua1": 107.6,
+    "dox": 15.19,
+    "dox-shared": 23.18,
+    "outloud-conf": 114.6,
+    "vellum-ua1": 48.02,
+    "vp-ua1": 1822.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.148,
+    "dox": 0.1344,
+    "dox-shared": 0.1387,
+    "outloud-conf": 2.459,
+    "vellum-ua1": 1.296,
+    "vp-ua1": 2.091
+   }
+  },
+  {
+   "bytes": 11287914,
+   "id": "govinfo-cfr-2023-title3-vol1",
+   "pages": 670,
+   "rss_mb": {
+    "cpdf-ua1": 60.39,
+    "dox": 19.48,
+    "dox-shared": 27.21,
+    "outloud-conf": 111.8,
+    "vellum-ua1": 61.57,
+    "vp-ua1": 1420.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.2204,
+    "dox": 0.1024,
+    "dox-shared": 0.1087,
+    "outloud-conf": 1.122,
+    "vellum-ua1": 0.3825,
+    "vp-ua1": 1.452
+   }
+  },
+  {
+   "bytes": 4490669,
+   "id": "govinfo-uscode-2022-title28",
+   "pages": 674,
+   "rss_mb": {
+    "cpdf-ua1": 92.05,
+    "dox": 13.77,
+    "dox-shared": 21.26,
+    "outloud-conf": 154.2,
+    "vellum-ua1": 44.63,
+    "vp-ua1": 1815.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.48,
+    "dox": 0.171,
+    "dox-shared": 0.1791,
+    "outloud-conf": 2.78,
+    "vellum-ua1": 0.9316,
+    "vp-ua1": 2.215
+   }
+  },
+  {
+   "bytes": 7469808,
+   "id": "nist-sp800-53Ar5",
+   "pages": 733,
+   "rss_mb": {
+    "cpdf-ua1": 1161.0,
+    "dox": 182.5,
+    "dox-shared": 190.2,
+    "outloud-conf": 392.2,
+    "vellum-ua1": 240.5,
+    "vp-ua1": 5164.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 8.907,
+    "dox": 1.12,
+    "dox-shared": 1.167,
+    "outloud-conf": 25.25,
+    "vellum-ua1": 10.66,
+    "vp-ua1": 12.25
+   }
+  },
+  {
+   "bytes": 4458442,
+   "id": "govinfo-cfr-2023-title2-vol1",
+   "pages": 741,
+   "rss_mb": {
+    "cpdf-ua1": 62.38,
+    "dox": 19.48,
+    "dox-shared": 27.27,
+    "outloud-conf": 135.3,
+    "vellum-ua1": 55.64,
+    "vp-ua1": 1816.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.3132,
+    "dox": 0.1333,
+    "dox-shared": 0.1414,
+    "outloud-conf": 1.816,
+    "vellum-ua1": 0.6159,
+    "vp-ua1": 1.764
+   }
+  },
+  {
+   "bytes": 12390518,
+   "id": "govinfo-fr-2024-12-30",
+   "pages": 758,
+   "rss_mb": {
+    "cpdf-ua1": 208.0,
+    "dox": 67.62,
+    "dox-shared": 75.82,
+    "outloud-conf": 456.2,
+    "vellum-ua1": 125.6,
+    "vp-ua1": 2758.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.064,
+    "dox": 0.4611,
+    "dox-shared": 0.4946,
+    "outloud-conf": 4.339,
+    "vellum-ua1": 1.333,
+    "vp-ua1": 3.573
+   }
+  },
+  {
+   "bytes": 4187033,
+   "id": "govinfo-uscode-2022-title18",
+   "pages": 949,
+   "rss_mb": {
+    "cpdf-ua1": 101.4,
+    "dox": 15.66,
+    "dox-shared": 23.36,
+    "outloud-conf": 183.3,
+    "vellum-ua1": 46.45,
+    "vp-ua1": 1816.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.6389,
+    "dox": 0.2327,
+    "dox-shared": 0.2423,
+    "outloud-conf": 3.7,
+    "vellum-ua1": 1.248,
+    "vp-ua1": 2.659
+   }
+  },
+  {
+   "bytes": 3855690,
+   "id": "govinfo-uscode-2022-title29",
+   "pages": 977,
+   "rss_mb": {
+    "cpdf-ua1": 109.6,
+    "dox": 15.45,
+    "dox-shared": 23.38,
+    "outloud-conf": 178.0,
+    "vellum-ua1": 44.15,
+    "vp-ua1": 1811.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.6211,
+    "dox": 0.2193,
+    "dox-shared": 0.2292,
+    "outloud-conf": 3.546,
+    "vellum-ua1": 1.176,
+    "vp-ua1": 2.602
+   }
+  },
+  {
+   "bytes": 2690984,
+   "id": "govinfo-plaw-117publ58",
+   "pages": 1039,
+   "rss_mb": {
+    "cpdf-ua1": 72.39,
+    "dox": 17.84,
+    "dox-shared": 25.89,
+    "outloud-conf": 140.4,
+    "vellum-ua1": 44.17,
+    "vp-ua1": 1826.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.4028,
+    "dox": 0.1366,
+    "dox-shared": 0.1438,
+    "outloud-conf": 1.968,
+    "vellum-ua1": 0.7048,
+    "vp-ua1": 1.833
+   }
+  },
+  {
+   "bytes": 23322634,
+   "id": "govinfo-cfr-2023-title47-vol1",
+   "pages": 1216,
+   "rss_mb": {
+    "cpdf-ua1": 125.2,
+    "dox": 22.7,
+    "dox-shared": 30.94,
+    "outloud-conf": 180.8,
+    "vellum-ua1": 81.82,
+    "vp-ua1": 1690.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.6147,
+    "dox": 0.2531,
+    "dox-shared": 0.2633,
+    "outloud-conf": 3.146,
+    "vellum-ua1": 1.1,
+    "vp-ua1": 2.469
+   }
+  },
+  {
+   "bytes": 14930674,
+   "id": "govinfo-budget-2025-app",
+   "pages": 1298,
+   "rss_mb": {
+    "cpdf-ua1": 656.3,
+    "dox": 55.38,
+    "dox-shared": 63.41,
+    "outloud-conf": 470.2,
+    "vellum-ua1": 98.98,
+    "vp-ua1": 2933.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 6.701,
+    "dox": 0.9451,
+    "dox-shared": 0.9713,
+    "outloud-conf": 16.69,
+    "vellum-ua1": 9.244,
+    "vp-ua1": 9.678
+   }
+  },
+  {
+   "bytes": 6006746,
+   "id": "govinfo-uscode-2022-title5",
+   "pages": 1324,
+   "rss_mb": {
+    "cpdf-ua1": 181.2,
+    "dox": 17.88,
+    "dox-shared": 25.43,
+    "outloud-conf": 232.9,
+    "vellum-ua1": 48.66,
+    "vp-ua1": 1819.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.029,
+    "dox": 0.3469,
+    "dox-shared": 0.3589,
+    "outloud-conf": 5.415,
+    "vellum-ua1": 1.874,
+    "vp-ua1": 3.494
+   }
+  },
+  {
+   "bytes": 11035726,
+   "id": "gen-large-2000-complex",
+   "pages": 2000,
+   "rss_mb": {
+    "cpdf-ua1": 169.5,
+    "dox": 126.9,
+    "dox-shared": 134.7,
+    "outloud-conf": 259.5,
+    "vellum-ua1": 114.1,
+    "vp-ua1": 3337.0
+   },
+   "run": "corpus",
+   "tagged": true,
+   "time_s": {
+    "cpdf-ua1": 1.092,
+    "dox": 0.3417,
+    "dox-shared": 0.3683,
+    "outloud-conf": 2.863,
+    "vellum-ua1": 0.716,
+    "vp-ua1": 5.37
+   }
+  },
+  {
+   "bytes": 10199312,
+   "id": "gen-large-2000-simple",
+   "pages": 2000,
+   "rss_mb": {
+    "cpdf-ua1": 91.06,
+    "dox": 17.52,
+    "dox-shared": 25.69,
+    "outloud-conf": 145.2,
+    "vellum-ua1": 53.89,
+    "vp-ua1": 1792.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 0.4021,
+    "dox": 0.1795,
+    "dox-shared": 0.194,
+    "outloud-conf": 2.945,
+    "vellum-ua1": 0.6548,
+    "vp-ua1": 2.342
+   }
+  },
+  {
+   "bytes": 10330871,
+   "id": "govinfo-uscode-2022-title15",
+   "pages": 2598,
+   "rss_mb": {
+    "cpdf-ua1": 270.1,
+    "dox": 25.1,
+    "dox-shared": 32.65,
+    "outloud-conf": 341.5,
+    "vellum-ua1": 60.54,
+    "vp-ua1": 1822.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.66,
+    "dox": 0.58,
+    "dox-shared": 0.6001,
+    "outloud-conf": 9.081,
+    "vellum-ua1": 3.142,
+    "vp-ua1": 5.307
+   }
+  },
+  {
+   "bytes": 10934954,
+   "id": "govinfo-uscode-2022-title16",
+   "pages": 2726,
+   "rss_mb": {
+    "cpdf-ua1": 281.1,
+    "dox": 25.89,
+    "dox-shared": 33.36,
+    "outloud-conf": 353.4,
+    "vellum-ua1": 61.25,
+    "vp-ua1": 1838.0
+   },
+   "run": "extension",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 1.679,
+    "dox": 0.6039,
+    "dox-shared": 0.6263,
+    "outloud-conf": 9.328,
+    "vellum-ua1": 3.223,
+    "vp-ua1": 5.588
+   }
+  },
+  {
+   "bytes": 16600275,
+   "id": "govinfo-uscode-2022-title26",
+   "pages": 4215,
+   "rss_mb": {
+    "cpdf-ua1": 491.4,
+    "dox": 35.98,
+    "dox-shared": 43.6,
+    "outloud-conf": 537.3,
+    "vellum-ua1": 78.87,
+    "vp-ua1": 2840.0
+   },
+   "run": "corpus",
+   "tagged": false,
+   "time_s": {
+    "cpdf-ua1": 2.864,
+    "dox": 1.008,
+    "dox-shared": 1.045,
+    "outloud-conf": 15.82,
+    "vellum-ua1": 5.339,
+    "vp-ua1": 8.721
+   }
+  }
+ ],
+ "summary": {
+  "all": {
+   "max_rss_document": {
+    "cpdf-ua1": "nist-sp800-53Ar5",
+    "dox": "nist-sp800-53Ar5",
+    "dox-shared": "nist-sp800-53Ar5",
+    "outloud-conf": "govinfo-uscode-2022-title26",
+    "vellum-ua1": "nist-sp800-53Ar5",
+    "vp-ua1": "nist-sp800-53Ar5"
+   },
+   "max_rss_mb": {
+    "cpdf-ua1": 1161.0,
+    "dox": 182.5,
+    "dox-shared": 190.2,
+    "outloud-conf": 537.3,
+    "vellum-ua1": 240.5,
+    "vp-ua1": 5164.0
+   },
+   "median_rss_mb": {
+    "cpdf-ua1": 13.31,
+    "dox": 8.268,
+    "dox-shared": 16.29,
+    "outloud-conf": 78.46,
+    "vellum-ua1": 15.41,
+    "vp-ua1": 240.5
+   },
+   "n": 204,
+   "pages": 32305,
+   "throughput_pages_per_s": {
+    "cpdf-ua1": 611.8,
+    "dox": 2562.0,
+    "dox-shared": 2374.0,
+    "outloud-conf": 143.1,
+    "vellum-ua1": 417.2,
+    "vp-ua1": 130.8
+   }
+  },
+  "large": {
+   "label": "Large PDFs (≥ 300 pages)",
+   "median_time_s": {
+    "cpdf-ua1": 1.028,
+    "dox": 0.2544,
+    "dox-shared": 0.2667,
+    "outloud-conf": 3.37,
+    "vellum-ua1": 1.301,
+    "vp-ua1": 2.801
+   },
+   "n": 24,
+   "pages": 27628
+  },
+  "medium": {
+   "label": "Medium PDFs (11–299 pages)",
+   "median_time_s": {
+    "cpdf-ua1": 0.1207,
+    "dox": 0.03992,
+    "dox-shared": 0.0438,
+    "outloud-conf": 0.7813,
+    "vellum-ua1": 0.2018,
+    "vp-ua1": 1.214
+   },
+   "n": 49,
+   "pages": 4477
+  },
+  "small": {
+   "label": "Small PDFs (≤ 10 pages)",
+   "median_time_s": {
+    "cpdf-ua1": 0.005199,
+    "dox": 0.001682,
+    "dox-shared": 0.003782,
+    "outloud-conf": 0.3007,
+    "vellum-ua1": 0.003434,
+    "vp-ua1": 0.6183
+   },
+   "n": 131,
+   "pages": 200
+  }
+ }
+}

@@ -19,6 +19,10 @@ In short, one process per document, small / medium / large: 1.68 ms / 34.2 ms / 
 reports are byte-identical to those of the engine before. The tables below describe the engine before the
 optimisation; veraPDF's own figures in them still apply.
 
+The charts in the README add 58 public documents to the corpus, so that every page-count interval from 1 to over
+1,000 pages has enough documents. They compare all five tools on the same 204 documents:
+[Charts: validation time and memory by page count](#charts-validation-time-and-memory-by-page-count).
+
 Measured on the frozen corpus: 157 files, 14,000 pages. The comparison covers the 148 documents that dox-validate and
 all four veraPDF profiles processed.
 dox-validate was measured at commit `f37a695`. The published dox-validate 0.2.0 (commit `5ae7da2`) produced the same
@@ -649,6 +653,253 @@ Measured and not adopted, because they trade memory for time or time for memory:
 | Generated tables with pointers are relocated at every start. | About 80 pages: the font tables (glyph list, AFM metrics, encodings) about 60, the language registry 16; about 2 % of a small document. | Offsets into string blocks, as the rule catalogue has now. The font tables need the generator's veraPDF sources. |
 | Marked-content frames stay for the whole validation, 136 bytes each. | 13 MB on nist-sp800-53Ar5. | Seven modules read them in `run()`; they would have to take what they need per page, as for content items. |
 | `--jobs N` hands out files in argument order. | See "measured and not adopted" above. | An order that does not let the largest documents run at the same time. |
+
+## Charts: validation time and memory by page count
+
+The charts in the README show validation time and peak memory against the page count of a PDF, and a summary per
+size tier. They are drawn from two stored benchmark runs by [`bench/charts.py`](../bench/charts.py), which reads
+nothing else:
+
+| file | content |
+|---|---|
+| [`docs/charts/validation-time-{light,dark}.svg`](charts/) | "Validation Time by PDF Page Count" |
+| [`docs/charts/peak-memory-{light,dark}.svg`](charts/) | "Peak Memory Usage by PDF Page Count" |
+| [`docs/charts/summary-{light,dark}.svg`](charts/) | median time per size tier, throughput, median and maximum peak memory |
+| [`docs/charts/chart-tables.md`](charts/chart-tables.md) | every plotted value as a table, the documents per interval, the correlations, the run-to-run comparison and the documents left out |
+| [`docs/charts/chart-data.json`](charts/chart-data.json) | the same, plus every document's values |
+
+The light and dark files differ only in colours; the README shows the one that matches the reader's GitHub theme
+(`<picture>` with `prefers-color-scheme`).
+
+### Documents
+
+204 PDFs of 1 to 4,215 pages, processed by every tool in every repetition:
+
+- **146 from the frozen test corpus** ([Corpus](#corpus)), measured on 2026-11-14 in the run
+  [`bench/results/optimised-2026-11-14/`](../bench/results/optimised-2026-11-14/), the cold block of
+  [Optimised engine: before and after](#optimised-engine-before-and-after-and-the-other-tools).
+- **58 public documents added for the charts**, measured on 2026-11-15 in
+  [`bench/results/extension-2026-11-15/`](../bench/results/extension-2026-11-15/). The frozen corpus has one document
+  with 11 to 19 pages and three or four in each interval from 20 to 999 pages, too few for a median. The added
+  documents fill these intervals.
+
+The added documents are listed in [`bench/extension/manifest.json`](../bench/extension/manifest.json) with URL,
+SHA-256, pages, producer, publisher and licence. [`bench/extension/fetch.py`](../bench/extension/fetch.py) downloads
+and verifies them; they are not committed. 61 were selected and 58 used (three were not processed by every tool, see
+below).
+
+- **Publishers:** US federal publications through govinfo (US Code titles, CFR volumes, Federal Register issues,
+  public laws, budget and economic reports; 22), NIST (12), German federal law from gesetze-im-internet.de (9),
+  arXiv preprints (7), the IRS (5), the CDC (3), GAO (2) and LibreOffice (1). 22 of the 61 are tagged.
+- **Selection:** by page count and publisher only, before any validator was run. Candidates came from the publishers
+  of the test corpus and from German federal law, the project's target domain. In each page-count interval,
+  documents were taken in turn from the different publisher families, at most three per family, until the interval
+  held 12 documents together with the test corpus; superseded editions were dropped.
+- **Exclusion check:** no added document has the SHA-256 of a file in the maintainers' internal dataset or in
+  `tests/corpus/public/manifest.json`.
+- **Frozen corpus unchanged:** the extension has its own manifest and freeze file
+  ([`bench/extension/CORPUS_READY`](../bench/extension/CORPUS_READY)).
+
+| pages | documents | frozen test corpus | added | tagged | generated test files |
+|---|---|---|---|---|---|
+| 1 | 117 | 117 | 0 | 114 | 74 |
+| 2–4 | 5 | 5 | 0 | 4 | 0 |
+| 5–9 | 7 | 4 | 3 | 3 | 1 |
+| 10–19 | 10 | 1 | 9 | 4 | 0 |
+| 20–49 | 12 | 4 | 8 | 6 | 1 |
+| 50–99 | 12 | 3 | 9 | 7 | 0 |
+| 100–199 | 11 | 2 | 9 | 7 | 1 |
+| 200–499 | 10 | 2 | 8 | 4 | 0 |
+| 500–999 | 11 | 4 | 7 | 2 | 2 |
+| 1000+ | 9 | 4 | 5 | 1 | 2 |
+
+**Left out: 14 of 218 documents**, because a document is used only if every tool processed it in every repetition,
+so that all tools are compared on the same documents:
+
+- **Test files of the frozen corpus.** Nine malformed, empty or password-encrypted test files, which most tools
+  reject, as in the tables above.
+- **cpdf timeouts.** Three LibreOffice documents on which cpdf reached the 120 s limit in every repetition
+  (132, 350 and 504 pages).
+- **veraPDF.** `govinfo-budget-2025-per` (295 pages), which veraPDF refused with "XRef loop" (exit 9).
+- **DoX-Validate.** `cdc-mmwr-7307-h` (15 pages). qpdf had to repair damaged stream lengths in this file.
+  DoX-Validate then validates the reconstruction, reports every rule as incomplete (exit 2) and gives no verdict, by
+  design. The harness counts that as not fully processed, the same rule that left out `malformed-bad-xref` in the
+  tables above.
+
+Leaving out the three added documents does not favour DoX-Validate: it was the fastest tool and needed the least
+memory on all three (on `cdc-mmwr-7307-h`, for example, 24 ms against 67 ms for cpdf and 90 ms for VellumPdf).
+`chart-tables.md` lists every excluded document with each tool's outcome.
+
+### Measurement
+
+Both runs are the cold block of [`bench/bench.py`](../bench/bench.py), with the same settings as the tables above
+([Method](#method)):
+
+- one process per document and tool;
+- five repetitions;
+- the document order shuffled in every repetition, the order of the tools rotated per document;
+- CPU set 0–7 of the Intel Core i9-14900KF (4 performance cores with their SMT siblings);
+- the files in the page cache before the block, reports on tmpfs;
+- a 120 s limit per process.
+
+Every tool pays its own start-up in every run: a JVM for veraPDF, a Python interpreter for outloud, a native binary
+for VellumPdf, cpdf and DoX-Validate. Processes start cold; the files are cached.
+
+| variant | binary and call |
+|---|---|
+| DoX-Validate, static build | `build-bench/dox-validate --format json --jobs 1 FILE`. Commit `8d20f79` (later commits change no source), Release build with `-DDOX_STATIC_DEPS=ON`: qpdf 12.4.2 and pugixml 1.16 linked statically ([ARCHITECTURE.md](ARCHITECTURE.md#shared-or-static-dependencies)); binary SHA-256 `3db3c8c3…` |
+| DoX-Validate, default build | the same commit and call, default build with the distribution's shared libqpdf 12.4.2; binary SHA-256 `21c7a061…` |
+| VellumPdf 2.3.3 | `vellum-preflight -p ua1 -f json FILE` (release binary) |
+| cpdf 2.9.3 | `cpdf -verify "PDF/UA-1(matterhorn)" -json FILE` |
+| outloud 0.2.1 | `outloud --layer conformance -q --json - FILE` |
+| veraPDF 1.30.4 | `verapdf -f ua1 --format json FILE`, Temurin JRE 21.0.13, no JVM options |
+
+Both runs used the same binaries; `env.json` of each run records their SHA-256. DoX-Validate evaluates its full
+catalogue in every run; the other tools check PDF/UA-1, cpdf a subset of it ([Scope](#scope-of-the-comparison)).
+Background load on the CPU set (CPU time of other processes): 5.2 % of capacity in the first run, 3.8 % in the
+second.
+
+### Combining the two runs
+
+The second run also measured 14 documents of the frozen corpus again (the "anchors", 1 to 2,000 pages, listed in the
+manifest). Per document and tool, the second run's median time divided by the first run's:
+
+| tool | time ratio: median (range) | peak RSS ratio: median (range) |
+|---|---|---|
+| DoX-Validate, static build | 0.989 (0.975–1.023) | 0.995 (0.944–1.008) |
+| DoX-Validate, default build | 0.992 (0.958–1.006) | 0.994 (0.948–1.002) |
+| VellumPdf | 1.006 (0.958–1.039) | 0.999 (0.988–1.016) |
+| cpdf | 0.998 (0.973–1.023) | 1.002 (0.987–1.016) |
+| outloud | 1.003 (0.971–1.020) | 0.999 (0.974–1.011) |
+| veraPDF | 0.995 (0.943–1.020) | 1.000 (0.889–1.054) |
+
+The runs agree within about 1 % per tool, and within 6 % for any single document's time. The charts therefore take
+the frozen-corpus documents from the first run and the added documents from the second. The anchors themselves are
+not plotted.
+
+### Aggregation
+
+- **Per document and tool:** the median wall time of the five repetitions, and the largest peak RSS (`ru_maxrss`,
+  MB = 2²⁰ bytes, as in the tables above).
+- **Page-count intervals:** 1, 2–4, 5–9, 10–19, 20–49, 50–99, 100–199, 200–499, 500–999 and 1000+ pages, chosen
+  from the distribution of the documents. They divide the range far more finely than the three size tiers of the
+  corpus (small ≤ 10, medium 11–299, large ≥ 300 pages), which the summary keeps.
+- **A point:** the median over the documents of the interval, drawn at their median page count. The band is the
+  interquartile range over those documents (inclusive quartiles). It shows how much documents of similar length
+  differ, not measurement noise; the five repetitions of a document differ far less.
+- **Drawing rule:** an interval with fewer than five documents would not be drawn, and no line would cross it; every
+  interval has at least five. Points are joined by straight lines; nothing is interpolated, smoothed or
+  extrapolated.
+- **Summary:** median time per size tier of the corpus; throughput as the pages of all 204 documents divided by the
+  sum of their median times (one process at a time); median and maximum peak RSS over all 204 documents.
+- **Colours:** DoX-Validate is drawn in the EqualDoX green. The other tools have colours whose order passes the
+  palette checks for common colour-vision deficiencies in both themes. Every line also has its own marker shape and
+  an end label, so no line is identified by colour alone.
+
+### Page count or file size
+
+The charts use the page count on the x-axis. The measurements do not show a better choice. Rank correlation
+(Spearman) and correlation of the logarithms (Pearson) of the per-document median time:
+
+| documents | tool | time ~ page count | time ~ file size |
+|---|---|---|---|
+| all 204 | DoX-Validate | 0.874 / 0.962 | 0.893 / 0.961 |
+| all 204 | VellumPdf | 0.878 / 0.966 | 0.884 / 0.944 |
+| all 204 | veraPDF | 0.854 / 0.894 | 0.812 / 0.873 |
+| 75 with 10+ pages | DoX-Validate | 0.827 / 0.817 | 0.862 / 0.874 |
+| 75 with 10+ pages | VellumPdf | 0.826 / 0.799 | 0.770 / 0.763 |
+| 75 with 10+ pages | outloud | 0.850 / 0.823 | 0.819 / 0.773 |
+
+- Over all documents, both measures predict run time about equally well.
+- Among the documents with 10 or more pages, file size is the slightly better predictor for DoX-Validate, cpdf and
+  veraPDF, and page count for VellumPdf and outloud.
+- Neither measure is clearly better. The page count is the quantity readers know about their documents, so the
+  charts use it.
+
+The full table, including memory, is in [`chart-tables.md`](charts/chart-tables.md#correlation-with-page-count-and-file-size).
+
+### Results
+
+**Time.**
+
+- **Per interval:** DoX-Validate (static build) has the lowest median time in every page-count interval. Against its
+  median, the others took:
+
+  | tool | median time per interval, relative to DoX-Validate |
+  |---|---|
+  | VellumPdf | 2.1 to 6.9 times as long |
+  | cpdf | 2.4 to 4.4 times |
+  | outloud | 12 to 180 times |
+  | veraPDF | 13 to 370 times |
+
+- **Per document:** it was fastest on 203 of the 204 documents. On `arxiv-2106.09685v2` (26 pages) VellumPdf took
+  78 ms and DoX-Validate 81 ms.
+
+**Memory.**
+
+- **Per interval:** DoX-Validate has the lowest median peak RSS in every interval. The others used:
+
+  | tool | median peak RSS per interval, relative to DoX-Validate |
+  |---|---|
+  | VellumPdf | 1.7 to 3.8 times as much |
+  | cpdf | 1.4 to 7.2 times |
+  | outloud | 3.2 to 10 times |
+  | veraPDF | 21 to 93 times |
+
+- **Per document:** it needed the least memory on 203 of the 204 documents. On `gen-large-2000-complex` (a generated,
+  tagged 2,000-page document) VellumPdf needed 114 MB and DoX-Validate 127 MB.
+
+**Default build.** With the distribution's shared libqpdf, DoX-Validate pays about 2 ms per process for loading
+GnuTLS, OpenSSL and their libraries:
+
+- **Small documents:** VellumPdf is faster than the default build on 96 of the 204 documents, all of 1 to 26
+  pages. In the 1-page interval the median is 3.4 ms against 3.8 ms.
+- **Memory:** the default build needs 16 MB where VellumPdf and cpdf need 13 MB, in the 1-page interval.
+- **From 20 pages on:** it is 5 to 11 % slower than the static build and still ahead of the other tools in every
+  interval.
+
+**Worst cases (peak RSS).** Largest peak RSS over the 204 documents:
+
+| tool | peak RSS | document |
+|---|---|---|
+| DoX-Validate, static build | 182 MB | nist-sp800-53Ar5 |
+| DoX-Validate, default build | 190 MB | nist-sp800-53Ar5 |
+| VellumPdf | 240 MB | nist-sp800-53Ar5 |
+| cpdf | 1,161 MB | nist-sp800-53Ar5 |
+| outloud | 537 MB | govinfo-uscode-2022-title26 |
+| veraPDF | 5,164 MB | nist-sp800-53Ar5 |
+
+The interquartile ranges of every interval are in [`chart-tables.md`](charts/chart-tables.md).
+
+### Reproducing the charts
+
+```sh
+python3 -I bench/charts.py                     # from the stored results: docs/charts/ (byte-identical output)
+
+# new measurements (commands also in bench/README.md):
+python3 -I bench/extension/fetch.py            # the added documents, sha256-verified, and the anchors
+python3 -I bench/bench.py env cold --cpus 0-7 --sample-cpu 16 --corpus bench/extension/.cache \
+    --cold-variants dox,dox-shared,vellum-ua1,outloud-conf,vp-ua1,cpdf-ua1 --results bench/results/extension-NEW
+python3 -I bench/charts.py --extension-run bench/results/extension-NEW
+```
+
+A new run should be compared with the stored one on the anchors (`chart-tables.md`, "Run-to-run comparison") before
+its documents are combined with the first run's.
+
+### Limits of the charts
+
+- **Different rule sets.** A faster tool is not a better validator. DoX-Validate evaluates more rules in every run
+  than any other tool here. Its accuracy is analysed separately ([PDF/UA-1 validators](#pdfua-1-validators-vellumpdf-and-outloud),
+  [`tests/corpus/CORRECTNESS.md`](../tests/corpus/CORRECTNESS.md)).
+- **Five of the tools that exist.** The comparison covers the tools that could be obtained and run unattended on
+  Linux; others were investigated and excluded ([Tools investigated but not benchmarked](#tools-investigated-but-not-benchmarked)).
+  The charts show no ranking among all PDF validators.
+- **The 1-page interval** holds 117 documents, 74 of them generated test files of the corpus. The other intervals hold
+  7 to 12 documents each, so their medians rest on few documents; the bands show their spread.
+- **Long documents are mostly untagged.** From 500 pages on, 3 of 20 documents are tagged. Tagging is what makes
+  DoX-Validate build and check a structure tree, so tagged long documents cost it more than these medians suggest.
+  `nist-sp800-53Ar5`, a tagged 733-page document, takes 1.1 s.
+- **Two runs on two days**, combined after the anchor check above. Same host, same binaries, same CPU set.
 
 ## Performance observations on dox-validate
 

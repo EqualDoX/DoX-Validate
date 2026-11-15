@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="630" viewBox="0 0 1000 630" role="img" aria-labelledby="t d" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif">
+<title id="t">Benchmark Summary</title>
+<desc id="d">Median validation time per size tier, throughput, and median and maximum peak memory, for each tool.</desc>
+<rect width="1000" height="630" fill="#ffffff"/>
+<text x="24" y="38" font-size="22" fill="#1f2328" text-anchor="start" font-weight="600">Benchmark Summary</text>
+<text x="24" y="60" font-size="14" fill="#59636e" text-anchor="start">Same 204 documents for every tool, one process per document; time and memory: lower is better, throughput: higher is better.</text>
+<text x="214" y="106" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Small PDFs (≤ 10 pages)</text>
+<text x="214" y="124" font-size="12.5" fill="#59636e" text-anchor="start">median time, 131 documents</text>
+<line x1="214" y1="136" x2="214" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="214" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">1 ms</text>
+<line x1="270" y1="136" x2="270" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="270" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">10 ms</text>
+<line x1="326" y1="136" x2="326" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="326" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">100 ms</text>
+<line x1="382" y1="136" x2="382" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="382" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">1 s</text>
+<text x="24" y="148.5" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="600">DoX-Validate</text>
+<line x1="214" y1="144" x2="226.6" y2="144" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="226.6" cy="144" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="236.6" y="148.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">1.7 ms</text>
+<text x="24" y="173.5" font-size="13.5" fill="#1f2328" text-anchor="start">DoX-Validate (default build)</text>
+<line x1="214" y1="169" x2="246.4" y2="169" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="246.4" cy="169" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="256.4" y="173.5" font-size="12.5" fill="#1f2328" text-anchor="start">3.8 ms</text>
+<text x="24" y="198.5" font-size="13.5" fill="#1f2328" text-anchor="start">VellumPdf</text>
+<line x1="214" y1="194" x2="244" y2="194" stroke="#e8ebef" stroke-width="1"/>
+<rect x="240" y="189.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="254" y="198.5" font-size="12.5" fill="#1f2328" text-anchor="start">3.4 ms</text>
+<text x="24" y="223.5" font-size="13.5" fill="#1f2328" text-anchor="start">cpdf</text>
+<line x1="214" y1="219" x2="254.1" y2="219" stroke="#e8ebef" stroke-width="1"/>
+<path d="M254.1 213.4L259.7 219L254.1 224.6L248.5 219Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="264.1" y="223.5" font-size="12.5" fill="#1f2328" text-anchor="start">5.2 ms</text>
+<text x="24" y="248.5" font-size="13.5" fill="#1f2328" text-anchor="start">outloud</text>
+<line x1="214" y1="244" x2="352.8" y2="244" stroke="#e8ebef" stroke-width="1"/>
+<path d="M352.8 238.4L358.4 248.5L347.2 248.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="362.8" y="248.5" font-size="12.5" fill="#1f2328" text-anchor="start">301 ms</text>
+<text x="24" y="273.5" font-size="13.5" fill="#1f2328" text-anchor="start">veraPDF</text>
+<line x1="214" y1="269" x2="370.3" y2="269" stroke="#e8ebef" stroke-width="1"/>
+<path d="M370.3 274.6L375.9 264.5L364.7 264.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="380.3" y="273.5" font-size="12.5" fill="#1f2328" text-anchor="start">618 ms</text>
+<text x="470" y="106" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Medium PDFs (11–299 pages)</text>
+<text x="470" y="124" font-size="12.5" fill="#59636e" text-anchor="start">median time, 49 documents</text>
+<line x1="470" y1="136" x2="470" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="470" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">10 ms</text>
+<line x1="526" y1="136" x2="526" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="526" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">100 ms</text>
+<line x1="582" y1="136" x2="582" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="582" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">1 s</text>
+<line x1="638" y1="136" x2="638" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="638" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">10 s</text>
+<line x1="470" y1="144" x2="503.7" y2="144" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="503.7" cy="144" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="513.7" y="148.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">40 ms</text>
+<line x1="470" y1="169" x2="505.9" y2="169" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="505.9" cy="169" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="515.9" y="173.5" font-size="12.5" fill="#1f2328" text-anchor="start">44 ms</text>
+<line x1="470" y1="194" x2="543.1" y2="194" stroke="#e8ebef" stroke-width="1"/>
+<rect x="539" y="189.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="553.1" y="198.5" font-size="12.5" fill="#1f2328" text-anchor="start">202 ms</text>
+<line x1="470" y1="219" x2="530.6" y2="219" stroke="#e8ebef" stroke-width="1"/>
+<path d="M530.6 213.4L536.2 219L530.6 224.6L525 219Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="540.6" y="223.5" font-size="12.5" fill="#1f2328" text-anchor="start">121 ms</text>
+<line x1="470" y1="244" x2="576" y2="244" stroke="#e8ebef" stroke-width="1"/>
+<path d="M576 238.4L581.6 248.5L570.4 248.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="586" y="248.5" font-size="12.5" fill="#1f2328" text-anchor="start">781 ms</text>
+<line x1="470" y1="269" x2="586.7" y2="269" stroke="#e8ebef" stroke-width="1"/>
+<path d="M586.7 274.6L592.3 264.5L581.1 264.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="596.7" y="273.5" font-size="12.5" fill="#1f2328" text-anchor="start">1.2 s</text>
+<text x="726" y="106" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Large PDFs (≥ 300 pages)</text>
+<text x="726" y="124" font-size="12.5" fill="#59636e" text-anchor="start">median time, 24 documents</text>
+<line x1="726" y1="136" x2="726" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="726" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">100 ms</text>
+<line x1="810" y1="136" x2="810" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="810" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">1 s</text>
+<line x1="894" y1="136" x2="894" y2="277" stroke="#e8ebef" stroke-width="1"/>
+<text x="894" y="295" font-size="11.5" fill="#59636e" text-anchor="middle">10 s</text>
+<line x1="726" y1="144" x2="760.1" y2="144" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="760.1" cy="144" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="770.1" y="148.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">254 ms</text>
+<line x1="726" y1="169" x2="761.8" y2="169" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="761.8" cy="169" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="771.8" y="173.5" font-size="12.5" fill="#1f2328" text-anchor="start">267 ms</text>
+<line x1="726" y1="194" x2="819.6" y2="194" stroke="#e8ebef" stroke-width="1"/>
+<rect x="815.5" y="189.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="829.6" y="198.5" font-size="12.5" fill="#1f2328" text-anchor="start">1.3 s</text>
+<line x1="726" y1="219" x2="811" y2="219" stroke="#e8ebef" stroke-width="1"/>
+<path d="M811 213.4L816.6 219L811 224.6L805.4 219Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="821" y="223.5" font-size="12.5" fill="#1f2328" text-anchor="start">1.0 s</text>
+<line x1="726" y1="244" x2="854.3" y2="244" stroke="#e8ebef" stroke-width="1"/>
+<path d="M854.3 238.4L859.9 248.5L848.7 248.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="864.3" y="248.5" font-size="12.5" fill="#1f2328" text-anchor="start">3.4 s</text>
+<line x1="726" y1="269" x2="847.6" y2="269" stroke="#e8ebef" stroke-width="1"/>
+<path d="M847.6 274.6L853.2 264.5L841.9 264.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="857.6" y="273.5" font-size="12.5" fill="#1f2328" text-anchor="start">2.8 s</text>
+<text x="214" y="356" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Throughput</text>
+<text x="214" y="374" font-size="12.5" fill="#59636e" text-anchor="start">pages per second, 32,305 pages</text>
+<line x1="214" y1="386" x2="214" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="214" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">100</text>
+<line x1="298" y1="386" x2="298" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="298" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">1,000</text>
+<line x1="382" y1="386" x2="382" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="382" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">10,000</text>
+<text x="24" y="398.5" font-size="13.5" fill="#1f2328" text-anchor="start" font-weight="600">DoX-Validate</text>
+<line x1="214" y1="394" x2="332.3" y2="394" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="332.3" cy="394" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="342.3" y="398.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">2,562</text>
+<text x="24" y="423.5" font-size="13.5" fill="#1f2328" text-anchor="start">DoX-Validate (default build)</text>
+<line x1="214" y1="419" x2="329.5" y2="419" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="329.5" cy="419" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="339.5" y="423.5" font-size="12.5" fill="#1f2328" text-anchor="start">2,374</text>
+<text x="24" y="448.5" font-size="13.5" fill="#1f2328" text-anchor="start">VellumPdf</text>
+<line x1="214" y1="444" x2="266.1" y2="444" stroke="#e8ebef" stroke-width="1"/>
+<rect x="262.1" y="439.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="276.1" y="448.5" font-size="12.5" fill="#1f2328" text-anchor="start">417</text>
+<text x="24" y="473.5" font-size="13.5" fill="#1f2328" text-anchor="start">cpdf</text>
+<line x1="214" y1="469" x2="280.1" y2="469" stroke="#e8ebef" stroke-width="1"/>
+<path d="M280.1 463.4L285.7 469L280.1 474.6L274.5 469Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="290.1" y="473.5" font-size="12.5" fill="#1f2328" text-anchor="start">612</text>
+<text x="24" y="498.5" font-size="13.5" fill="#1f2328" text-anchor="start">outloud</text>
+<line x1="214" y1="494" x2="227.1" y2="494" stroke="#e8ebef" stroke-width="1"/>
+<path d="M227.1 488.4L232.7 498.5L221.4 498.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="237.1" y="498.5" font-size="12.5" fill="#1f2328" text-anchor="start">143</text>
+<text x="24" y="523.5" font-size="13.5" fill="#1f2328" text-anchor="start">veraPDF</text>
+<line x1="214" y1="519" x2="223.8" y2="519" stroke="#e8ebef" stroke-width="1"/>
+<path d="M223.8 524.6L229.4 514.5L218.2 514.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="233.8" y="523.5" font-size="12.5" fill="#1f2328" text-anchor="start">131</text>
+<text x="470" y="356" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Median peak memory</text>
+<text x="470" y="374" font-size="12.5" fill="#59636e" text-anchor="start">resident set size (RSS)</text>
+<line x1="470" y1="386" x2="470" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="470" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">1 MB</text>
+<line x1="526" y1="386" x2="526" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="526" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">10 MB</text>
+<line x1="582" y1="386" x2="582" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="582" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">100 MB</text>
+<line x1="638" y1="386" x2="638" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="638" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">1,000 MB</text>
+<line x1="470" y1="394" x2="521.4" y2="394" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="521.4" cy="394" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="531.4" y="398.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">8.3 MB</text>
+<line x1="470" y1="419" x2="537.9" y2="419" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="537.9" cy="419" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="547.9" y="423.5" font-size="12.5" fill="#1f2328" text-anchor="start">16 MB</text>
+<line x1="470" y1="444" x2="536.5" y2="444" stroke="#e8ebef" stroke-width="1"/>
+<rect x="532.5" y="439.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="546.5" y="448.5" font-size="12.5" fill="#1f2328" text-anchor="start">15 MB</text>
+<line x1="470" y1="469" x2="533" y2="469" stroke="#e8ebef" stroke-width="1"/>
+<path d="M533 463.4L538.6 469L533 474.6L527.3 469Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="543" y="473.5" font-size="12.5" fill="#1f2328" text-anchor="start">13 MB</text>
+<line x1="470" y1="494" x2="576.1" y2="494" stroke="#e8ebef" stroke-width="1"/>
+<path d="M576.1 488.4L581.7 498.5L570.5 498.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="586.1" y="498.5" font-size="12.5" fill="#1f2328" text-anchor="start">78 MB</text>
+<line x1="470" y1="519" x2="603.3" y2="519" stroke="#e8ebef" stroke-width="1"/>
+<path d="M603.3 524.6L609 514.5L597.7 514.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="613.3" y="523.5" font-size="12.5" fill="#1f2328" text-anchor="start">240 MB</text>
+<text x="726" y="356" font-size="14.5" fill="#1f2328" text-anchor="start" font-weight="600">Maximum peak memory</text>
+<text x="726" y="374" font-size="12.5" fill="#59636e" text-anchor="start">largest RSS over all documents</text>
+<line x1="726" y1="386" x2="726" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="726" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">100 MB</text>
+<line x1="810" y1="386" x2="810" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="810" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">1,000 MB</text>
+<line x1="894" y1="386" x2="894" y2="527" stroke="#e8ebef" stroke-width="1"/>
+<text x="894" y="545" font-size="11.5" fill="#59636e" text-anchor="middle">10,000 MB</text>
+<line x1="726" y1="394" x2="747.9" y2="394" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="747.9" cy="394" r="5" fill="#16a34a" stroke="#ffffff" stroke-width="2"/>
+<text x="757.9" y="398.5" font-size="12.5" fill="#1f2328" text-anchor="start" font-weight="600">182 MB</text>
+<line x1="726" y1="419" x2="749.5" y2="419" stroke="#e8ebef" stroke-width="1"/>
+<circle cx="749.5" cy="419" r="4.5" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="759.5" y="423.5" font-size="12.5" fill="#1f2328" text-anchor="start">190 MB</text>
+<line x1="726" y1="444" x2="758" y2="444" stroke="#e8ebef" stroke-width="1"/>
+<rect x="754" y="439.9" width="8.1" height="8.1" fill="#6250d6" stroke="#ffffff" stroke-width="2"/>
+<text x="768" y="448.5" font-size="12.5" fill="#1f2328" text-anchor="start">240 MB</text>
+<line x1="726" y1="469" x2="815.4" y2="469" stroke="#e8ebef" stroke-width="1"/>
+<path d="M815.4 463.4L821.1 469L815.4 474.6L809.8 469Z" fill="#e87ba4" stroke="#ffffff" stroke-width="2"/>
+<text x="825.4" y="473.5" font-size="12.5" fill="#1f2328" text-anchor="start">1,161 MB</text>
+<line x1="726" y1="494" x2="787.3" y2="494" stroke="#e8ebef" stroke-width="1"/>
+<path d="M787.3 488.4L793 498.5L781.7 498.5Z" fill="#2a78d6" stroke="#ffffff" stroke-width="2"/>
+<text x="797.3" y="498.5" font-size="12.5" fill="#1f2328" text-anchor="start">537 MB</text>
+<line x1="726" y1="519" x2="869.9" y2="519" stroke="#e8ebef" stroke-width="1"/>
+<path d="M869.9 524.6L875.5 514.5L864.3 514.5Z" fill="#e34948" stroke="#ffffff" stroke-width="2"/>
+<text x="879.9" y="523.5" font-size="12.5" fill="#1f2328" text-anchor="start">5,164 MB</text>
+<text x="24" y="594" font-size="12" fill="#59636e" text-anchor="start">Log scales; size tiers as in the test corpus. Tools check different rule sets: DoX-Validate its full catalogue (PDF/UA-1, PDF/UA-2, WTPDF,</text>
+<text x="24" y="611" font-size="12" fill="#59636e" text-anchor="start">PAC-equivalent and WCAG checks), the others PDF/UA-1. Method and data: docs/BENCHMARKS.md; regenerated with bench/charts.py.</text>
+</svg>
