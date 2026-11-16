@@ -118,7 +118,13 @@ checked and excluded. No numbers are reported for them.
 ### PAC (PDF Accessibility Checker)
 
 PAC is the most direct counterpart to dox-validate's PAC-equivalent checks. It was investigated in detail (2026-11-14).
-No PAC numbers are reported, for the reasons below.
+No speed or memory figures are reported for PAC, for the reasons below.
+
+PAC's detection quality was measured separately (2026-11-16) on veraPDF's PDF/UA-1 test suite, the same 297 files
+as for the other validators. PAC 26.1 detected 98 of 156 fail files and flagged 11 of 141 pass files for their
+tested requirement. Each read-out was checked against PAC's own exported report. The method, the matching rules, the
+four files without a PAC result and every finding are in
+[bench/results/pac-ua1-2026-11-16](../bench/results/pac-ua1-2026-11-16/README.md).
 
 **Version and interface.** The current release is **PAC 2026.1 (26.1.0.0)**, free of charge from
 pac.pdf-accessibility.org, for Windows only (it requires .NET Framework 4.8).

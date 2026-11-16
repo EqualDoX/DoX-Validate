@@ -68,8 +68,10 @@ How to read these results:
 - **Left out:** 14 of 218 documents, because not every tool processed them. They are broken or encrypted test files,
   three LibreOffice documents on which cpdf reached the 120 s limit, one budget volume that veraPDF refused, and one
   damaged CDC report that DoX-Validate validated only as reconstructed, with every rule incomplete.
-- **Not benchmarked:** PAC, a Windows-only program without a command-line interface. Other tools that were checked
-  and excluded are listed in the benchmark documentation.
+- **Not benchmarked for speed:** PAC, a Windows-only program without a command-line interface. Its detection quality
+  on veraPDF's PDF/UA-1 test suite was measured: see
+  [bench/results/pac-ua1-2026-11-16](bench/results/pac-ua1-2026-11-16/README.md). Other tools that were checked and
+  excluded are listed in the benchmark documentation.
 
 Method, environment, every measurement, the worst cases, and how to repeat the runs and redraw the charts:
 [docs/BENCHMARKS.md](docs/BENCHMARKS.md#charts-validation-time-and-memory-by-page-count). Scripts and raw data:
