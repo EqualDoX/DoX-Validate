@@ -139,9 +139,10 @@ PacLang pac_check(const std::optional<std::u32string>& value) {
     // about the "i-" prefix, so they are classed with the registrations (warning) rather than as errors.
     if (sub[0] == "i") return sub.size() >= 2 ? PacLang::IanaRegistered : PacLang::Syntax;
     if (!well_formed_langtag(sub)) return PacLang::Syntax;
-    // Unknown primary language subtags are reported as a syntax error by PAC 26.1 (probes 'zz', 'zzz', 'qaa',
-    // 'abcde'); the separate "primary subtag is unknown" condition was never observed.
-    if (!is_registered_language(sub[0])) return PacLang::Syntax;
+    // PAC 26.1 shows unknown primary language subtags under its syntax condition (probes 'zz', 'zzz', 'qaa',
+    // 'abcde'); its separate "primary subtag is unknown" condition was never observed. The tag is well-formed, so
+    // the two cases are kept apart here and the caller reports each for what it is.
+    if (!is_registered_language(sub[0])) return PacLang::Unregistered;
     return PacLang::Valid;
 }
 

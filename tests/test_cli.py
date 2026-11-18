@@ -40,7 +40,7 @@ def test_list_rules():
     rows = [line.split("\t") for line in lines]
     assert all(len(x) == 4 for x in rows)
     ids = [x[0] for x in rows]
-    assert len(ids) == len(set(ids)) == 2008
+    assert len(ids) == len(set(ids)) == 2009
     assert {x[1] for x in rows} == {"error", "warning"}
     assert all(x[2] for x in rows), "every rule has an owning module"
     assert catalogue()["EQX-WCAG-1.4.3-TextContrast"][0] == "error"

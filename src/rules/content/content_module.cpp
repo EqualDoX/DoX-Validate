@@ -4,6 +4,9 @@
 // veraPDF semantics reproduced (1.30.2, validation-model):
 //   7.1-1 / 7.1-2   SEMarkedContent: tag, isTaggedContent (structure parent reaches the StructTreeRoot via
 //                   /P), parentsTags (stream-inherited tags + frame chain + own tag)       GFSEMarkedContent
+//                   7.1-2 deliberately differs: it is reported only where tagged content begins inside an Artifact
+//                   (ContentModel::tagged_from_inside_artifact), not for an Artifact nested in tagged content,
+//                   which is 7.1-1 alone.
 //   7.1-3 / 8.2.2-1 SESimpleContentItem: isTaggedContent || parentsTags contains Artifact  GFSESimpleContentItem
 //   7.2-30..32      SEMarkedContent with tag Span and ActualText / Alt / E, no Lang, no inherited Lang
 //   7.2-34          SETextItem: catalog /Lang string or a Lang value (own, inherited, default)  GFSETextItem
@@ -540,7 +543,11 @@ private:
             std::string where = "/" + f.tag + (f.mcid ? " MCID " + std::to_string(*f.mcid) : std::string()) +
                                 " (operator " + std::to_string(f.begin_op) + ")";
             if (f.tag == "Artifact") ctx.report(r711, s.page, s.ref, "Artifact sequence inside tagged content " + where);
-            if (cm.parents_tags_contain(f.stream, static_cast<int>(i), "Artifact"))
+            // 7.1-2 is the opposite nesting (Matterhorn 01-004 next to 01-003): content that became tagged content
+            // inside an Artifact. veraPDF's test (parentsTags, which holds the sequence's own tag) also fires for
+            // every Artifact sequence that 7.1-1 reports, and for the sequences inside it: one defect under both
+            // rules. That part is not reproduced; what remains is the nesting the rule is about.
+            if (cm.tagged_from_inside_artifact(f.stream, static_cast<int>(i)))
                 ctx.report(r712, s.page, s.ref, "tagged content inside an Artifact " + where);
         }
         // One location per stream instance: the number of untagged items per kind and the first operator.

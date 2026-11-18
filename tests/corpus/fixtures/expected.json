@@ -387,7 +387,8 @@
    "purpose": "An Artifact sequence nested inside tagged content.",
    "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A P element's marked-content sequence contains a nested /Artifact BMC ... EMC.",
    "normative_basis": [
-    "ISO 14289-1 7.1 paragraph 2 (content marked as Artifact should not be inside tagged content); Matterhorn 01-003"
+    "ISO 14289-1 7.1 paragraph 2 (content marked as Artifact should not be inside tagged content); Matterhorn 01-003",
+    "The nested Artifact contains no tagged content, so Matterhorn 01-004 (tagged content inside content marked as Artifact) is not violated; veraPDF 1.30.2 reports its 7.1-2 for this file too"
    ],
    "expectation_source": "construction",
    "must_report": [
@@ -399,7 +400,9 @@
     "EQX-WTPDF-6.1.3-1"
    ],
    "must_report_any": [],
-   "must_not_report": [],
+   "must_not_report": [
+    "EQX-UA1-7.1-2"
+   ],
    "may_report": [],
    "exclusive_prefixes": [
     "EQX-UA1-"
@@ -428,12 +431,7 @@
    },
    "tagged": true,
    "size_tier": "small",
-   "known_deviations": [
-    {
-     "rule": "EQX-UA1-7.1-2",
-     "reason": "the nested Artifact contains no tagged content, so clause 7.1 'tagged content shall not be present inside content marked as Artifact' is not violated; veraPDF 1.30.2 reports 7.1-2 for this file too (dox-validate reproduces it by design), see CORRECTNESS.md"
-    }
-   ],
+   "known_deviations": [],
    "sha256": "f78919b6788301c0083d5ca6063df875537fc109d8ebcd62d6111cb4879eeac8",
    "bytes": 32610
   },
@@ -443,7 +441,8 @@
    "purpose": "Tagged content nested inside an Artifact sequence.",
    "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: A P element owns an MCID whose sequence is nested inside /Artifact BDC ... EMC.",
    "normative_basis": [
-    "ISO 14289-1 7.1 paragraph 2 (tagged content should not be inside content marked as Artifact); Matterhorn 01-004"
+    "ISO 14289-1 7.1 paragraph 2 (tagged content should not be inside content marked as Artifact); Matterhorn 01-004",
+    "No Artifact lies inside tagged content, so Matterhorn 01-003 is not violated"
    ],
    "expectation_source": "construction",
    "must_report": [
@@ -455,7 +454,9 @@
     "EQX-WTPDF-6.1.3-1"
    ],
    "must_report_any": [],
-   "must_not_report": [],
+   "must_not_report": [
+    "EQX-UA1-7.1-1"
+   ],
    "may_report": [
     "EQX-PAC-FailMarkedContentIsInLegalPosition"
    ],
@@ -1842,13 +1843,15 @@
    "purpose": "No natural language anywhere.",
    "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: No /Lang in the Catalog or on any element; XMP dc:title only x-default.",
    "normative_basis": [
-    "ISO 14289-1 7.2 (natural language shall be determined); Matterhorn 11-001 (page content), 11-002 (Alt), 11-004 (outline), 11-005 (metadata); WCAG 2.x 3.1.1 Language of Page (level A)"
+    "ISO 14289-1 7.2 (natural language shall be determined); Matterhorn 11-001 (page content), 11-002 (Alt), 11-004 (outline), 11-005 (metadata); WCAG 2.x 3.1.1 Language of Page (level A)",
+    "A missing Lang is not a malformed Lang value: 7.2-29 does not apply; PAC ValidLanguage (document language missing)"
    ],
    "expectation_source": "construction",
    "must_report": [
     "EQX-UA1-7.2-34",
     "EQX-UA1-7.2-22",
     "EQX-UA1-7.2-2",
+    "EQX-PAC-FailValidLanguageSyntax",
     "EQX-UA2-5-2",
     "EQX-UA2-5-5",
     "EQX-UA2-8.2.5.2-2",
@@ -1856,14 +1859,15 @@
     "EQX-WTPDF-6.1.3-1"
    ],
    "must_report_any": [],
-   "must_not_report": [],
+   "must_not_report": [
+    "EQX-UA1-7.2-29"
+   ],
    "may_report": [
     "EQX-UA1-7.2-33",
     "EQX-UA1-7.2-24",
     "EQX-UA1-7.2-25",
     "EQX-PAC-FailAltTextHasLanguage",
-    "EQX-UA2-8.4.4-1",
-    "EQX-UA1-7.2-29"
+    "EQX-UA2-8.4.4-1"
    ],
    "exclusive_prefixes": [
     "EQX-UA1-"
@@ -1905,7 +1909,7 @@
    "purpose": "A syntactically invalid language tag.",
    "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (en_US!) (underscore and '!' are not BCP 47).",
    "normative_basis": [
-    "ISO 14289-1 7.2 + ISO 32000-1 14.9.2 (Lang is a language identifier per RFC 3066/BCP 47); veraPDF 7.2-29"
+    "ISO 14289-1 7.2 + ISO 32000-1 14.9.2.2: a Lang value is a Language-Tag as defined in RFC 3066 (grammar of RFC 3066 2.1); veraPDF 7.2-29: '_' and '!' are outside the grammar"
    ],
    "expectation_source": "construction",
    "must_report": [
@@ -1917,7 +1921,10 @@
     "EQX-WTPDF-6.1.3-1"
    ],
    "must_report_any": [],
-   "must_not_report": [],
+   "must_not_report": [
+    "EQX-PAC-FailValidLanguagePrimaryTagOther",
+    "EQX-PAC-FailValidLanguageSyntax"
+   ],
    "may_report": [
     "EQX-UA1-7.2-34",
     "EQX-UA1-7.2-22",
@@ -1925,7 +1932,6 @@
     "EQX-UA1-7.2-33",
     "EQX-UA1-7.2-24",
     "EQX-UA1-7.2-25",
-    "EQX-PAC-FailValidLanguagePrimaryTagOther",
     "EQX-PAC-FailAltTextHasLanguage"
    ],
    "exclusive_prefixes": [
@@ -1965,7 +1971,8 @@
    "purpose": "A private-use language tag.",
    "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (x-corpus).",
    "normative_basis": [
-    "RFC 5646 2.2.7 (x- private use); PAC ValidLanguagePrimaryTagX"
+    "ISO 14289-1 7.2 + ISO 32000-1 14.9.2.2: a Lang value is a Language-Tag as defined in RFC 3066 (grammar of RFC 3066 2.1); veraPDF 7.2-29: 'x-corpus' is a Language-Tag, and RFC 3066 2.2 reserves 'x' for private use, so PDF/UA-1 is met",
+    "RFC 5646 2.2.7 (x- private use); PAC ValidLanguagePrimaryTagX; WCAG 2.x 3.1.1 (the language cannot be programmatically determined from a private tag)"
    ],
    "expectation_source": "construction",
    "must_report": [
@@ -1977,63 +1984,10 @@
     "EQX-WTPDF-6.1.3-1"
    ],
    "must_report_any": [],
-   "must_not_report": [],
-   "may_report": [],
-   "exclusive_prefixes": [],
-   "deciding_targets": [
-    "pdfua-1",
-    "wcag-2.1-AA"
-   ],
-   "exit_code": [
-    1
-   ],
-   "result": [
-    "errors_found"
-   ],
-   "any_basis": {
-    "exit_code": [
-     1
-    ],
-    "result": [
-     "errors_found"
-    ]
-   },
-   "processed": true,
-   "assessments": {
-    "pdfua-1": "fail"
-   },
-   "tagged": true,
-   "size_tier": "small",
-   "known_deviations": [],
-   "sha256": "25364c87888b8544416a1cd2c20f4886d35a498287e03bd83eff3e3cf583c204",
-   "bytes": 32370
-  },
-  {
-   "id": "lang-unknown-primary",
-   "file": "lang-unknown-primary.pdf",
-   "purpose": "A well-formed tag with an unregistered primary subtag.",
-   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (zz-ZZ).",
-   "normative_basis": [
-    "RFC 5646 / IANA language subtag registry ('zz' is not registered); PAC 'primary subtag is unknown'"
-   ],
-   "expectation_source": "construction",
-   "must_report": [
-    "EQX-UA2-5-2",
-    "EQX-UA2-5-5",
-    "EQX-UA2-8.2.5.2-2",
-    "EQX-WTPDF-6.1.2-1",
-    "EQX-WTPDF-6.1.3-1"
-   ],
-   "must_report_any": [
-    [
-     "EQX-PAC-FailValidLanguagePrimaryTagOther",
-     "EQX-UA1-7.2-29"
-    ]
-   ],
-   "must_not_report": [],
-   "may_report": [
+   "must_not_report": [
     "EQX-UA1-7.2-29"
    ],
+   "may_report": [],
    "exclusive_prefixes": [
     "EQX-UA1-"
    ],
@@ -2057,7 +2011,67 @@
    },
    "processed": true,
    "assessments": {
-    "pdfua-1": "fail"
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.0-A": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail"
+   },
+   "tagged": true,
+   "size_tier": "small",
+   "known_deviations": [],
+   "sha256": "25364c87888b8544416a1cd2c20f4886d35a498287e03bd83eff3e3cf583c204",
+   "bytes": 32370
+  },
+  {
+   "id": "lang-unknown-primary",
+   "file": "lang-unknown-primary.pdf",
+   "purpose": "A well-formed tag with an unregistered primary subtag.",
+   "construction": "One-page tagged PDF 1.7 article (H1, P, Figure with Alt and BBox, H2, P, Table with TH/Scope, L/LI/Lbl/LBody, Link with OBJR and /Contents, text field with /TU in a Form element); every content item is either marked content owned by a structure element (MCID + ParentTree) or an Artifact; Catalog /Lang en-US, /MarkInfo /Marked true, /ViewerPreferences /DisplayDocTitle true, XMP dc:title + pdfuaid:part 1, outline entries for the headings, embedded TrueType fonts (Corpus Sans) with WinAnsiEncoding and ToUnicode, /Tabs /S on the page with annotations. Change: Catalog /Lang (zz-ZZ).",
+   "normative_basis": [
+    "ISO 14289-1 7.2 + ISO 32000-1 14.9.2.2: a Lang value is a Language-Tag as defined in RFC 3066 (grammar of RFC 3066 2.1); veraPDF 7.2-29: 'zz-ZZ' is a Language-Tag, so PDF/UA-1 is met",
+    "RFC 5646 / IANA language subtag registry ('zz' is not registered); PAC 'primary subtag is unknown'; WCAG 2.x 3.1.1 (the language cannot be programmatically determined from an unassigned code)"
+   ],
+   "expectation_source": "construction",
+   "must_report": [
+    "EQX-PAC-FailValidLanguagePrimaryTagOther",
+    "EQX-UA2-5-2",
+    "EQX-UA2-5-5",
+    "EQX-UA2-8.2.5.2-2",
+    "EQX-WTPDF-6.1.2-1",
+    "EQX-WTPDF-6.1.3-1"
+   ],
+   "must_report_any": [],
+   "must_not_report": [
+    "EQX-UA1-7.2-29"
+   ],
+   "may_report": [],
+   "exclusive_prefixes": [
+    "EQX-UA1-"
+   ],
+   "deciding_targets": [
+    "pdfua-1",
+    "wcag-2.1-AA"
+   ],
+   "exit_code": [
+    1
+   ],
+   "result": [
+    "errors_found"
+   ],
+   "any_basis": {
+    "exit_code": [
+     1
+    ],
+    "result": [
+     "errors_found"
+    ]
+   },
+   "processed": true,
+   "assessments": {
+    "pdfua-1": "automated_pass_manual_required",
+    "wcag-2.0-A": "fail",
+    "wcag-2.1-AA": "fail",
+    "wcag-2.2-AA": "fail"
    },
    "tagged": true,
    "size_tier": "small",

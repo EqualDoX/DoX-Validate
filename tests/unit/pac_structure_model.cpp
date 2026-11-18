@@ -76,6 +76,25 @@ EQX_TEST(pac_structure_strict_containers) {
     EXPECT(cls("NonStruct", "TR") == Cond::None);
 }
 
+EQX_TEST(pac_structure_private_content) {
+    // TR(TD, TD, Private(P)): PAC fails the Private once and not the P inside it. The Private is the misplaced
+    // element in every parent with a fixed content model; its direct content is not failed against that parent again.
+    for (auto parent : {"TR", "L", "Table", "THead", "TBody", "TFoot", "TOC"}) {
+        EXPECT(cls("Private", parent) == Cond::Invalid);
+        for (auto kid : {"P", "H1", "Span", "Figure", "Sect", "L", "Table"}) EXPECT(cls(kid, "Private", parent) == Cond::None);
+    }
+    // The same element directly in the parent, or under a NonStruct (which has no check of its own), still fails.
+    EXPECT(cls("P", "TR") == Cond::Invalid);
+    EXPECT(cls("P", "NonStruct", "TR") == Cond::Invalid);
+    EXPECT(cls("Span", "NonStruct", "L") == Cond::Invalid);
+    // Types with a fixed parent are judged by where the Private stands, as before.
+    EXPECT(cls("TD", "Private", "TR") == Cond::None);
+    EXPECT(cls("TD", "Private", "Table") == Cond::Invalid);
+    EXPECT(cls("LI", "Private", "L") == Cond::None);
+    EXPECT(cls("LI", "Private", "TR") == Cond::Invalid);
+    EXPECT(cls("TR", "Private", "Table", "Sect") == Cond::None);
+}
+
 EQX_TEST(pac_structure_fixed_parents) {
     EXPECT(cls("TOCI", "Sect") == Cond::Invalid);
     EXPECT(cls("TOCI", "TOC") == Cond::None);

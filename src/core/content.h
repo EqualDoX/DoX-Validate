@@ -80,6 +80,10 @@ struct StreamInstance {
     bool semantic = false;         // veraPDF semantic stream = isRealContent
     Obj parent_struct_elem;        // stream-level structure parent (veraPDF GFPDContentStream.parentStructElem)
     bool inherited_artifact = false;                 // an invoking stream's open marked content is tagged Artifact
+    // parent_struct_elem was established inside an Artifact: the stream is a content item of its own and was painted
+    // inside one, or the marked-content sequence whose MCID gave the structure parent is one or lies inside one
+    // (ContentModel::tagged_from_inside_artifact).
+    bool struct_origin_artifact = false;
     std::optional<std::int64_t> struct_parent;       // StructureElementAccessObject of the stream's owner
     std::optional<std::int64_t> struct_parents;
     std::optional<std::string> default_lang;         // annotation appearance: the annotation's /Lang
@@ -649,6 +653,11 @@ public:
     // parentsTags of a frame (stream-level inherited tags + tags of the frame chain).
     std::vector<std::string> parents_tags(int stream, int frame) const;   // walks the invoking streams
     bool parents_tags_contain(int stream, int frame, std::string_view tag) const;
+    // Whether the content of a frame became tagged content inside an Artifact: the place that gives the frame its
+    // structure parent (item_struct_parent) - the marked-content sequence carrying the MCID, or the Do that painted a
+    // form which is a content item itself - is an Artifact sequence or lies inside one. An Artifact sequence that is
+    // merely nested inside tagged content is the opposite nesting (Matterhorn 01-003, not 01-004) and gives false.
+    bool tagged_from_inside_artifact(int stream, int frame) const;
     // getLangValue of a frame / unmarked content (own Lang, inherited Lang, stream default language).
     std::optional<std::string> lang_value(const StructTree& st, int stream, int frame) const;
     // Inherited ActualText / Alt along the frame chain (veraPDF getInheritedStringAttribute).

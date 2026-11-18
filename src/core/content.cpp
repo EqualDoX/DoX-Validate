@@ -251,6 +251,14 @@ bool ContentModel::parents_tags_contain(int stream, int frame, std::string_view 
     return false;
 }
 
+bool ContentModel::tagged_from_inside_artifact(int stream, int frame) const {
+    // The sequence that carries the MCID of the structure parent decides, together with what encloses it. Sequences
+    // between it and the frame, the frame's own tag included, lie inside the tagged content and do not count.
+    for (int f = frame; f >= 0; f = frames[f].parent)
+        if (frames[f].own_struct_elem.isDictionary()) return parents_tags_contain(stream, f, "Artifact");
+    return streams[stream].struct_origin_artifact;
+}
+
 std::optional<std::string> ContentModel::lang_value(const StructTree& st, int stream, int frame) const {
     // GFSEMarkedContent.getLangValue: own Lang, else inherited Lang (structure parent of the own MCID,
     // then the enclosing frames), else the stream's default language.
@@ -815,12 +823,21 @@ void Interpreter::do_xobject(int si, std::uint32_t op_index, int frame, const st
     std::optional<std::int64_t> mcid = frame >= 0 ? m_.inherited_mcid(frame) : std::nullopt;
     Obj pse = Obj::newNull();
     if (mcid || parent.struct_parent) pse = st_.struct_elem_for_mcid(parent.struct_parent, parent.struct_parents, mcid);
+    // Where that structure parent was established (StreamInstance::struct_origin_artifact): at the marked-content
+    // sequence whose MCID gave it, else wherever the invoking stream got its own.
+    bool pse_in_artifact = parent.struct_origin_artifact;
+    if (mcid && pse.isDictionary()) {
+        int g = frame;
+        while (!m_.frames[g].mcid) g = m_.frames[g].parent;
+        pse_in_artifact = m_.parents_tags_contain(si, g, "Artifact");
+    }
     if (!pse.isDictionary()) pse = parent.parent_struct_elem;
     const bool in_artifact = m_.parents_tags_contain(si, frame, "Artifact");
     // Same stream, same structure parent, same tags and text state: another reading can only repeat the findings.
     {
         const ObjRef pr = ref_of(pse);
-        std::uint64_t ctx = 3 + (parent.semantic ? 8u : 0u) + (in_artifact ? 16u : 0u) + (static_cast<std::uint64_t>(gs.tr & 7) << 5);
+        std::uint64_t ctx = 3 + (parent.semantic ? 8u : 0u) + (in_artifact ? 16u : 0u) + (static_cast<std::uint64_t>(gs.tr & 7) << 5) +
+                            (pse_in_artifact ? 256u : 0u);
         ctx ^= (pr.valid() ? pr.key() : 0x5bd1e995u) * 0xC2B2AE3D27D4EB4Full;
         ctx ^= reinterpret_cast<std::uintptr_t>(gs.font) * 0x165667B19E3779F9ull;
         if (!admit(xr, ctx)) return;
@@ -845,6 +862,8 @@ void Interpreter::do_xobject(int si, std::uint32_t op_index, int frame, const st
     Obj own = s.struct_parent ? st_.struct_elem_for_mcid(s.struct_parent, s.struct_parents, std::nullopt)
                               : Obj::newNull();
     s.parent_struct_elem = own.isDictionary() ? own : pse;
+    // A form that is a content item itself becomes tagged content where it is painted.
+    s.struct_origin_artifact = own.isDictionary() ? in_artifact : pse_in_artifact;
     int idx = add_stream(std::move(s));
     if (xr.valid() && active_.count(xr.key())) {
         m_.streams[idx].loop_skipped = true;

@@ -63,3 +63,22 @@ def test_verapdf_suite_verdict(doc):
     if doc["id"] in DISPUTES:
         pytest.xfail(f"analysed disagreement ({DISPUTES[doc['id']]['class']}): {DISPUTES[doc['id']]['reason']}")
     pytest.fail(why)
+
+
+PASS_FILES = [d for d in SUITE if d["independent_expectation"]["verdict"] == "pass"]
+
+
+@pytest.mark.parametrize("doc", PASS_FILES, ids=[d["id"] for d in PASS_FILES])
+def test_verapdf_pass_file_is_not_reported_through_any_definition(doc):
+    """A pass file satisfies the test it is named after: the rule is not reported at all, neither through the veraPDF
+    condition (test_verapdf_suite_verdict) nor through a PAC condition merged into the same rule id.
+
+    Seven pass files used to be reported through PAC's definition only: 7.2-t29-pass-a..f (Lang values at the bounds of
+    the RFC 3066 grammar: 'portugue', 'p', ...; PAC's check wants a registered BCP 47 tag) and 7.18.1-t03-pass-d (a form
+    field whose /Rect lies outside the crop box, which ISO 14289-1 7.18 exempts)."""
+    exp = doc["independent_expectation"]
+    report, _ = report_of(doc)
+    assert report["processed"], report.get("error")
+    f = next((x for x in report["findings"] if x["rule"] == exp["rule"]), None)
+    assert f is None, (f"{exp['rule']} reported ({[loc.get('detail') for loc in f['locations']][:3]}); "
+                       f"the file states: {exp['statement']}")

@@ -309,7 +309,7 @@ public:
                 [&] { metadata(); });
         guarded({"EQX-UA2-8.4.4-1", "EQX-UA1-7.2-29", "EQX-UA2-8.4.4-2", "EQX-UA2-8.6-1",
                  "EQX-PAC-FailValidLanguagePrimaryTagX", "EQX-PAC-WarnValidLanguagePrimaryTagI",
-                 "EQX-PAC-FailValidLanguagePrimaryTagOther", "EQX-UA1-7.2-2"},
+                 "EQX-PAC-FailValidLanguagePrimaryTagOther", "EQX-PAC-FailValidLanguageSyntax", "EQX-UA1-7.2-2"},
                 [&] { languages(); });
         guarded({"EQX-UA1-7.10-1", "EQX-UA1-7.10-2", "EQX-UA2-8.7-1", "EQX-UA2-8.7-2"},
                 [&] { optional_content(); });
@@ -659,16 +659,32 @@ private:
         if (!catalog_lang) report("EQX-UA2-8.4.4-1", -1, cat_ref_, "catalog has no Lang string");
         else cos_lang(lang.getStringValue(), -1, cat_ref_, "catalog");
 
-        // PAC ValidLanguage on the document language
+        // PAC ValidLanguage on the document language. PAC asks for more than ISO 14289-1 7.2 does: a catalog Lang, a
+        // well-formed BCP 47 tag and a primary subtag of the IANA registry (see lang.h). Its syntax condition is the
+        // requirement of 7.2-29 only where the value also breaks the RFC 3066 grammar; every other outcome is PAC's
+        // own finding and goes to the PAC rules, which fail WCAG 3.1.1 and not PDF/UA-1.
         if (ctx_->pac_applicable) {
+            // Resolved by the compiler: report(const char*) looks an id up in the catalogue at run time, and for these
+            // ids, which most documents without a catalog Lang report, that search reads parts of the catalogue no
+            // other lookup of such a document reads (pages of the executable that would be mapped for this alone).
+            static const RuleIndex pac_syntax = R("EQX-PAC-FailValidLanguageSyntax"),
+                                   pac_unregistered = R("EQX-PAC-FailValidLanguagePrimaryTagOther");
             std::optional<std::u32string> v;
             if (catalog_lang) v = pdf_text_to_u32(lang.getStringValue());
             switch (doclang::pac_check(v)) {
                 case doclang::PacLang::Missing:
-                    report("EQX-UA1-7.2-29", -1, cat_ref_, "PAC: document language missing");
+                    ctx_->report(pac_syntax, -1, cat_ref_, "document language missing");
                     break;
                 case doclang::PacLang::Syntax:
-                    report("EQX-UA1-7.2-29", -1, cat_ref_, "PAC: document language '" + clip(u8(*v)) + "' syntax error");
+                    if (!doclang::verapdf_lang_ok(*v))
+                        report("EQX-UA1-7.2-29", -1, cat_ref_, "PAC: document language '" + clip(u8(*v)) + "' syntax error");
+                    else
+                        ctx_->report(pac_syntax, -1, cat_ref_,
+                                     "document language '" + clip(u8(*v)) + "' is not a well-formed BCP 47 language tag");
+                    break;
+                case doclang::PacLang::Unregistered:
+                    ctx_->report(pac_unregistered, -1, cat_ref_,
+                                 "document language '" + clip(u8(*v)) + "': primary language subtag not registered");
                     break;
                 case doclang::PacLang::PrivateUse:
                     report("EQX-PAC-FailValidLanguagePrimaryTagX", -1, cat_ref_, "document language '" + clip(u8(*v)) + "'");
@@ -679,8 +695,6 @@ private:
                 case doclang::PacLang::Valid:
                     break;
             }
-            // EQX-PAC-FailValidLanguagePrimaryTagOther: PAC 26.1 reports unknown primary subtags as syntax
-            // errors (probes); this condition was never observed and is not raised.
         }
 
         // structure elements (GFPDStructElem.getLang)

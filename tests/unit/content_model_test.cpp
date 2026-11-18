@@ -197,6 +197,89 @@ EQX_TEST(content_model_text_styles_keep_every_bit) {
     }
 }
 
+// PDF/UA-1 7.1-2 (Matterhorn 01-004) is about tagged content that begins inside an Artifact; an Artifact nested in
+// tagged content is the opposite nesting (7.1-1, Matterhorn 01-003). tagged_from_inside_artifact tells them apart by
+// the place the structure parent comes from.
+EQX_TEST(content_model_tagged_from_inside_artifact) {
+    const Obj elem = QPDFObjectHandle::newDictionary();   // stands for a structure element
+    ContentModel cm;
+    auto stream = [&](int parent, int parent_frame, bool inherited_artifact, bool origin_artifact) {
+        StreamInstance s;
+        s.parent = parent;
+        s.parent_frame = parent_frame;
+        s.inherited_artifact = inherited_artifact;
+        s.struct_origin_artifact = origin_artifact;
+        cm.streams.push_back(std::move(s));
+        return static_cast<int>(cm.streams.size()) - 1;
+    };
+    auto frame = [&](int s, int parent, const char* tag, bool own) {
+        McFrame f;
+        f.stream = s;
+        f.parent = parent;
+        f.tag = tag;
+        f.own_struct_elem = own ? elem : Obj::newNull();
+        f.struct_elem = own ? elem : parent >= 0 ? cm.frames[static_cast<std::size_t>(parent)].struct_elem : Obj::newNull();
+        cm.frames.push_back(std::move(f));
+        return static_cast<int>(cm.frames.size()) - 1;
+    };
+    const int page = stream(-1, -1, false, false);
+
+    // /P <</MCID>> BDC  /Artifact BMC  /Span BMC ... : an Artifact, and a sequence in it, inside tagged content
+    const int p = frame(page, -1, "P", true);
+    const int art_in_p = frame(page, p, "Artifact", false);
+    const int span_in_art_in_p = frame(page, art_in_p, "Span", false);
+    EXPECT(!cm.tagged_from_inside_artifact(page, p));
+    EXPECT(!cm.tagged_from_inside_artifact(page, art_in_p));
+    EXPECT(!cm.tagged_from_inside_artifact(page, span_in_art_in_p));
+    EXPECT(cm.parents_tags_contain(page, art_in_p, "Artifact"));           // what veraPDF's parentsTags test sees
+    EXPECT(cm.parents_tags_contain(page, span_in_art_in_p, "Artifact"));
+
+    // /Artifact BMC  /P <</MCID>> BDC  /Span BMC ... : tagged content inside an Artifact, and what it encloses
+    const int art = frame(page, -1, "Artifact", false);
+    const int p_in_art = frame(page, art, "P", true);
+    const int span_in_p_in_art = frame(page, p_in_art, "Span", false);
+    EXPECT(!cm.tagged_from_inside_artifact(page, art));                    // not tagged content at all
+    EXPECT(cm.tagged_from_inside_artifact(page, p_in_art));
+    EXPECT(cm.tagged_from_inside_artifact(page, span_in_p_in_art));
+
+    // tagged > Artifact > tagged: the inner MCID sequence begins inside the Artifact
+    const int inner = frame(page, art_in_p, "Span", true);
+    EXPECT(cm.tagged_from_inside_artifact(page, inner));
+
+    // /Artifact <</MCID>> BDC: the sequence is an Artifact and tagged content at once
+    const int both = frame(page, -1, "Artifact", true);
+    EXPECT(cm.tagged_from_inside_artifact(page, both));
+
+    // A form painted inside tagged content: /Figure <</MCID>> BDC /Fm0 Do EMC, with /Artifact BDC /PlacedGraphic BMC
+    // in the form. The structure parent was established outside any Artifact.
+    const int figure = frame(page, -1, "Figure", true);
+    const int form = stream(page, figure, false, false);
+    const int art_in_form = frame(form, -1, "Artifact", false);
+    const int placed = frame(form, art_in_form, "PlacedGraphic", false);
+    EXPECT(!cm.tagged_from_inside_artifact(form, art_in_form));
+    EXPECT(!cm.tagged_from_inside_artifact(form, placed));
+    EXPECT(cm.parents_tags_contain(form, placed, "Artifact"));
+
+    // The same form painted inside an Artifact that lies in tagged content: /P BDC /Artifact BMC /Fm1 Do. The form
+    // inherits the Artifact tag, but its structure parent still comes from the P outside it.
+    const int form_in_art_in_p = stream(page, art_in_p, true, false);
+    const int span_in_form = frame(form_in_art_in_p, -1, "Span", false);
+    EXPECT(!cm.tagged_from_inside_artifact(form_in_art_in_p, span_in_form));
+    EXPECT(cm.parents_tags_contain(form_in_art_in_p, span_in_form, "Artifact"));
+
+    // A form whose structure parent was established inside an Artifact (the interpreter sets the flag at the Do):
+    // everything in it is tagged content inside that Artifact, and so is a form it paints in turn.
+    const int form_in_art = stream(page, art, true, true);
+    const int span_in_form_in_art = frame(form_in_art, -1, "Span", false);
+    EXPECT(cm.tagged_from_inside_artifact(form_in_art, span_in_form_in_art));
+    EXPECT(cm.tagged_from_inside_artifact(form_in_art, -1));
+    // ... but a sequence of the form with an MCID of its own is judged where it stands
+    const int own_in_form = frame(form_in_art, -1, "P", true);
+    EXPECT(cm.tagged_from_inside_artifact(form_in_art, own_in_form));       // the form was painted inside an Artifact
+    const int own_in_plain_form = frame(form, -1, "P", true);
+    EXPECT(!cm.tagged_from_inside_artifact(form, own_in_plain_form));
+}
+
 EQX_TEST(content_model_item_views) {
     ContentModel cm;
     const Rect box{1, 2, 3, 4};

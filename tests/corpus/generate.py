@@ -255,11 +255,10 @@ def _artifact_inside_tagged(d: TaggedDoc):
 
 variant("artifact-in-tagged", "An Artifact sequence nested inside tagged content.",
         "A P element's marked-content sequence contains a nested /Artifact BMC ... EMC.",
-        ["ISO 14289-1 7.1 paragraph 2 (content marked as Artifact should not be inside tagged content); Matterhorn 01-003"],
-        ["EQX-UA1-7.1-1"], mutate=_artifact_inside_tagged,
-        deviations=[("EQX-UA1-7.1-2", "the nested Artifact contains no tagged content, so clause 7.1 'tagged content shall not be "
-                     "present inside content marked as Artifact' is not violated; veraPDF 1.30.2 reports 7.1-2 for this file too "
-                     "(dox-validate reproduces it by design), see CORRECTNESS.md")])
+        ["ISO 14289-1 7.1 paragraph 2 (content marked as Artifact should not be inside tagged content); Matterhorn 01-003",
+         "The nested Artifact contains no tagged content, so Matterhorn 01-004 (tagged content inside content marked as "
+         "Artifact) is not violated; veraPDF 1.30.2 reports its 7.1-2 for this file too"],
+        ["EQX-UA1-7.1-1"], mutate=_artifact_inside_tagged, must_not=["EQX-UA1-7.1-2"])
 
 
 def _tagged_inside_artifact(d: TaggedDoc):
@@ -276,8 +275,10 @@ def _tagged_inside_artifact(d: TaggedDoc):
 
 variant("tagged-in-artifact", "Tagged content nested inside an Artifact sequence.",
         "A P element owns an MCID whose sequence is nested inside /Artifact BDC ... EMC.",
-        ["ISO 14289-1 7.1 paragraph 2 (tagged content should not be inside content marked as Artifact); Matterhorn 01-004"],
-        ["EQX-UA1-7.1-2"], mutate=_tagged_inside_artifact, may=["EQX-PAC-FailMarkedContentIsInLegalPosition"])
+        ["ISO 14289-1 7.1 paragraph 2 (tagged content should not be inside content marked as Artifact); Matterhorn 01-004",
+         "No Artifact lies inside tagged content, so Matterhorn 01-003 is not violated"],
+        ["EQX-UA1-7.1-2"], mutate=_tagged_inside_artifact, may=["EQX-PAC-FailMarkedContentIsInLegalPosition"],
+        must_not=["EQX-UA1-7.1-1"])
 
 
 def _no_parent_tree(d: TaggedDoc):
@@ -533,29 +534,45 @@ variant("table-td-in-table", "TD cells directly inside Table (no TR).", "Table r
 # --------------------------------------------------------------------------------------------------------------------------
 # document language
 # --------------------------------------------------------------------------------------------------------------------------
+# What a Lang value has to be. ISO 14289-1 7.2 refers to ISO 32000-1 14.9.2; its 14.9.2.2 reads: "A language identifier
+# shall either be the empty text string, to indicate that the language is unknown, or a Language-Tag as defined in RFC
+# 3066". RFC 3066 2.1 defines Language-Tag by a grammar (a primary subtag of 1 to 8 letters, then subtags of 1 to 8
+# letters or digits), which EQX-UA1-7.2-29 tests. Whether the subtags are registered, and whether the catalog has a Lang
+# at all, is asked by PAC's ValidLanguage check and by WCAG 3.1.1, not by PDF/UA-1: the IANA Language Subtag Registry
+# that PAC consults belongs to BCP 47 (RFC 4646/5646) and is younger than RFC 3066, and RFC 3066 2.2 itself reserves
+# "x" for private use. Those findings fail the WCAG targets and are listed for PDF/UA-1 without failing it.
+LANG_BASIS = ("ISO 14289-1 7.2 + ISO 32000-1 14.9.2.2: a Lang value is a Language-Tag as defined in RFC 3066 (grammar of "
+              "RFC 3066 2.1); veraPDF 7.2-29")
+WCAG_LANG_FAIL = {"wcag-2.0-A": FAIL, "wcag-2.1-AA": FAIL, "wcag-2.2-AA": FAIL}
+
 variant("lang-missing", "No natural language anywhere.", "No /Lang in the Catalog or on any element; XMP dc:title only x-default.",
         ["ISO 14289-1 7.2 (natural language shall be determined); Matterhorn 11-001 (page content), 11-002 (Alt), 11-004 "
-         "(outline), 11-005 (metadata); WCAG 2.x 3.1.1 Language of Page (level A)"],
-        ["EQX-UA1-7.2-34", "EQX-UA1-7.2-22", "EQX-UA1-7.2-2"], doc_kw={"lang": None},
-        may=["EQX-UA1-7.2-33", "EQX-UA1-7.2-24", "EQX-UA1-7.2-25", "EQX-PAC-FailAltTextHasLanguage", "EQX-UA2-8.4.4-1",
-             "EQX-UA1-7.2-29"],
-        assessments={"wcag-2.0-A": FAIL, "wcag-2.1-AA": FAIL, "wcag-2.2-AA": FAIL})
+         "(outline), 11-005 (metadata); WCAG 2.x 3.1.1 Language of Page (level A)",
+         "A missing Lang is not a malformed Lang value: 7.2-29 does not apply; PAC ValidLanguage (document language missing)"],
+        ["EQX-UA1-7.2-34", "EQX-UA1-7.2-22", "EQX-UA1-7.2-2", "EQX-PAC-FailValidLanguageSyntax"], doc_kw={"lang": None},
+        may=["EQX-UA1-7.2-33", "EQX-UA1-7.2-24", "EQX-UA1-7.2-25", "EQX-PAC-FailAltTextHasLanguage", "EQX-UA2-8.4.4-1"],
+        must_not=["EQX-UA1-7.2-29"], assessments=WCAG_LANG_FAIL)
 
 variant("lang-invalid", "A syntactically invalid language tag.", "Catalog /Lang (en_US!) (underscore and '!' are not BCP 47).",
-        ["ISO 14289-1 7.2 + ISO 32000-1 14.9.2 (Lang is a language identifier per RFC 3066/BCP 47); veraPDF 7.2-29"],
+        [LANG_BASIS + ": '_' and '!' are outside the grammar"],
         ["EQX-UA1-7.2-29"], doc_kw={"lang": "en_US!"},
         may=["EQX-UA1-7.2-34", "EQX-UA1-7.2-22", "EQX-UA1-7.2-2", "EQX-UA1-7.2-33", "EQX-UA1-7.2-24", "EQX-UA1-7.2-25",
-             "EQX-PAC-FailValidLanguagePrimaryTagOther", "EQX-PAC-FailAltTextHasLanguage"])
+             "EQX-PAC-FailAltTextHasLanguage"],
+        must_not=["EQX-PAC-FailValidLanguagePrimaryTagOther", "EQX-PAC-FailValidLanguageSyntax"])
 
 variant("lang-private-use", "A private-use language tag.", "Catalog /Lang (x-corpus).",
-        ["RFC 5646 2.2.7 (x- private use); PAC ValidLanguagePrimaryTagX"],
-        ["EQX-PAC-FailValidLanguagePrimaryTagX"], doc_kw={"lang": "x-corpus"}, exclusive=(),
-        assessments={"pdfua-1": FAIL})
+        [LANG_BASIS + ": 'x-corpus' is a Language-Tag, and RFC 3066 2.2 reserves 'x' for private use, so PDF/UA-1 is met",
+         "RFC 5646 2.2.7 (x- private use); PAC ValidLanguagePrimaryTagX; WCAG 2.x 3.1.1 (the language cannot be "
+         "programmatically determined from a private tag)"],
+        ["EQX-PAC-FailValidLanguagePrimaryTagX"], doc_kw={"lang": "x-corpus"}, must_not=["EQX-UA1-7.2-29"],
+        assessments={"pdfua-1": AUTO_PASS, **WCAG_LANG_FAIL})
 
 variant("lang-unknown-primary", "A well-formed tag with an unregistered primary subtag.", "Catalog /Lang (zz-ZZ).",
-        ["RFC 5646 / IANA language subtag registry ('zz' is not registered); PAC 'primary subtag is unknown'"],
-        [], any_of=[["EQX-PAC-FailValidLanguagePrimaryTagOther", "EQX-UA1-7.2-29"]], doc_kw={"lang": "zz-ZZ"},
-        exclusive=("EQX-UA1-",), may=["EQX-UA1-7.2-29"], assessments={"pdfua-1": FAIL})
+        [LANG_BASIS + ": 'zz-ZZ' is a Language-Tag, so PDF/UA-1 is met",
+         "RFC 5646 / IANA language subtag registry ('zz' is not registered); PAC 'primary subtag is unknown'; WCAG 2.x "
+         "3.1.1 (the language cannot be programmatically determined from an unassigned code)"],
+        ["EQX-PAC-FailValidLanguagePrimaryTagOther"], doc_kw={"lang": "zz-ZZ"}, must_not=["EQX-UA1-7.2-29"],
+        assessments={"pdfua-1": AUTO_PASS, **WCAG_LANG_FAIL})
 
 variant("lang-valid-de", "Positive control: a valid tag other than English (de-DE).", "Catalog /Lang (de-DE).",
         ["ISO 32000-1 14.9.2; RFC 5646"], [], doc_kw={"lang": "de-DE"},

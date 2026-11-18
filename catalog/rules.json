@@ -3231,12 +3231,8 @@
    "standards": [
     {
      "standard": "pdfua-1",
-     "obligation": "normative",
-     "source": "PAC PDF/UA tab (PDF/UA-1 via the Matterhorn Protocol)",
-     "matterhorn": [
-      "11-006"
-     ],
-     "matterhorn_source": "PAC inventory (inferred, unverified)"
+     "obligation": "warning",
+     "source": "PAC PDF/UA tab. Not a requirement of ISO 14289-1: clause 7.2 refers to ISO 32000-1 14.9.2, which asks for a Language-Tag as defined in RFC 3066 (checked by EQX-UA1-7.2-29) and neither for a catalog Lang nor for a subtag of the IANA Language Subtag Registry"
     },
     {
      "standard": "wcag",
@@ -3267,7 +3263,7 @@
     }
    ],
    "related": [],
-   "detection": "document language (catalog /Lang, XMP)",
+   "detection": "the document language (catalog /Lang) is a well-formed BCP 47 tag whose primary language subtag is not in the IANA Language Subtag Registry",
    "applies_when": null,
    "family": "pac.ValidLanguage",
    "verification": {
@@ -3284,12 +3280,8 @@
    "standards": [
     {
      "standard": "pdfua-1",
-     "obligation": "normative",
-     "source": "PAC PDF/UA tab (PDF/UA-1 via the Matterhorn Protocol)",
-     "matterhorn": [
-      "11-006"
-     ],
-     "matterhorn_source": "PAC inventory (inferred, unverified)"
+     "obligation": "warning",
+     "source": "PAC PDF/UA tab. Not a requirement of ISO 14289-1: clause 7.2 refers to ISO 32000-1 14.9.2, which asks for a Language-Tag as defined in RFC 3066 (checked by EQX-UA1-7.2-29) and neither for a catalog Lang nor for a subtag of the IANA Language Subtag Registry"
     },
     {
      "standard": "wcag",
@@ -3327,6 +3319,60 @@
     "status": "verified",
     "fixtures": [
      "U1-H01-headings-numbered"
+    ]
+   }
+  },
+  {
+   "id": "EQX-PAC-FailValidLanguageSyntax",
+   "title": "Document language missing or not a well-formed BCP 47 language tag",
+   "kind": "violation",
+   "severity": "error",
+   "automation": "automatic",
+   "standards": [
+    {
+     "standard": "pdfua-1",
+     "obligation": "warning",
+     "source": "PAC PDF/UA tab. Not a requirement of ISO 14289-1: clause 7.2 refers to ISO 32000-1 14.9.2, which asks for a Language-Tag as defined in RFC 3066 (checked by EQX-UA1-7.2-29) and neither for a catalog Lang nor for a subtag of the IANA Language Subtag Registry"
+    },
+    {
+     "standard": "wcag",
+     "sc": "3.1.1",
+     "obligation": "normative",
+     "source": "PAC WCAG tab",
+     "verified": true
+    }
+   ],
+   "sources": [
+    {
+     "tool": "PAC",
+     "version": "26.1.0.0",
+     "tab": "PDF/UA",
+     "check": "ValidLanguage",
+     "condition": "CheckFailValidLanguageSyntax",
+     "severity": "error",
+     "severity_source": "observed PAC result icon"
+    },
+    {
+     "tool": "PAC",
+     "version": "26.1.0.0",
+     "tab": "WCAG",
+     "check": "WCAG_3.1.1_LanguageOfPage",
+     "condition": "CheckFailValidLanguageSyntax",
+     "severity": "error",
+     "severity_source": "observed PAC result icon"
+    }
+   ],
+   "related": [
+    "EQX-UA1-7.2-29"
+   ],
+   "detection": "the catalog has no /Lang (or an empty one), or its value matches the RFC 3066 grammar of ISO 32000-1 14.9.2.2 but is not a well-formed BCP 47 language tag; a value that breaks the grammar is EQX-UA1-7.2-29",
+   "applies_when": null,
+   "family": "pac.ValidLanguage",
+   "verification": {
+    "status": "verified",
+    "fixtures": [
+     "U1-D02-untagged",
+     "U1-D04-language"
     ]
    }
   },
@@ -118201,10 +118247,7 @@
    "verification": {
     "status": "verified",
     "fixtures": [
-     "U1-D02-untagged",
      "U1-D03-identification-syntax",
-     "U1-D04-language",
-     "U1-H02-headings-mixed",
      "U2-D02-identification-syntax"
     ]
    }

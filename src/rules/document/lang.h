@@ -5,6 +5,11 @@
 //   pac_check        PAC 26.1 check ValidLanguage on the document language:
 //                    BCP 47 (RFC 5646) well-formedness plus a lookup of the primary language subtag in the IANA
 //                    Language Subtag Registry (generated table, see tools/gen_lang_registry.py).
+//
+// The two are different requirements. ISO 14289-1 7.2 refers to ISO 32000-1 14.9.2, whose 14.9.2.2 asks for "a
+// Language-Tag as defined in RFC 3066": the grammar verapdf_lang_ok tests. It asks neither for a catalog Lang nor for
+// the BCP 47 structure of the tag, and the IANA subtag registry that pac_check consults did not exist in RFC 3066.
+// A value such as 'Deutsch', 'English' or 'p' therefore meets 7.2-29 and is a finding of PAC's check only.
 #pragma once
 
 #include <cstddef>
@@ -19,7 +24,10 @@ bool verapdf_lang_ok(std::u32string_view value);
 enum class PacLang : unsigned char {
     Valid,
     Missing,         // no document language: PAC reports CheckFailValidLanguageSyntax
-    Syntax,          // CheckFailValidLanguageSyntax (also unknown primary subtags: 'zz', 'zzz', 'qaa', 'abcde')
+    Syntax,          // not a well-formed BCP 47 tag: CheckFailValidLanguageSyntax
+    Unregistered,    // well-formed, but the primary subtag is not a registered language ('zz', 'qaa', 'Deutsch').
+                     // PAC 26.1 shows these under CheckFailValidLanguageSyntax as well; the defect is the one
+                     // CheckFailValidLanguagePrimaryTagOther names, and it is reported as that.
     PrivateUse,      // CheckFailValidLanguagePrimaryTagX ("x-..." private use tag)
     IanaRegistered,  // CheckWarnValidLanguagePrimaryTagI ("i-..." IANA registrations, warning)
 };

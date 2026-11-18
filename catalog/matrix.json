@@ -558,13 +558,10 @@
      "matterhorn_how": "M",
      "class": "automatic",
      "rules": [
-      "EQX-PAC-FailValidLanguagePrimaryTagOther",
-      "EQX-PAC-FailValidLanguagePrimaryTagX",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-33"
      ],
      "verified_rules": [
-      "EQX-PAC-FailValidLanguagePrimaryTagX",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-33"
      ]
@@ -2283,15 +2280,31 @@
      ],
      "verified_rules": [],
      "note": "checked by a reference tool without a Matterhorn mapping"
+    },
+    {
+     "id": "PAC-ValidLanguage",
+     "title": "PAC-ValidLanguage",
+     "matterhorn_how": null,
+     "class": "automatic",
+     "rules": [
+      "EQX-PAC-FailValidLanguagePrimaryTagOther",
+      "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax"
+     ],
+     "verified_rules": [
+      "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax"
+     ],
+     "note": "PAC check beyond ISO 14289-1 (document language: BCP 47 well-formedness and IANA registry); its rules are listed for PDF/UA-1 without failing it"
     }
    ],
    "by_class": {
-    "automatic": 127,
+    "automatic": 128,
     "manual": 49,
     "partial": 2,
     "unsupported": 3
    },
-   "with_verified": 126,
+   "with_verified": 127,
    "manual_required": [
     "MH-01-001",
     "MH-01-002",
@@ -45002,11 +45015,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -45654,11 +45669,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -46503,11 +46520,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -47274,11 +47293,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -48021,11 +48042,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -49020,11 +49043,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -49816,11 +49841,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -50341,11 +50368,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]
@@ -51146,11 +51175,13 @@
      "rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagOther",
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ],
      "verified_rules": [
       "EQX-PAC-FailValidLanguagePrimaryTagX",
+      "EQX-PAC-FailValidLanguageSyntax",
       "EQX-PAC-WarnValidLanguagePrimaryTagI",
       "EQX-UA1-7.2-29"
      ]

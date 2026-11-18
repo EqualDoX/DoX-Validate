@@ -189,7 +189,9 @@ public:
                             const auto& c = b.spec.rows[r][k];
                             if (!c.th) continue;
                             if (c.scope && (*c.scope == "Row" || *c.scope == "Column" || *c.scope == "Both")) continue;
-                            if (c.id && !c.id->empty() && refs.count(*c.id)) continue;
+                            // An empty ID is an ID like any other when a Headers entry names it: veraPDF's
+                            // 7.5-t01-pass-d (TH /ID (), Headers [()]) passes PAC's check and veraPDF's 7.5-1.
+                            if (c.id && refs.count(*c.id)) continue;
                             ctx.report(pac_th, -1, ref_of(b.cells[r][k]), "TH without Scope and not named by Headers");
                         }
                     }

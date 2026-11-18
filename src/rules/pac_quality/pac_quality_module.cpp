@@ -559,6 +559,10 @@ public:
         }
         // A form field whose Rect has no area is not outside the crop box and not hidden, so ISO 14289-1 7.18.1 asks for its name; veraPDF's test counts it as outside. PAC fails it
         // (signed Office files: a real-world sample; probes fz_sig_zero_*, fz_tx_zero_*).
+        // That holds for a Rect on the page only, the corner of the crop box included ([0 0 0 0]). A Rect without area
+        // that lies beyond the crop box is outside it, and ISO 14289-1 7.18.1 does not apply to the annotation: PAC
+        // fails such a field too (veraPDF's 7.18.1-t03-pass-d, Rect [800 800 800 800] on a 612 x 792 page), which is
+        // not reproduced.
         {
             static const RuleIndex rtu = R("EQX-UA1-7.18.1-3");
             for (std::size_t pi = 0; pi < ctx.doc.pages().size(); ++pi)
@@ -566,6 +570,7 @@ public:
                     if (!cos::name_is(a, "Subtype", "Widget")) continue;
                     auto r = cos::rect(cos::get(a, "Rect"));
                     if (!r || r->width() != 0 || r->height() != 0) continue;
+                    if (!ctx.doc.pages()[pi].crop_box.contains(r->llx, r->lly)) continue;
                     if (cos::integer(a, "F").value_or(0) & 2) continue;
                     bool named = false;
                     Obj f = a;

@@ -119,7 +119,12 @@ Outcome classify(const Context& c) {
     // A Document below the root warns (variants 2026-10-24; U1-S01 Sect > Document).
     if (t == "Document") return {Cond::DocumentNotRoot, "nested Document"};
     // --- fail conditions ------------------------------------------------------------------------------------
-    if (is_strict_container(c.eff_parent) && !strict_allows(c.eff_parent, t))
+    // A Private in a parent with a fixed content model fails itself (no such parent allows it); what stands directly
+    // in the Private is its private content and is not failed a second time against that parent (PAC read-out of
+    // TR(TD, TD, Private(P)): PrivateTag fails once, PTag passes). NonStruct has no check of its own and is looked
+    // through as before.
+    const std::string_view container = c.parent == "Private" ? c.parent : c.eff_parent;
+    if (is_strict_container(container) && !strict_allows(container, t))
         return {Cond::Invalid, "not allowed in this parent"};
     if (has_fixed_parent(t) && !fixed_parent_allows(t, c.eff_parent)) return {Cond::Invalid, "wrong parent"};
     // A TR in a THead/TBody/TFoot that itself is not in a Table fails (U1-S01: the TRs of Sect > THead / TBody /
