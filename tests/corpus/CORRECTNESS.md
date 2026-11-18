@@ -46,15 +46,19 @@ and `--target any`), the deciding targets, and the target statuses. Further cove
   - role-mapped headings;
   - nested lists.
 
-Three fixtures trigger a rule that, on our reading of the normative text, does not apply. In each case veraPDF 1.30.2
+Two fixtures trigger a rule that, on our reading of the normative text, does not apply. In each case veraPDF 1.30.2
 reports the same rule on the same file, so dox-validate reproduces its reference semantics as designed. These cases are
 recorded as `known_deviations` and classified as **(b) reference-tool behaviour, reproduced**.
 
 | fixture | rule | construction | analysis |
 |---|---|---|---|
-| `artifact-in-tagged` | UA1 7.1-2 (tagged content inside an artifact) | an `/Artifact BMC` nested in a P's marked content; the artifact holds only untagged text | ISO 14289-1 7.1 is violated as "artifact inside tagged content" (7.1-1, also reported). No tagged content lies inside the artifact. |
 | `structelem-no-parent` | UA1 7.1-3 (content neither tagged nor artifact) | a P without `/P` that is reachable from the root by `/K` and owns its MCIDs through the ParentTree | The content is tagged. The missing `/P` is the actual violation (ISO 32000-1 Table 323), which dox-validate reports as 7.1-12. veraPDF logs "P key ... different from the actual parent" and drops the element. |
 | `font-truetype-no-encoding` | UA1 7.21.4.1-2 (glyph missing) | non-symbolic embedded TrueType with only a (3,1) cmap and no `/Encoding` | Under ISO 32000-1 9.6.6.4 the codes map through StandardEncoding and the Adobe Glyph List to (3,1), and every glyph used exists. The missing `/Encoding` itself is correctly reported as 7.21.6-2. |
+
+A third deviation of this kind was removed on 2026-11-18 (D7 in section 5). `artifact-in-tagged`, an `/Artifact BMC`
+nested in a P's marked content, used to report UA1 7.1-2 (tagged content inside an artifact) next to 7.1-1, as veraPDF
+does. No tagged content lies inside the artifact, so the fixture now expects 7.1-1 and must not report 7.1-2;
+`tagged-in-artifact` expects the opposite.
 
 Two first constructions were wrong and were corrected before freezing; neither was a validator issue:
 
@@ -74,6 +78,12 @@ Tally per suite:
 On every one of these files, dox-validate's verdict equals that of veraPDF 1.30.2, except `7.5-t01-fail-c`, where it
 follows veraPDF 1.30.4 (see below). A finding counts only when
 `non_pac_occurrences` > 0, so the veraPDF condition of a merged rule must have fired.
+
+Since 2026-11-18 the pass files are also without the finding through any definition, PAC's included
+(`test_verapdf_pass_file_is_not_reported_through_any_definition`). Seven PDF/UA-1 pass files used to be reported under
+their rule through a merged PAC condition alone: `7.2-t29-pass-a` to `-f` (D5) and `7.18.1-t03-pass-d` (D8). One file
+changed on the fail side without changing the tally: `7.1-t01-fail-a` reports 7.1-1, the test it is named after, and
+no longer 7.1-2 as well (D7).
 
 The 14 undetected fail files break down as follows:
 
@@ -116,10 +126,19 @@ and dox-validate does not.** dox-validate reports these extra failures:
 |---|---|---|---|
 | D1 | low (warning-level) | WCAG 1.4.1 review heuristic: false positives next to underlined links | fixed in `f37a695` |
 | D2 | medium (CLI contract) | exit status 0 is unreachable for any processed file | resolved in `f37a695` by the result basis `--target` |
-| D3 | low (reporting) | `EQX-UA1-7.2-29` is reported for a missing Lang | open, documented |
+| D3 | low (reporting) | `EQX-UA1-7.2-29` is reported for a missing Lang | fixed 2026-11-18: PAC's condition has its own rule |
 | D4 | low (documentation) | `--rules`: exit status relative to the selection | documented behaviour of `--target any`, the default with `--rules` |
-| D5 | cosmetic | "syntax error" wording for a well-formed tag | open, documented |
+| D5 | medium (false positive) | a well-formed tag with an unregistered primary subtag is reported as a 7.2-29 "syntax error" and fails PDF/UA-1 | fixed 2026-11-18; the earlier analysis ("cosmetic, the verdict is right") is withdrawn |
 | D6 | cosmetic | whitespace-`Contents` warning raised for a missing `/Contents` | open, documented |
+| D7 | low (reporting) | an Artifact nested in tagged content is reported under 7.1-2 as well as 7.1-1 | fixed 2026-11-18 (a deliberate difference from veraPDF) |
+| D8 | medium (false positive) | a form field without area beyond the crop box is reported as a field without a name | fixed 2026-11-18 |
+| D9 | low (reporting) | the content of a Private element in a table row is reported as misplaced a second time | fixed 2026-11-18 |
+| D10 | low (false positive) | a header cell with an empty ID that a Headers entry names is reported as not associated | fixed 2026-11-18 |
+
+D3, D5 and D7 to D10 were found, or found again, by a detection-quality benchmark of six validators on 984 real-world
+documents, the veraPDF suites and one controlled case per rule (2026-11-16 to 18, kept outside the repository). Each
+has regression tests built on the fly (`test_language_cases.py`, `test_artifact_cases.py`, `test_annotation_cases.py`,
+`test_structure_cases.py`) and unit tests (`document_lang_test.cpp`, `content_model_test.cpp`, `pac_structure_model.cpp`).
 
 **D1 (low, warning-level): WCAG 1.4.1 review heuristic gives false positives next to underlined links**
 (`known_defects.json`).
@@ -160,6 +179,12 @@ and dox-validate does not.** dox-validate reports these extra failures:
   reported by 7.2-34, 7.2-33 and `EQX-UA2-8.4.4-1`; the extra 7.2-29 entry contradicts its own title.
 - *Suggestion:* report PAC's "missing" case under its own id. Consumers comparing with veraPDF must use
   `non_pac_occurrences`.
+- *Fix (2026-11-18):* the case is reported as `EQX-PAC-FailValidLanguageSyntax` ("document language missing"), an error
+  finding that fails WCAG 3.1.1 and does not fail PDF/UA-1. ISO 32000-1 14.9.2.1 says the document language "may be
+  specified" in the catalog, and ISO 14289-1 7.2 asks that the language of every text can be determined, which
+  7.2-34, 7.2-2, 7.2-33 and the other language rules check. A document without a catalog Lang whose elements carry
+  the language therefore meets PDF/UA-1: the 18 pass files of veraPDF's tests 7.2-21 to 7.2-34 that are built this
+  way no longer fail it. `lang-missing` must now report the PAC rule and must not report 7.2-29.
 
 **D4 (low, documentation): `--rules` exit status is relative to the selection.**
 - *Observation:* `--rules EQX-WCAG-` on `contrast-black.pdf` exits 0 with `no_errors_found`, while about 2,000 required
@@ -170,18 +195,90 @@ and dox-validate does not.** dox-validate reports these extra failures:
 - *Status (`f37a695`):* `--rules` now defaults to `--target any`, whose documented meaning is "every required rule of
   the evaluation"; the deciding-target bases keep the targets `incomplete`, which is the safe reading.
 
-**D5 (cosmetic): "syntax error" wording for a well-formed tag.**
-- *Observation:* `lang-unknown-primary` (`/Lang (zz-ZZ)`) is reported as "PAC: document language 'zz-ZZ' syntax
-  error". The tag is well-formed BCP 47; its primary subtag is unregistered.
-- *Analysis:* the verdict is right. RFC 3066, which ISO 32000-1 14.9.2 cites, requires an ISO 639 primary subtag. Only
-  the wording is wrong. `EQX-PAC-FailValidLanguagePrimaryTagOther` is deliberately never raised: according to the code
-  comment, PAC 26.1 reports such tags as syntax errors.
+**D5 (medium, false positive): a well-formed tag with an unregistered primary subtag fails 7.2-29 and PDF/UA-1.**
+- *Observation:* `lang-unknown-primary` (`/Lang (zz-ZZ)`) was reported under `EQX-UA1-7.2-29` as "PAC: document
+  language 'zz-ZZ' syntax error". The benchmark found the same on real-world documents with `/Lang (Deutsch)` and
+  `(English)`, on `PDFUA-Ref-2-09_Scanned.pdf` of the PDF Association's PDF/UA Reference Suite 1.1 (`English`; the
+  suite's files are declared conformant), and on veraPDF's `7.2-t29-pass-a` to `-f` (`portugue`, `p`, ...).
+- *Earlier analysis, withdrawn:* "the verdict is right. RFC 3066, which ISO 32000-1 14.9.2 cites, requires an ISO 639
+  primary subtag. Only the wording is wrong."
+- *Analysis:* the requirement is ISO 32000-1:2008 14.9.2.2: "A language identifier shall either be the empty text
+  string, to indicate that the language is unknown, or a Language-Tag as defined in RFC 3066". RFC 3066 2.1 defines
+  Language-Tag by a grammar: a primary subtag of 1 to 8 letters, then subtags of 1 to 8 letters or digits. That is
+  what veraPDF's 7.2-29 tests, and each of these values meets it. RFC 3066 2.2 says which primary subtags have an
+  assigned meaning and that other values "shall not be assigned except by revision of this standard"; it reserves
+  them, and it has no notion of an invalid tag. The check that failed them is PAC's, and it is not RFC 3066's
+  either: it asks for a well-formed BCP 47 tag whose primary subtag is in the IANA Language Subtag Registry, which
+  RFC 4646 introduced after RFC 3066. So the registry lookup is a check of PAC and of WCAG 3.1.1 (W3C's ACT rule
+  bf051a fails a page language without a known primary subtag), not a requirement of ISO 14289-1.
+- *Fix (2026-11-18):* the cases are told apart. An unregistered primary subtag is
+  `EQX-PAC-FailValidLanguagePrimaryTagOther`, which is raised now; a tag that meets the grammar but is not well-formed
+  BCP 47 (`p`, `en-US-US`) is `EQX-PAC-FailValidLanguageSyntax`. Both, and `EQX-PAC-FailValidLanguagePrimaryTagX`
+  (`x-...`, which RFC 3066 2.2 reserves for private use), stay error findings and fail the WCAG targets; for PDF/UA-1
+  they are listed in `warning_rules`, and their inferred Matterhorn 11-006 reference is dropped. A value outside the
+  grammar (`en_US`) fails 7.2-29 through both definitions, as before. `lang-unknown-primary` and `lang-private-use`
+  now expect PDF/UA-1 to pass and WCAG to fail.
+- *What this does not settle:* whether a tag that names no language lets the language "be determined" in the sense
+  of ISO 14289-1 7.2 is a matter of reading. PAC reads it as a PDF/UA failure; veraPDF and the Reference Suite do not.
+  The finding is reported either way; only its effect on the `pdfua-1` status changed.
+
+**D7 (low, reporting): an Artifact nested in tagged content was reported under 7.1-2 as well.**
+- *Observation:* `artifact-in-tagged`, veraPDF's `7.1-t01-fail-a` and four real-world documents of the benchmark
+  (whole pages wrapped in `/Document <</MCID 0>> BDC` with Artifacts inside; a form with Artifacts painted inside a
+  Figure's sequence) reported `EQX-UA1-7.1-2` once per Artifact and once per sequence inside it, next to 7.1-1.
+- *Analysis:* the Matterhorn Protocol has two machine-checkable conditions under ISO 14289-1 7.1: 01-003 "Content
+  marked as Artifact is present inside tagged content" and 01-004 "Tagged content is present inside content marked as
+  Artifact". They name the two ways of nesting. veraPDF's 7.1-2 tests `parentsTags.contains('Artifact')`, and that
+  list holds the sequence's own tag, so every Artifact that 7.1-1 reports fails 7.1-2 too; the opposite nesting fails
+  7.1-2 alone. PAC reports only the nesting that is there.
+- *Fix (2026-11-18):* 7.1-2 is reported where content becomes tagged content inside an Artifact
+  (`ContentModel::tagged_from_inside_artifact`). The documents fail PDF/UA-1 as before, through 7.1-1. This is a
+  deliberate difference from veraPDF, also under `--reference-dedup`. On the 3,407 files of the benchmark the eight
+  that still report 7.1-2 do so with unchanged counts.
+
+**D8 (medium, false positive): a form field without area beyond the crop box.**
+- *Observation:* veraPDF's `7.18.1-t03-pass-d` (a text field without TU, `/Rect [800 800 800 800]` on a 612 x 792 page)
+  was reported under `EQX-UA1-7.18.1-3` as "PAC: form field with an empty /Rect and no /TU". PAC 26.1 fails the file too.
+- *Analysis:* ISO 14289-1 7.18 does not apply to annotations whose rectangle is outside the crop box (Matterhorn
+  Protocol, checkpoint 28). The PAC-derived condition exists for fields without area that veraPDF's inclusive
+  comparison counts as outside although they lie on the page (`[0 0 0 0]`, invisible signatures); it did not look at
+  where the rectangle is.
+- *Fix (2026-11-18):* the condition applies when the point of the rectangle lies in the crop box, its edge included.
+
+**D9 (low, reporting): the content of a Private element in a table row.**
+- *Observation:* for `TR(TD, TD, Private(P))` both `EQX-PAC-FailPrivateTagInvalidSyntax` and
+  `EQX-PAC-FailPTagInvalidSyntax` ("P in Private (context TR)") were reported. PAC 26.1 reports the first only.
+- *Fix (2026-11-18):* an element directly in a Private is not judged against the strict parent the Private stands in;
+  the Private itself always is. NonStruct, which has no check of its own, is looked through as before.
+
+**D10 (low, false positive): a header cell with an empty ID.**
+- *Observation:* veraPDF's `7.5-t01-pass-d` (`TH /ID ()`, named by `/Headers [()]`) was reported under
+  `EQX-PAC-THHasAssociatedCells_...` as "TH without Scope and not named by Headers". PAC 26.1 passes the file.
+- *Fix (2026-11-18):* an empty ID counts when a Headers entry names it. `7.5-t01-pass-c` and `-e`, whose first header
+  cell is named by no cell, are still reported, as PAC does.
 
 **D6 (cosmetic): whitespace-`Contents` warning for a missing `/Contents`.**
 - *Observation:* `EQX-PAC-WarnContentsEntryOnAnnotationIsWhiteSpace` ("Contents entry ... exists, but is only
   whitespace") is raised for a tagged Link with no `/Contents` at all (`link-no-contents`).
 - *Analysis:* this is intentional emulation of the observed PAC behaviour (source comment "U1-A01"). The title is
   misleading for this case.
+
+**Open observations on real-world documents (2026-11-18, not fixed).** After the fixes above, the old and the new
+binary were compared on 1,000 real-world documents that the benchmark had not evaluated, drawn at random, with ground
+truth from the benchmark's structural oracle and no adjudication. Both binaries score the same there: 5,975 of 5,979
+violated requirements detected, 6 of 46,109 satisfied requirements reported. None of the six comes from a rule changed
+above. They are listed here as they were found; each needs the review that the benchmark's own disagreements got.
+
+| observation | rule | what the document has | reading |
+|---|---|---|---|
+| Popup annotations | UA1 7.18.1-1, 7.18.1-2 | visible `/Popup` annotations without a structure parent; their markup annotations are hidden | The Matterhorn Protocol 1.1 exempts annotations "whose Subtype is Popup" from clause 7.18 (checkpoint 28). veraPDF's tests name no such exemption, and dox-validate reproduces them. Probably a false positive. |
+| empty text in an unembedded font | UA1 7.21.4.1-1 (2 documents) | appearance streams of empty text fields: `/Helv 9.7 Tf ... () Tj` with Helvetica or Times-Roman not embedded | No glyph is rendered, so the font is arguably not "used for rendering". Probably a false positive. |
+| remapped standard type | UA1 7.2-4 | RoleMap `/TBody` -> `/P`; the rows are in a TBody | The remapping is the violation (7.1-7, reported). 7.2-4 follows from applying it, as veraPDF does; a consequence of the same defect. |
+| language alternative without `xml:lang` | UA1 7.1-9 | `<dc:title><rdf:Alt><rdf:li>...</rdf:li></rdf:Alt></dc:title>` | The title is there, the language alternative is malformed (ISO 16684-1). A matter of reading. |
+
+The four requirements missed there are differences of reading that the benchmark documents: a `/TU` or `/Contents`
+of white space only counts as present, as in veraPDF's tests (3), and content whose MCID leads to a structure element
+that the tree does not reach from the root counts as tagged (1).
 
 The robustness checks found no crash, hang or excessive memory use. They covered:
 
@@ -246,8 +343,8 @@ two cases below.
   7.18.1-t03 pass files.
 - **VellumPdf 7.1-5 next to 7.1-6 for a circular role map.** This is one defect reported twice. veraPDF reports 7.1-6,
   as dox-validate does.
-- **VellumPdf missing language on an untagged scan.** dox-validate reports it through PAC's definition of 7.2-29 and
-  through UA-2 8.4.4-1.
+- **VellumPdf missing language on an untagged scan.** dox-validate reports it through PAC's document-language rule
+  (`EQX-PAC-FailValidLanguageSyntax`) and through UA-2 8.4.4-1.
 - **outloud DOC-012.** outloud checks PDF/UA-1 only, so it fails `pdfuaid:part` 2.
 - **outloud LNK-004 (Print flag) and DOC-015 (Info /Title vs XMP).** These are PDF/A requirements, not PDF/UA ones.
 - **outloud DOC-021.** It flags XFA, but both files carry static XFA, which ISO 14289-1 7.15 allows.

@@ -19,7 +19,7 @@ the binary works with.
 
 ## Sources of the rules
 
-The catalogue (`catalog/rules.json`, 2008 rules) is the single source of truth for rule ids, titles,
+The catalogue (`catalog/rules.json`, 2009 rules) is the single source of truth for rule ids, titles,
 severities and standards mappings. It is compiled into the binary at build time. The rules reproduce the
 automated checks of two widely used reference validators. Neither tool is run by `dox-validate` or needed to run it.
 
@@ -39,8 +39,26 @@ How the rules relate to the reference checks:
   into one rule id. The merged rule reports a violation if either definition is violated (union semantics). A
   location found only through the PAC definition has a `detail` starting with `PAC:`. A rule's severity is the
   highest severity of the reference checks it stands for.
+- **A PAC check that asks for more than the standard keeps a rule of its own.** A merged rule fails `pdfua-1`, so
+  only a PAC condition that tests the same requirement is merged. The document language is the case in point. ISO
+  14289-1 7.2 refers to ISO 32000-1 14.9.2, whose 14.9.2.2 asks for "a Language-Tag as defined in RFC 3066": the
+  grammar that `EQX-UA1-7.2-29` tests on every Lang entry. It asks for no catalog Lang as long as the language of
+  every text can be determined, and for no registered subtag. PAC's ValidLanguage check also wants a document
+  language, a well-formed BCP 47 tag and a primary subtag of the IANA Language Subtag Registry, which is younger
+  than RFC 3066. Those findings are `EQX-PAC-FailValidLanguageSyntax` (no document language, or a tag that is not
+  well-formed BCP 47), `EQX-PAC-FailValidLanguagePrimaryTagOther` (`Deutsch`, `zz`) and
+  `EQX-PAC-FailValidLanguagePrimaryTagX` (`x-...`). They are error findings. They fail the WCAG targets (SC 3.1.1:
+  the language cannot be programmatically determined) and are listed in the `warning_rules` of `pdfua-1` without
+  failing it. A value outside the RFC 3066 grammar (`en_US`) fails 7.2-29 through both definitions, as before.
 - **veraPDF semantics.** veraPDF evaluates PDF/UA-1 rules with PDF 1.7 structure semantics, and PDF/UA-2 and WTPDF
   rules with ISO 32000-2 semantics. `dox-validate` does the same.
+- **One deliberate difference from veraPDF: `EQX-UA1-7.1-2`.** The Matterhorn Protocol has one failure condition
+  for each way of nesting artifacts and real content: 01-003, an Artifact inside tagged content (`EQX-UA1-7.1-1`),
+  and 01-004, tagged content inside an Artifact (`EQX-UA1-7.1-2`). veraPDF 1.30 reports its 7.1-2 for every Artifact
+  that 7.1-1 reports as well, and for the marked-content sequences inside it. `dox-validate` reports 7.1-2 only for
+  content that becomes tagged content inside an Artifact: a sequence with an MCID of a structure element that is
+  an Artifact or lies inside one, what such a sequence encloses, and a form that is a content item itself and is
+  painted inside an Artifact. An Artifact nested in tagged content is 7.1-1 alone; the document fails either way.
 - **Every use is checked.** By default, `dox-validate` checks every painting of a content stream that is used more
   than once, such as a Form XObject drawn on several pages or in different tagging contexts. veraPDF checks such a
   stream only at its first use. `--reference-dedup` switches to veraPDF's behaviour, which is useful for
@@ -70,12 +88,12 @@ Uncertain cases are only ever warnings, so they cannot make a target fail.
 | `EQX-UA2-*` | 91 | 91 | 0 | 91 | 0 | 0 |
 | `EQX-TS32005-*` | 1636 | 1636 | 0 | 1636 | 0 | 0 |
 | `EQX-WTPDF-*` | 2 | 2 | 0 | 2 | 0 | 0 |
-| `EQX-PAC-*` | 146 | 77 | 69 | 77 | 69 | 0 |
+| `EQX-PAC-*` | 147 | 78 | 69 | 78 | 69 | 0 |
 | `EQX-PACQ-*` | 23 | 6 | 17 | 0 | 0 | 23 |
 | `EQX-WCAG-*` | 4 | 1 | 3 | 1 | 3 | 0 |
-| **total** | 2008 | 1919 | 89 | 1913 | 72 | 23 |
+| **total** | 2009 | 1920 | 89 | 1914 | 72 | 23 |
 
-All 2008 rules are classed as automatically checkable, so all of them are *required*. If a required rule cannot
+All 2009 rules are classed as automatically checkable, so all of them are *required*. If a required rule cannot
 be evaluated on a document, that document cannot pass.
 
 Rules per assessment target. A rule belongs to a target through a normative mapping in the catalogue. Rules
@@ -84,22 +102,25 @@ fail it.
 
 | Target | rules with a normative mapping | of these error severity (can fail the target) | required rules | non-normative (listed as warning_rules only) |
 |---|---:|---:|---:|---:|
-| `pdfua-1` | 182 | 182 | 182 | 69 |
+| `pdfua-1` | 180 | 180 | 180 | 72 |
 | `pdfua-2` | 1727 | 1727 | 1727 | 0 |
 | `wtpdf-1.0-accessibility` | 1723 | 1723 | 1723 | 0 |
 | `wtpdf-1.0-reuse` | 1710 | 1710 | 1710 | 0 |
-| `wcag-2.0-A` | 105 | 105 | 105 | 69 |
-| `wcag-2.0-AA` | 114 | 114 | 114 | 70 |
-| `wcag-2.0-AAA` | 114 | 114 | 114 | 70 |
-| `wcag-2.1-A` | 105 | 105 | 105 | 69 |
-| `wcag-2.1-AA` | 114 | 114 | 114 | 71 |
-| `wcag-2.1-AAA` | 114 | 114 | 114 | 71 |
-| `wcag-2.2-A` | 34 | 34 | 34 | 4 |
-| `wcag-2.2-AA` | 43 | 43 | 43 | 6 |
-| `wcag-2.2-AAA` | 43 | 43 | 43 | 6 |
+| `wcag-2.0-A` | 106 | 106 | 106 | 69 |
+| `wcag-2.0-AA` | 115 | 115 | 115 | 70 |
+| `wcag-2.0-AAA` | 115 | 115 | 115 | 70 |
+| `wcag-2.1-A` | 106 | 106 | 106 | 69 |
+| `wcag-2.1-AA` | 115 | 115 | 115 | 71 |
+| `wcag-2.1-AAA` | 115 | 115 | 115 | 71 |
+| `wcag-2.2-A` | 35 | 35 | 35 | 4 |
+| `wcag-2.2-AA` | 44 | 44 | 44 | 6 |
+| `wcag-2.2-AAA` | 44 | 44 | 44 | 6 |
+
+Three of the 72 rules listed for `pdfua-1` without failing it are error findings: the PAC document-language
+rules described above, which fail the WCAG targets.
 
 The large drop from WCAG 2.1 to 2.2 has one cause: SC 4.1.1 Parsing, which was removed in WCAG 2.2. 71 of the
-114 rules with a normative WCAG mapping are mapped to 4.1.1 alone.
+115 rules with a normative WCAG mapping are mapped to 4.1.1 alone.
 
 Six error-severity rules have no normative mapping to any target: `EQX-PACQ-FailLIContainsExactlyOneBody`,
 `EQX-PACQ-FailMissingLinkTags`, `EQX-PACQ-FailOutlineIsNotPresentDespiteHeadings`,
@@ -126,7 +147,7 @@ report.
 
 | Target | requirements | automatic | partial | manual | unsupported | manual_required |
 |---|---:|---:|---:|---:|---:|---:|
-| `pdfua-1` | 181 | 127 | 2 | 49 | 3 | 54 |
+| `pdfua-1` | 182 | 128 | 2 | 49 | 3 | 54 |
 | `pdfua-2` | 112 | 67 | 1 | 40 | 4 | 45 |
 | `wtpdf-1.0-accessibility` | 1724 | 1723 | 0 | 1 | 0 | 1 |
 | `wtpdf-1.0-reuse` | 1711 | 1710 | 0 | 1 | 0 | 1 |
@@ -162,7 +183,7 @@ criteria, but never that it meets them:
 | 1.4.11 | Non-text Contrast | AA | 2.1, 2.2 | 1 |
 | 2.4.2 | Page Titled | A | 2.0, 2.1, 2.2 | 3 |
 | 2.4.3 | Focus Order | A | 2.0, 2.1, 2.2 | 1 |
-| 3.1.1 | Language of Page | A | 2.0, 2.1, 2.2 | 4 |
+| 3.1.1 | Language of Page | A | 2.0, 2.1, 2.2 | 5 |
 | 3.1.2 | Language of Parts | AA | 2.0, 2.1, 2.2 | 7 |
 | 4.1.1 | Parsing (Obsolete and removed) | A | 2.0, 2.1 | 136 |
 | 4.1.2 | Name, Role, Value | A | 2.0, 2.1, 2.2 | 1 |
@@ -248,8 +269,8 @@ Automated checks examine what can be decided from the file. They do not judge me
   structure types fit the content, for example whether something tagged as a paragraph is really a heading or a
   list. Structure is checked for validity (containment, nesting, role mapping, table regularity), not for
   semantics;
-- whether the declared languages are the languages actually used. It checks that a language is declared and that
-  the tag is syntactically valid;
+- whether the declared languages are the languages actually used. It checks that a language is declared, that
+  every tag is syntactically valid and, through PAC's check, that the document language is a registered one;
 - colour contrast on complex backgrounds, in images, or in CMYK or spot colours. These are reported as review
   warnings at most. The use of colour (1.4.1) and non-text contrast (1.4.11) are review hints only;
 - multimedia, time-based content, keyboard operation and focus behaviour of interactive documents, error

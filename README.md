@@ -79,7 +79,7 @@ Method, environment, every measurement, the worst cases, and how to repeat the r
 
 ## Features
 
-- **2008 rules, one pass.** The rules reproduce the machine-checkable checks of veraPDF 1.30.2 (PDF/UA-1, PDF/UA-2
+- **2009 rules, one pass.** The rules reproduce the machine-checkable checks of veraPDF 1.30.2 (PDF/UA-1, PDF/UA-2
   with ISO/TS 32005, WTPDF 1.0) and of PAC 2026 (PDF/UA, WCAG and Quality checks). EqualDoX adds its own WCAG colour
   contrast checks. Neither veraPDF nor PAC is run or needed.
 - **Parse once, check everything.** The file is parsed once, the structure tree is built once, and every content
@@ -224,7 +224,7 @@ Reports go to stdout and diagnostics to stderr. `dox-validate --help` lists all 
   "summary": {
     "result": "errors_found", "exit_code": 1,
     "basis": "auto", "targets": ["pdfua-1", "wcag-2.1-AA"], "failed_targets": ["pdfua-1", "wcag-2.1-AA"], "incomplete_targets": [],
-    "error_rules": 8, "warning_rules": 0, "rules_evaluated": 2008, "rules_incomplete": 0
+    "error_rules": 8, "warning_rules": 0, "rules_evaluated": 2009, "rules_incomplete": 0
   },
   "findings": [
     {

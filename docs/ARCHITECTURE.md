@@ -74,7 +74,7 @@ Document::open        qpdf instance, catalog, trailer, raw header, page list wit
 
 | Module | Rules | Scope |
 |---|---:|---|
-| `document` | 45 | catalog, identification, metadata and XMP, syntax, viewer preferences, encryption, optional content, embedded files, document language, destinations |
+| `document` | 46 | catalog, identification, metadata and XMP, syntax, viewer preferences, encryption, optional content, embedded files, document language, destinations |
 | `content` | 14 | tagged vs. artifact content, page-content language, XObject usage, PAC text contrast, parsability |
 | `fonts` | 33 | font embedding, glyph presence and widths, encodings, CMaps, ToUnicode, Private Use Area glyphs |
 | `containment` | 1667 | parent/child rules of the structure types (PDF/UA-2, WTPDF, ISO/TS 32005), table-driven |

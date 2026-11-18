@@ -105,7 +105,7 @@ On the `any` basis:
 | `result` | `exit_code` | Condition |
 |---|---|---|
 | `not_processed` | 2 | the file could not be opened or read |
-| `incomplete` | 2 | at least one **required** rule could not be evaluated. A rule is required if the catalogue classes it as automatically checkable; all 2008 rules of the current catalogue are. With `--rules`, only required rules inside the selection count |
+| `incomplete` | 2 | at least one **required** rule could not be evaluated. A rule is required if the catalogue classes it as automatically checkable; all 2009 rules of the current catalogue are. With `--rules`, only required rules inside the selection count |
 | `errors_found` | 1 | every required rule evaluated, and at least one finding has severity `error` |
 | `no_errors_found` | 0 | every required rule evaluated, and no finding has severity `error` |
 
@@ -141,7 +141,9 @@ targets among the assessments.
 These terms mean different things and are kept apart throughout the report:
 
 - **Error finding**: a rule with `severity: "error"` detected a violation. If the rule has a normative mapping to a
-  target, that target's status is `fail`.
+  target, that target's status is `fail`. A target the rule is mapped to with another obligation lists the finding
+  in its `warning_rules` and does not fail because of it: the PAC document-language rules fail the WCAG targets and
+  are only listed for `pdfua-1` (see [STANDARDS.md](STANDARDS.md#sources-of-the-rules)).
 - **Warning finding**: `severity: "warning"`, either a possible problem that needs a human to look at it, or a
   recommendation. Warnings never fail a target. They are listed in the target's `warning_rules`.
 - **Incomplete rule**: the rule could not be decided on this document, for example because a content stream
@@ -223,7 +225,7 @@ One object for each of the 13 targets in `profiles`:
 |---|---|---|
 | `status` | string | `fail`, `incomplete` or `automated_pass_manual_required` |
 | `failed_rules` | array of strings | error-severity findings of rules with a normative mapping to this target |
-| `warning_rules` | array of strings | other findings of rules mapped (normatively or not) to this target: warnings and review hints |
+| `warning_rules` | array of strings | other findings of rules mapped (normatively or not) to this target: warnings, review hints, and error findings whose mapping to this target is not normative |
 | `unevaluated_rules` | array of strings | required rules of this target that were not evaluated or are incomplete |
 | `manual_required` | array of strings | requirements of this target that need human evaluation. Fixed per target, taken from `catalog/matrix.json` |
 
@@ -345,7 +347,7 @@ is unchanged.
     "warning_rules": 0,
     "error_occurrences": 8,
     "warning_occurrences": 0,
-    "rules_evaluated": 2008,
+    "rules_evaluated": 2009,
     "rules_incomplete": 0,
     "rules_not_applicable": 0
   },
@@ -445,7 +447,7 @@ $ dox-validate --json hello.pdf | jq '{input, summary}'
     "warning_rules": 1,
     "error_occurrences": 5,
     "warning_occurrences": 1,
-    "rules_evaluated": 2008,
+    "rules_evaluated": 2009,
     "rules_incomplete": 0,
     "rules_not_applicable": 0
   }
